@@ -6,11 +6,14 @@ Copy, com URLs versionadas em Cloudflare Images. O lote é
 PNG, manifesto de revisão, evidências internas ou outras fontes privadas.
 
 Fonte autoritativa: `apps/web/` no repositório privado AgentFlix, PR
-[AgentsFlix/agentsflix#235](https://github.com/AgentsFlix/agentsflix/pull/235).
-A exportação pública será seletiva: `site/index.html`, `site/vitrine.js` e
-`site/compartilhar/`. A aplicação só deve ocorrer após o merge privado e a
-verificação dos arquivos no CDN.
+[AgentsFlix/agentsflix#235](https://github.com/AgentsFlix/agentsflix/pull/235),
+integrado na `main` em `cc57f44f25d84f291b5a350fd780a46dc19621ec`.
+A exportação pública seletiva trouxe `site/index.html`, `site/vitrine.js` e
+`site/compartilhar/`, após confirmar que os seis arquivos eram idênticos à
+fonte privada integrada. O CDN respondeu para 148/148 URLs; QA no Chrome
+carregou os 37 cards e o hero em 1440, 768 e 390 px, sem overflow ou erros JS.
 
-Validação pendente nesta tarefa: diff contra a fonte privada integrada,
-testes do site público, QA em 1440/768/390, PR público, deploy Vercel e
-verificação de produção. Este registro não declara publicação concluída.
+Validação local pública: `python3 scripts/check_site.py` passou, e
+`python3 -m unittest discover -s tests` passou com 166 testes (1 skip).
+Pendente: checks e merge do PR público, deploy Vercel e verificação do domínio.
+Este registro não declara publicação concluída.

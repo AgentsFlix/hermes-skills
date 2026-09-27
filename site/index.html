@@ -536,6 +536,7 @@
   const CATALOG_URLS = ["catalog.json", "https://agentsflix.github.io/skills/catalog.json"];
   const COVERS = "https://imagedelivery.net/4Co9W7pMsYa-duNBi7UzxA/covers/"; // Cloudflare Images desde 06/09/2026; /covers/* na Vercel reescreve para o mesmo lugar
   const LENDAS_COVER_BATCH = "a55506c530bc18a6"; // 56 WebP aprovados; ID imutável, sem apagar as capas anteriores
+  const PRIMARY_COVER_BATCH = "5a6712f044e3c159"; // 148 WebP do lote restante; ativar somente após aceite e upload
   const LENDAS_ART_TEXT = {
     "copy-metodo-halbert": "O escritor que vendia por cartas.",
     "copy-metodo-ogilvy": "O publicitário que pesquisava antes de criar.",
@@ -552,10 +553,51 @@
     "copy-metodo-khayat": "100MM com copys aos 17 anos.",
     "copy-metodo-brown": "O arquiteto das grandes ideias de marketing."
   };
+  const PRIMARY_ART_TEXT = {
+    "copy-voz": "Inconfundível.",
+    "copy-pesquisa-avatar": "Dentro da cabeça.",
+    "copy-headlines": "A primeira linha.",
+    "copy-big-idea-lead-magnet": "Uma só ideia.",
+    "copy-oferta": "Impossível dizer não.",
+    "copy-sales-page": "Até o botão.",
+    "copy-email": "Toda manhã.",
+    "copy-anuncios": "Parou pra ver.",
+    "copy-vsl-webinar": "Aperte o play.",
+    "copy-vendas-por-chamada": "A ligação.",
+    "copy-auditoria": "Sob a lupa.",
+    "copy-pipeline": "Da ideia à peça.",
+    "copy-lancamento": "Carrinho aberto.",
+    "ops-rotear-tarefa": "A pessoa certa.",
+    "ops-briefing": "Do jeito que você lê.",
+    "ops-revisao-semanal": "Sexta-feira.",
+    "ops-avaliar-fit": "Cabe ou não cabe.",
+    "ads-gate-compliance": "Antes de subir.",
+    "ads-plano": "Antes do primeiro real.",
+    "ads-otimizar": "Todo dia às oito.",
+    "ads-pesquisa": "Cinco fases.",
+    "ads-criativos": "O que venceu.",
+    "ads-tracking": "O pixel.",
+    "hybrid-diagnostico": "O raio-X.",
+    "hybrid-proxima-acao": "A próxima ação.",
+    "hybrid-perfil": "Quem somos.",
+    "hybrid-fundador": "DNA do fundador.",
+    "hybrid-icp": "O cliente ideal. Quem compra e por quê.",
+    "hybrid-marca": "A marca. Antes do logo, existe uma promessa.",
+    "hybrid-oferta": "Oferta e preço. O valor que faz sentido.",
+    "hybrid-cultura": "Os mandamentos. O que o time faz quando ninguém olha.",
+    "hybrid-time": "Quem faz o quê. Cada cadeira precisa de um dono.",
+    "hybrid-tech": "A stack. O que roda — e onde a IA entra.",
+    "hybrid-etl": "Tudo que já existe. A empresa já deixou pistas.",
+    "sop-extrair": "O processo. Da cabeça para o padrão.",
+    "sop-criar": "Por escrito. Um processo. Duas linguagens.",
+    "sop-auditar": "Passa ou não passa. Dez dimensões. Um veredito."
+  };
+  const artText = slug => LENDAS_ART_TEXT[slug] || PRIMARY_ART_TEXT[slug] || "";
   const coverUrl = (slug, kind) =>
     state.view === "reading" && BY[slug]?.readingCover ? BY[slug].readingCover
       : BY[slug]?.cat === "lendas" ? `${COVERS}lendas/${LENDAS_COVER_BATCH}/${encodeURIComponent(slug)}-${kind}.webp/capa`
-        : BY[slug]?.readingCover || `${COVERS}${encodeURIComponent(slug)}-${kind}.jpg/capa`;
+        : PRIMARY_ART_TEXT[slug] ? `${COVERS}primarias/${PRIMARY_COVER_BATCH}/${encodeURIComponent(slug)}-${kind}.webp/capa`
+          : BY[slug]?.readingCover || `${COVERS}${encodeURIComponent(slug)}-${kind}.jpg/capa`;
   const FEATURED_DEFAULT = "copy-oferta";
 
   // Um alvo de instalação = uma linha: campo do catálogo, como mostrar, dica e aviso. Um 9º alvo é uma linha nova.
@@ -771,6 +813,7 @@
     if (!DISCOVERY_DATA || !window.AgentFlixDiscovery || !window.AgentFlixJourney) throw Error("orientação indisponível");
     DISCOVERY = window.AgentFlixDiscovery.create(DISCOVERY_DATA, BY, {
       authenticated,
+      coverUrl,
       filter() { hidePreview(); state.filter = "Tudo"; state.q = ""; $("q").value = ""; renderChips(); renderCatalog(); },
       enter() {
         if (resumeReadingSkill()) return;
@@ -804,7 +847,7 @@
   // Capa: quem hospeda ([data-cover-host]) ganha has-cover ao carregar; ao falhar, a imagem sai e o host volta ao gradiente.
   const HOST_OFF = "var h=this.closest('[data-cover-host]');if(h){h.classList.remove('has-cover');h.classList.add('no-cover');}";
   const coverImg = (s, cls, kind, { eager = false, hostOff = false, srcset = "" } = {}) =>
-    `<img class="${cls}" alt="${s.cat === 'lendas' ? esc(`Capa de ${s.name}. ${LENDAS_ART_TEXT[s.slug] || ''}`) : ''}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} src="${coverUrl(s.slug, kind)}"${srcset} onload="this.closest('[data-cover-host]').classList.add('has-cover')" onerror="${hostOff ? HOST_OFF : ""}(this.closest('picture')||this).remove()">`;
+    `<img class="${cls}" alt="${artText(s.slug) ? esc(`Capa de ${s.name}. ${artText(s.slug)}`) : ''}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} src="${coverUrl(s.slug, kind)}"${srcset} onload="this.closest('[data-cover-host]').classList.add('has-cover')" onerror="${hostOff ? HOST_OFF : ""}(this.closest('picture')||this).remove()">`;
   // Cards usam a arte horizontal em todas as telas, com corte 16:9.
   const cardCover = (s) => coverImg(s, "cover", "wide");
   const heroCover = (s) =>
@@ -827,7 +870,7 @@
   const readingMark = () => `<span class="reading-available"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v15M12 5C9 3 5 3 2 4v15c3-1 7-1 10 1 3-2 7-2 10-1V4c-3-1-7-1-10 1Z"/></svg><span>Leitura disponível</span></span>`;
   const readingCardInfo = s => `<div class="journey-info reading-card-info">${readingMark()}<h3>${esc(s.name)}</h3><p>${esc(s.sub)}</p></div>`;
   const cardHtml = (s) => `
-    <div class="card ${DISCOVERY ? 'journey-card' : ''}" data-act="open" data-slug="${esc(s.slug)}" role="button" tabindex="0" aria-label="${state.view === 'reading' ? 'Ler ' : ''}${esc(s.name)}${s.cat === 'lendas' && LENDAS_ART_TEXT[s.slug] ? ` — ${esc(LENDAS_ART_TEXT[s.slug])}` : ''}">${artHtml(s, cardCover(s))}${state.view === 'reading' ? readingCardInfo(s) : DISCOVERY ? DISCOVERY.card(s) : ''}
+    <div class="card ${DISCOVERY ? 'journey-card' : ''}" data-act="open" data-slug="${esc(s.slug)}" role="button" tabindex="0" aria-label="${state.view === 'reading' ? 'Ler ' : ''}${esc(s.name)}${artText(s.slug) ? ` — ${esc(artText(s.slug))}` : ''}">${artHtml(s, cardCover(s))}${state.view === 'reading' ? readingCardInfo(s) : DISCOVERY ? DISCOVERY.card(s) : ''}
     </div>`;
 
   // ---------- banner rotativo: sorteia uma obra por carga e troca a cada HERO_MS, sem repetir até fechar a volta ----------

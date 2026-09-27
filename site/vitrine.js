@@ -19,7 +19,7 @@
       if (wideCovers.length) {
         const syncCover = target => {
           const src = target?.querySelector('img.hero-cover, img.pcover')?.getAttribute('src') || '';
-          if (wideCovers.some(slug => src.includes(`/covers/${slug}-desktop.jpg/`))) target.classList.add('editorial-cover');
+          if (wideCovers.some(slug => src === hooks.coverUrl(slug, 'desktop'))) target.classList.add('editorial-cover');
         };
         const hero = $('hero'), modal = $('modal');
         if (hero) new MutationObserver(() => syncCover(hero)).observe(hero, {childList:true,subtree:true});
@@ -37,8 +37,8 @@
       let lens = null, current = null, run = 0, timeout = null, release = null, target = null;
       const meta = s => data.skills[s.slug];
       const name = slug => by[slug]?.name || slug;
-      const cover = slug => `https://imagedelivery.net/4Co9W7pMsYa-duNBi7UzxA/covers/${encodeURIComponent(slug)}-wide.jpg/capa`;
-      const featureCover = (slug,kind) => `https://imagedelivery.net/4Co9W7pMsYa-duNBi7UzxA/covers/${encodeURIComponent(slug)}-${kind}.jpg/capa`;
+      const cover = slug => hooks.coverUrl(slug, 'wide');
+      const featureCover = (slug,kind) => hooks.coverUrl(slug,kind);
       const titleFocus = container => { const h = container.querySelector('h1,h2,h3'); if(h){h.tabIndex=-1;h.focus({preventScroll:true});} };
       const matches = s => !door || (meta(s) && (door === 'colecao' ? !!meta(s).colecao : !meta(s).colecao));
       const counts = {avulsa:available.filter(s=>!data.skills[s].colecao).length,colecao:available.filter(s=>data.skills[s].colecao).length};
