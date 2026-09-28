@@ -17,7 +17,7 @@ class PreviewVisuals(unittest.TestCase):
         source = (WEB / 'design-system/preview-visuals.mjs').as_uri()
         script = """
 import assert from 'node:assert/strict';
-const {mountPreviewVisuals, isPreviewVisual} = await import(SOURCE);
+const {mountPreviewVisuals, isPreviewVisual, isDormantRouteVisual} = await import(SOURCE);
 let changed, cleanup;
 globalThis.MutationObserver = class { constructor(fn) { changed = fn; } };
 const parent = new AbortController();
@@ -53,6 +53,11 @@ parent.abort(); cleanup(); images[0].resolve(); await tick();
 assert.equal(preview.style.visibility,''); assert.equal(preview.inert,false);
 assert.equal(isPreviewVisual({closest(){return preview;}}),true);
 assert.equal(isPreviewVisual({closest(){return null;}}),false);
+const hiddenSection={}, parkedRoute={};
+const root={contains(el){return el===hiddenSection;}};
+assert.equal(isDormantRouteVisual({closest(){return hiddenSection;}},root),true);
+assert.equal(isDormantRouteVisual({closest(){return parkedRoute;}},root),false);
+assert.equal(isDormantRouteVisual({closest(){return null;}},root),false);
 console.log('PASS local decode, replacement, failure and route disposal');
 """.replace('SOURCE', json.dumps(source))
         result = subprocess.run([node, '--input-type=module', '-e', script], capture_output=True, text=True, timeout=10)
@@ -64,6 +69,8 @@ console.log('PASS local decode, replacement, failure and route disposal');
         self.assertIn("filter(image => !isPreviewVisual(image))", source)
         self.assertIn("event.target.tagName !== 'IMG' || isPreviewVisual(event.target)", source)
         self.assertIn("!isPreviewVisual(record.target)", source)
+        self.assertIn("!isDormantRouteVisual(image, root)", source)
+        self.assertIn("'poster','style','hidden'", source)
         self.assertIn("void shell.refresh()", source)
 
 
