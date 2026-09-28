@@ -1169,6 +1169,7 @@
     hidePreview();
     if (!state.open) lastFocus = opener;
     if (state.open !== slug) {
+      if (!isReading(slug)) window.AgentFlixMetrics?.record('skill_open', slug);
       track("card_open", slug); window.clar?.("abriu_card", { skill: slug, alvo: state.target });
       window.clar?.(isReading(slug) ? 'leitura_aberta' : DISCOVERY.locked(slug) ? 'pre_requisito_bloqueado' : 'ficha_liberada', {skill:slug});
     }
@@ -1225,6 +1226,10 @@
       toast('Não foi possível copiar. Selecione o texto e copie manualmente.',6000);return;
     }
     window.clar?.(command?'copiou_comando':'copiou_texto',tags);
+    if (command) {
+      const slug = el.closest('#hero') ? heroFor()?.slug : state.open;
+      if (slug) window.AgentFlixMetrics?.record('skill_copy', slug);
+    }
     const done = () => {
       document.querySelectorAll(`[data-act="copy"][data-key="${CSS.escape(key)}"]`).forEach((c) => {
         const lbl = c.querySelector(".cta-lbl") || c;
