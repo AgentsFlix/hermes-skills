@@ -16,6 +16,7 @@
   window.clar = function (event, tags) {
     if (!enabled) return;
     try {
+      if (event === 'abriu_card') window.AgentFlixAds?.contentViewed(tags?.skill);
       Object.entries(tags || {}).forEach(([key,value]) => { if (keys.has(key) && value != null) window.clarity('set',key,String(value)); });
       if (event) window.clarity('event',event);
     } catch {}
@@ -133,3 +134,9 @@
   }
   root.AgentFlixMetrics = {record,createPlaybackTracker};
 })(globalThis);
+
+/* OpenAI Ads: medição explícita por imagem; não carrega SDK de leitura de formulários. */
+(() => {
+  if (!['agentsflix.ai','www.agentsflix.ai'].includes(location.hostname)) return;
+  import('/design-system/measurement-consent.mjs').then(({startMeasurement}) => startMeasurement()).catch(() => {});
+})();

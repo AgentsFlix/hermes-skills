@@ -2,6 +2,7 @@
 // Cria a sessão de Checkout do Stripe para um item (compra avulsa) ou para o Passe (assinatura).
 // O preço vem do banco (tabela prices, espelho do Stripe), nunca do navegador.
 import { stripe, admin, json, currentUser, customerFor, readJson, SITE } from "./_lib.js";
+import { randomUUID } from "node:crypto";
 
 export async function POST(request) {
   const user = await currentUser(request);
@@ -37,6 +38,8 @@ export async function POST(request) {
     metadata: { user_id: user.id, product_id: product.id, price_id: price.id },
     line_items: [{ price: price.id, quantity: 1 }],
   };
+  const measurementEnabled = process.env.OPENAI_ADS_ENABLED === "1" && /^[A-Za-z0-9_-]{8,128}$/.test(process.env.OPENAI_ADS_PIXEL_ID || "");
+  if (measurementEnabled) common.metadata.measurement_event_id = randomUUID();
   const session = product.kind === "pass"
     ? await stripe.checkout.sessions.create({ ...common, mode: "subscription", subscription_data: { metadata: { user_id: user.id, product_id: product.id } } })
     : await stripe.checkout.sessions.create({
@@ -48,5 +51,8 @@ export async function POST(request) {
       });
 
   await admin.from("events").insert({ user_id: user.id, kind: "checkout_start", product_id: product.id, meta: { session: session.id, mode: session.mode } });
-  return json({ url: session.url });
+  return json({ url: session.url, ...(measurementEnabled ? { measurement: {
+    sessionId: session.id, eventId: common.metadata.measurement_event_id,
+    productId: product.id, amount: price.unit_amount, currency: price.currency.toUpperCase(),
+  } } : {}) });
 }

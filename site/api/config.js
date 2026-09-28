@@ -7,6 +7,10 @@ export async function GET() {
     stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY || null,
     stripeMode: (process.env.STRIPE_PUBLISHABLE_KEY || "").startsWith("pk_live_") ? "live" : "test",
     storeEnabled: process.env.STORE_ENABLED === "1",   // interruptor da loja: cadeados e botões de compra só aparecem com 1
+    openaiAds: {
+      enabled: process.env.OPENAI_ADS_ENABLED === "1" && /^[A-Za-z0-9_-]{8,128}$/.test(process.env.OPENAI_ADS_PIXEL_ID || ""),
+      pixelId: /^[A-Za-z0-9_-]{8,128}$/.test(process.env.OPENAI_ADS_PIXEL_ID || "") ? process.env.OPENAI_ADS_PIXEL_ID : null,
+    },
   };
   return new Response(JSON.stringify(body), { headers: { "content-type": "application/json; charset=utf-8", "cache-control": "public, max-age=300" } });
 }
