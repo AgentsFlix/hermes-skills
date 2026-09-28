@@ -6,6 +6,10 @@ A fonte autoritativa permanece no monorepo privado AgentFlix, em
 `ferramentas/setup-projeto/`. Esta branch contém a exportação gerada para
 `skills/setup-projeto/`, o ZIP, a versão colável, a descoberta well-known e os
 metadados do catálogo. A referência pública prevista é `setup-projeto-v1.0.0`.
+A fonte foi integrada no commit privado `7100c471dd290d86e31c29b628bca21454f6f2d9`;
+a exportação foi regenerada a partir desse snapshot, sem diferenças no pacote público.
+Os checks privados `validate`, `orchestrator` e `monorepo` e os seis jobs da matriz
+Ubuntu/macOS/Windows passaram no GitHub Actions.
 
 O fluxo distribuído tem duas etapas: `setup-projeto` prepara ou concilia o
 repositório, e a skill `task` decide branch e worktree para cada mudança. O pacote
