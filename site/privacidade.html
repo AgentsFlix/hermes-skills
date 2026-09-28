@@ -24,6 +24,7 @@ p, li { color: #e5e5e5; font-size: 15px; }
 ul { padding-left: 20px; }
 .box { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; margin: 18px 0; }
 button { height: 40px; padding: 0 18px; border-radius: 4px; border: 0; font: inherit; font-weight: 700; cursor: pointer; background: var(--accent); color: #14161A; }
+#ads-revogar, #ads-trocar { height: 44px; }
 .mono { font-family: "JetBrains Mono", ui-monospace, Menlo, monospace; font-size: 13px; }
 </style>
 </head>
@@ -31,7 +32,7 @@ button { height: 40px; padding: 0 18px; border-radius: 4px; border: 0; font: inh
 <div class="top"><b>AGENTFLIX</b><a href="/">vitrine</a><a href="/assistir/">assistir</a></div>
 <main>
   <h1>Privacidade, em português claro</h1>
-  <p class="sub">O que a gente coleta, por quê, e como você muda de ideia. Atualizado em 24/09/2026.</p>
+  <p class="sub">O que a gente coleta, por quê, e como você muda de ideia. Atualizado em 28/09/2026.</p>
 
   <h2>1. Como o site é usado (Microsoft Clarity)</h2>
   <p>A gente usa o Microsoft Clarity para ver como as pessoas usam o site: onde clicam, até onde rolam, onde travam. Isso vira mapas de calor e gravações de sessão. O que você digita é mascarado; a gente não vê texto de campo nenhum.</p>
@@ -54,7 +55,14 @@ button { height: 40px; padding: 0 18px; border-radius: 4px; border: 0; font: inh
   <h2>5. Links de indicação</h2>
   <p>Alguns vídeos indicam a Hostinger por um link de indicação: você paga o mesmo, e o AgentFlix recebe comissão. Está escrito ao lado de cada botão.</p>
 
-  <h2>6. Falar com a gente</h2>
+  <h2 id="anuncios">6. Medição de anúncios no ChatGPT</h2>
+  <p>Com sua autorização específica, enviamos à OpenAI eventos de visita à vitrine, abertura de itens, início de checkout e compras ou assinaturas confirmadas. Os eventos podem conter o identificador público do item, valor e moeda da compra e um identificador aleatório para evitar duplicidade. Eles ajudam a medir resultados de anúncios no ChatGPT.</p>
+  <p>A integração usa o pixel por imagem, sem carregar a biblioteca de correspondência automática. Não lê formulários nem envia nome, e-mail, telefone, identificação da conta, respostas de exercícios ou documentos. A OpenAI recebe a requisição do navegador, incluindo informações técnicas de rede; isso não torna a medição anônima.</p>
+  <p>Quando um anúncio fornece uma referência de clique, guardamos essa referência no cookie <span class="mono">agentflix_ads_click</span> por até 30 dias, somente após sua autorização. A aba pode guardar temporariamente a referência de um checkout por até 48 horas para verificar o pagamento; ela não é enviada nas URLs da OpenAI. Ao recusar ou retirar a autorização, paramos novos envios e removemos essas referências locais. Isso não apaga eventos já recebidos pela OpenAI.</p>
+  <p>Sua escolha para o Clarity não autoriza essa medição. Os termos da OpenAI estão em <a href="https://openai.com/policies/conversion-terms/" rel="noopener">Termos de Conversão</a>.</p>
+  <div class="box"><p style="margin:0 0 10px">Medição de anúncios: <b id="ads-estado">…</b></p><button id="ads-revogar">Retirar autorização</button> <button id="ads-trocar">Mudar minha escolha</button></div>
+
+  <h2>7. Falar com a gente</h2>
   <p>Dúvida, pedido de acesso ou de remoção: <a href="mailto:jcarlosamorim.ceo@agentsflix.ai">jcarlosamorim.ceo@agentsflix.ai</a>.</p>
   <p>A memória sincronizada não tem expiração automática. Para solicitar cópia completa, correção ou exclusão da conta e dos dados, use esse contato. Confirmamos a identidade antes de atender ao pedido e informamos eventuais registros que precisem ser mantidos e o motivo. A exclusão da conta não apaga arquivos que você já baixou.</p>
 </main>
@@ -66,6 +74,25 @@ button { height: 40px; padding: 0 18px; border-radius: 4px; border: 0; font: inh
   document.getElementById("trocar").addEventListener("click", () => { try { localStorage.removeItem(K); } catch (e) {} paint(); el.textContent += " (pronto: na próxima página a barra pergunta de novo)"; });
   paint();
 })();
+</script>
+<script type="module">
+import {startMeasurement,CONSENT_KEY} from '/design-system/measurement-consent.mjs';
+const state = document.getElementById('ads-estado');
+const paint = () => { let choice; try { choice = localStorage.getItem(CONSENT_KEY); } catch {} state.textContent = choice === 'granted' ? 'permitida' : choice === 'denied' ? 'recusada' : 'ainda não autorizada'; };
+paint();
+document.getElementById('ads-trocar').addEventListener('click', () => {
+  try { localStorage.removeItem(CONSENT_KEY); } catch {}
+  document.cookie = 'agentflix_ads_click=; Max-Age=0; Path=/; Secure; SameSite=Lax';
+  try { sessionStorage.removeItem('agentflix-openai-order-v1'); } catch {}
+  paint(); state.textContent += ' (a vitrine perguntará novamente)';
+});
+document.getElementById('ads-revogar').addEventListener('click', async () => {
+  try { localStorage.setItem(CONSENT_KEY,'denied'); } catch {}
+  document.cookie = 'agentflix_ads_click=; Max-Age=0; Path=/; Secure; SameSite=Lax';
+  try { sessionStorage.removeItem('agentflix-openai-order-v1'); } catch {}
+  paint();
+});
+void startMeasurement();
 </script>
 </body>
 </html>
