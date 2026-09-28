@@ -3,6 +3,7 @@
  * Only finite public documents/styles are cached in memory. Auth, tokens and results are not.
  */
 import { mountNavigation, bounded } from './navigation.mjs';
+import { isPreviewVisual, mountPreviewVisuals } from './preview-visuals.mjs';
 window.AgentFlixProductShell = true;
 const $ = id => document.getElementById(id);
 const header = $('shell-header'), home = $('page');
@@ -109,6 +110,7 @@ let shell, activeSearch, rememberedHuman = initial.audience === 'humano' ? initi
 function bodyImages(root) {
   const extra = [];
   for (const el of root.querySelectorAll('*')) {
+    if (isPreviewVisual(el)) continue;
     const sources = [...getComputedStyle(el).backgroundImage.matchAll(/url\(["']?([^"')]+)["']?\)/g)].map(match => match[1]);
     if (el.tagName === 'VIDEO' && el.poster) sources.push(el.poster);
     for (const src of sources) { const image = new Image(); image.src = src; extra.push(image); }
@@ -116,19 +118,21 @@ function bodyImages(root) {
   return extra;
 }
 function observeVisuals(root, life, stage) {
+  mountPreviewVisuals(root.querySelector('#preview'), life);
   let scheduled = false;
   let knownImages = new Map();
+  const routeImages = () => [...root.querySelectorAll('img')].filter(image => !isPreviewVisual(image));
   // Capture failures before legacy fallback handlers remove a required image.
   const failed = new Set();
   life.listen(root, 'error', event => {
-    if (event.target.tagName !== 'IMG') return;
+    if (event.target.tagName !== 'IMG' || isPreviewVisual(event.target)) return;
     failed.add(event.target);
     if (viewport.dataset.state === 'ready') void shell.refresh();
   }, true);
   const imageKey = image => image.getAttribute('src') + '|' + image.getAttribute('srcset') + '|' + image.currentSrc;
   stage.beforeReady = () => {
     if ([...failed].some(image => image.getAttribute('src'))) throw Error('Required image failed');
-    knownImages = new Map([...root.querySelectorAll('img')].map(image => [image, imageKey(image)]));
+    knownImages = new Map(routeImages().map(image => [image, imageKey(image)]));
   };
   let pausedForGate = [];
   stage.beforeRefresh = () => {
@@ -141,8 +145,8 @@ function observeVisuals(root, life, stage) {
     pausedForGate = [];
   };
   const changed = (records = []) => {
-    const newImages = [...root.querySelectorAll('img')].some(image => (image.getAttribute('src') || image.getAttribute('srcset')) && knownImages.get(image) !== imageKey(image));
-    const backgroundChanged = records.some(record => record.attributeName === 'poster' || record.attributeName === 'style' && (record.target.style.backgroundImage || /background(?:-image)?\s*:/i.test(record.oldValue || '')));
+    const newImages = routeImages().some(image => (image.getAttribute('src') || image.getAttribute('srcset')) && knownImages.get(image) !== imageKey(image));
+    const backgroundChanged = records.some(record => !isPreviewVisual(record.target) && (record.attributeName === 'poster' || record.attributeName === 'style' && (record.target.style.backgroundImage || /background(?:-image)?\s*:/i.test(record.oldValue || ''))));
     if (!newImages && !backgroundChanged) return;
     if (scheduled || viewport.dataset.state !== 'ready') return;
     scheduled = true;
