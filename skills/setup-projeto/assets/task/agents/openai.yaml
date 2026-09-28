@@ -1,0 +1,4 @@
+interface:
+  display_name: "Task"
+  short_description: "Conduza uma mudança de código até a entrega"
+  default_prompt: "Use $task para executar a mudança descrita, decidindo se retoma ou cria branch e worktree conforme este projeto."

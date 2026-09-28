@@ -2717,6 +2717,57 @@
         ]
       },
       "prompt_truncated": []
+    },
+    {
+      "name": "setup-projeto",
+      "version": "1.0.0",
+      "path": "skills/setup-projeto/SKILL.md",
+      "title": "Setup de projeto",
+      "title_netflix": "SETUP DE PROJETO",
+      "description": "Prepare um repositório novo ou existente para Codex, Claude Code e Hermes, com Git, contrato, checks e a skill task pronta para cada mudança.",
+      "row": "operacao",
+      "runtime_only": true,
+      "discovery_only": false,
+      "files": 20,
+      "activation_prompt": "Acesse https://raw.githubusercontent.com/AgentsFlix/skills/setup-projeto-v1.0.0/skills/setup-projeto/SKILL.md e leia a skill Setup de projeto e as referências necessárias. Esta edição usa a referência setup-projeto-v1.0.0. Se eu já tiver anexado o pacote ou a versão colável, use esse material, incluindo as seções Referência, sem depender de novo acesso à rede. Confira se a skill já está instalada; se não estiver e houver suporte, inspecione a licença, o SKILL.md e os arquivos de apoio e instale pelo mecanismo disponível. Sem instalação, aplique o procedimento nesta conversa e informe o limite.\n\nAntes de me fazer perguntas, leia o contrato AgentFlix incluído e cheque nossa conversa, sua memória local acessível e os arquivos relevantes que você já conhece. Identifique os inputs exigidos, quais você já tem e quais faltam. Reaproveite fatos atuais, identifique origem, data, conflitos e inferências. Não invente lembranças nem me peça novamente o que já sabe.\n\nMostre uma síntese curta e pergunte só pelas lacunas necessárias. TODA pergunta aberta, inclusive de configuração, referência, revisão e rotina, deve trazer junto um exemplo de resposta baseado no contexto que você recuperou de mim. Deixe claro que é sugestão. Sem memória relevante, declare isso e rotule o exemplo como hipotético; use minhas novas respostas nos exemplos seguintes. Não grave o exemplo como minha resposta.\n\nSiga o procedimento da skill e confira seus critérios de entrega. Se faltar algo obrigatório, mantenha a etapa aguardando. Registre apenas uso e resultados observados, em armazenamento privado, com a identidade e a revisão desta skill. Sem persistência ou script, entregue um resumo reutilizável e explique os limites de auditoria. Confira o status e o prazo editorial do OKF; usar não renova a validade.\n\nAvalie se vale transformar parte desta tarefa em rotina. Diga vale sugerir, não vale ou depende, com motivo. Se valer, apresente uma proposta concreta de frequência, horário, fuso, inputs, resultado, canal, silêncio, pausa e encerramento. Respeite recusas anteriores. Instalar não autoriza CRON. Só configure com minha autorização e um agendador disponível, conferindo duplicatas e o ID retornado. Não prometa alertas sem monitor; minha falta de resposta não confirma atividade ou decisão.\n\nPrepare este projeto em duas etapas. Primeiro, inspecione o repositório e use setup-projeto para criar ou conciliar Git, contrato, documentos, checks e cópias portáteis da task, preservando arquivos existentes e segredos. Depois, indique task seguido do objetivo de uma mudança real; a task decide branch e worktree conforme o estado do repositório. Reaproveite conversa e contexto acessível, pergunte somente lacunas que mudam o resultado e dê exemplo em toda pergunta aberta. Ticket é opcional e só entra quando o fluxo do projeto exigir.",
+      "chat_cmd": "Acesse https://raw.githubusercontent.com/AgentsFlix/skills/setup-projeto-v1.0.0/skills/setup-projeto/SKILL.md e leia a skill Setup de projeto e as referências necessárias. Esta edição usa a referência setup-projeto-v1.0.0. Se eu já tiver anexado o pacote ou a versão colável, use esse material, incluindo as seções Referência, sem depender de novo acesso à rede. Confira se a skill já está instalada; se não estiver e houver suporte, inspecione a licença, o SKILL.md e os arquivos de apoio e instale pelo mecanismo disponível. Sem instalação, aplique o procedimento nesta conversa e informe o limite.\n\nAntes de me fazer perguntas, leia o contrato AgentFlix incluído e cheque nossa conversa, sua memória local acessível e os arquivos relevantes que você já conhece. Identifique os inputs exigidos, quais você já tem e quais faltam. Reaproveite fatos atuais, identifique origem, data, conflitos e inferências. Não invente lembranças nem me peça novamente o que já sabe.\n\nMostre uma síntese curta e pergunte só pelas lacunas necessárias. TODA pergunta aberta, inclusive de configuração, referência, revisão e rotina, deve trazer junto um exemplo de resposta baseado no contexto que você recuperou de mim. Deixe claro que é sugestão. Sem memória relevante, declare isso e rotule o exemplo como hipotético; use minhas novas respostas nos exemplos seguintes. Não grave o exemplo como minha resposta.\n\nSiga o procedimento da skill e confira seus critérios de entrega. Se faltar algo obrigatório, mantenha a etapa aguardando. Registre apenas uso e resultados observados, em armazenamento privado, com a identidade e a revisão desta skill. Sem persistência ou script, entregue um resumo reutilizável e explique os limites de auditoria. Confira o status e o prazo editorial do OKF; usar não renova a validade.\n\nAvalie se vale transformar parte desta tarefa em rotina. Diga vale sugerir, não vale ou depende, com motivo. Se valer, apresente uma proposta concreta de frequência, horário, fuso, inputs, resultado, canal, silêncio, pausa e encerramento. Respeite recusas anteriores. Instalar não autoriza CRON. Só configure com minha autorização e um agendador disponível, conferindo duplicatas e o ID retornado. Não prometa alertas sem monitor; minha falta de resposta não confirma atividade ou decisão.\n\nPrepare este projeto em duas etapas. Primeiro, inspecione o repositório e use setup-projeto para criar ou conciliar Git, contrato, documentos, checks e cópias portáteis da task, preservando arquivos existentes e segredos. Depois, indique task seguido do objetivo de uma mudança real; a task decide branch e worktree conforme o estado do repositório. Reaproveite conversa e contexto acessível, pergunte somente lacunas que mudam o resultado e dê exemplo em toda pergunta aberta. Ticket é opcional e só entra quando o fluxo do projeto exigir.",
+      "distribution_ref": "setup-projeto-v1.0.0",
+      "install_url": "https://raw.githubusercontent.com/AgentsFlix/skills/setup-projeto-v1.0.0/skills/setup-projeto/SKILL.md",
+      "install_cmd": "hermes skills install https://raw.githubusercontent.com/AgentsFlix/skills/setup-projeto-v1.0.0/skills/setup-projeto/SKILL.md",
+      "github_url": "https://github.com/AgentsFlix/skills/blob/setup-projeto-v1.0.0/skills/setup-projeto/SKILL.md",
+      "prompt_url": "https://raw.githubusercontent.com/AgentsFlix/skills/setup-projeto-v1.0.0/docs/prompt/setup-projeto.md",
+      "npx_claude_code": "npx skills add \"https://github.com/AgentsFlix/skills#setup-projeto-v1.0.0\" --skill setup-projeto -a claude-code -g",
+      "npx_codex": "npx skills add \"https://github.com/AgentsFlix/skills#setup-projeto-v1.0.0\" --skill setup-projeto -a codex -g",
+      "npx_any": "npx skills add \"https://github.com/AgentsFlix/skills#setup-projeto-v1.0.0\" --skill setup-projeto -g",
+      "zip_url": "https://raw.githubusercontent.com/AgentsFlix/skills/setup-projeto-v1.0.0/docs/packages/setup-projeto.zip",
+      "distribution_status": "published",
+      "subtitle": "Prepare o repositório para agentes de codificação",
+      "genre": "tech-cool",
+      "since": "0.4.5",
+      "needs_photo": false,
+      "painel": {
+        "ano": 2026,
+        "tamanho": "2 etapas",
+        "requer": "Git, Python 3.10+ e um projeto local",
+        "sinopse": "Prepare um projeto novo ou existente para Codex, Claude Code e Hermes. A primeira etapa organiza o repositório, os contratos e os checks; a skill task conduz cada mudança seguinte.",
+        "como_usar": "Diga: \"Prepare este projeto com setup-projeto\". Use /setup-projeto em Claude Code ou Hermes, $setup-projeto no Codex e @setup-projeto onde a interface oferecer menção por nome. Depois, descreva a mudança com task; ela decide se precisa criar branch, abrir worktree ou trabalhar no contexto atual.",
+        "elenco": [
+          "Setup inicial do repositório",
+          "Fluxo de cada mudança com task",
+          "Codex, Claude Code e Hermes"
+        ],
+        "generos": [
+          "Git",
+          "Agentes",
+          "Organização"
+        ],
+        "esta_skill_e": [
+          "Portátil",
+          "Conservadora",
+          "Verificável"
+        ]
+      },
+      "prompt_truncated": []
     }
   ],
   "repo": "AgentsFlix/skills",

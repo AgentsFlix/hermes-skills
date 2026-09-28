@@ -704,6 +704,32 @@
       ]
     },
     {
+      "name": "setup-projeto",
+      "description": "Prepara ou organiza um projeto para agentes com Git, documentos reais, validação e a skill task. Use para /setup-projeto, @setup-projeto, $setup-projeto ou pedido de setup de repositório.",
+      "files": [
+        "LICENSE",
+        "SKILL.md",
+        "agents/openai.yaml",
+        "assets/task/SKILL.md",
+        "assets/task/agents/openai.yaml",
+        "assets/task/references/workflow.md",
+        "assets/task/scripts/task_context.py",
+        "integrity.json",
+        "references/ativacao.md",
+        "references/ciclo-de-vida.md",
+        "references/conhecimento.okf.md",
+        "references/contrato-agentflix.md",
+        "references/existing-project.md",
+        "references/github.md",
+        "references/identidade.json",
+        "references/project-contract.md",
+        "scripts/auditar.py",
+        "scripts/setup_project.py",
+        "templates/estado-da-skill.md",
+        "templates/evento-de-uso.json"
+      ]
+    },
+    {
       "name": "sop-auditar",
       "description": "Um SOP pode existir e não servir. Use quando: \"audita este SOP\" (ou uma pasta inteira).",
       "files": [
