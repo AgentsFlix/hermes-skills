@@ -11,6 +11,20 @@
       const available = Object.keys(data.skills).filter(slug => by[slug]);
       const legends = Object.values(by).filter(s => s.cat === 'lendas');
       if (Object.values(by).some(s=>s.cat!=='lendas'&&!s.readingOnly&&!data.skills[s.slug]) || available.some(slug=>!Array.isArray(data.skills[slug].antes))) throw Error('Curadoria incompleta');
+      const featured = (data.destaques || []).filter(slug => available.includes(slug)).map(slug => by[slug]);
+      if (data.destaques && featured.length !== data.destaques.length) throw Error('Destaques ausentes do catálogo');
+      // A vitrine recompõe hero e ficha por innerHTML. Reaplique o layout da capa
+      // inteira aos consumidores configurados, sem alterar o renderizador legado.
+      const wideCovers = available.filter(slug => data.skills[slug].cover_layout === 'editorial-wide');
+      if (wideCovers.length) {
+        const syncCover = target => {
+          const src = target?.querySelector('img.hero-cover, img.pcover')?.getAttribute('src') || '';
+          if (wideCovers.some(slug => src === hooks.coverUrl(slug, 'desktop'))) target.classList.add('editorial-cover');
+        };
+        const hero = $('hero'), modal = $('modal');
+        if (hero) new MutationObserver(() => syncCover(hero)).observe(hero, {childList:true,subtree:true});
+        if (modal) new MutationObserver(() => syncCover(modal.querySelector('.panel .top'))).observe(modal, {childList:true,subtree:true});
+      }
       const journey = window.AgentFlixJourney(data, Object.keys(by), {getItem:key=>localStorage.getItem(key),setItem:(key,value)=>localStorage.setItem(key,value)});
       let door = null, trail = ['inicio'], result = null, completeOnboarding = false;
       let kind = null, answers = [];
@@ -23,7 +37,8 @@
       let lens = null, current = null, run = 0, timeout = null, release = null, target = null;
       const meta = s => data.skills[s.slug];
       const name = slug => by[slug]?.name || slug;
-      const cover = slug => `https://imagedelivery.net/4Co9W7pMsYa-duNBi7UzxA/covers/${encodeURIComponent(slug)}-wide.jpg/capa`;
+      const cover = slug => hooks.coverUrl(slug, 'wide');
+      const featureCover = (slug,kind) => hooks.coverUrl(slug,kind);
       const titleFocus = container => { const h = container.querySelector('h1,h2,h3'); if(h){h.tabIndex=-1;h.focus({preventScroll:true});} };
       const matches = s => !door || (meta(s) && (door === 'colecao' ? !!meta(s).colecao : !meta(s).colecao));
       const counts = {avulsa:available.filter(s=>!data.skills[s].colecao).length,colecao:available.filter(s=>data.skills[s].colecao).length};
@@ -73,17 +88,73 @@
       }
       function resume() {
         // Navegar não reinicia perguntas nem apaga o filtro e o objetivo.
-        const destination=completeOnboarding?$('recommendation'):kind?$('guide'):$('discovery');
+        const destination=completeOnboarding?journeyHost:kind?$('guide'):$('discovery');
         event('caminho_consultado');scroll(destination);titleFocus(destination);
       }
-      function recommendation() {
+      function recommendation(compact=false) {
         const r=result&&journey.recommend(result.skill);if(!r)return '';
         const s=by[r.slug];
         const reason=r.done?'Você já marcou esta etapa como instalada.':r.after?`Você já instalou ${name(r.after)}. Esta é uma continuação do seu caminho.`:r.slug!==r.goal?`Para chegar a ${name(r.goal)}, comece por ${s.name}. É um pré-requisito que ainda falta instalar.`:'Esta skill atende à escolha que você fez.';
+        if(compact)return `<div class="recommended-inline" data-recommended="${esc(s.slug)}"><div><p class="eyebrow">${r.done?'Seu caminho está em dia':'Recomendado para você'}</p><p><strong>${esc(s.name)}</strong> · ${esc(reason)}</p></div><button class="guide-primary" data-act="open" data-slug="${esc(s.slug)}">${journey.has(s.slug)?'Rever a skill':'Começar por aqui'}</button></div>`;
         return `<article class="recommended-piece" data-recommended="${esc(s.slug)}"><img alt="" src="${cover(s.slug)}"><div><p class="eyebrow">${r.done?'Seu caminho está em dia':'Recomendado para você'}</p><h2>${esc(s.name)}</h2><p>${esc(s.sub)}</p><p class="recommend-reason">${esc(reason)}</p>${completeOnboarding?`<button class="guide-primary" data-act="open" data-slug="${esc(s.slug)}">${journey.has(s.slug)?'Rever a skill':'Começar por aqui'}</button>`:''}</div></article>`;
       }
+      let featuredIndex = 0, featuredTimer = null, featuredPaused = false;
+      const featureHost = $('recommendation');
+      const journeyHost = document.createElement('section');
+      journeyHost.id = 'journey-summary';
+      journeyHost.setAttribute('aria-label', 'Seu caminho');
+      $('chips').insertAdjacentElement('afterend', journeyHost);
+      featureHost.setAttribute('aria-label', 'Skills em destaque');
+      const featureSlide = () => featured[featuredIndex];
+      function featureMarkup() {
+        if (!featured.length) return '';
+        const s = featureSlide();
+        return `<section class="featured-banner" aria-label="Skills em destaque" aria-roledescription="carrossel" data-featured-slug="${esc(s.slug)}">
+          <picture class="featured-art"><source media="(max-width: 600px)" srcset="${featureCover(s.slug,'mobile')}"><img src="${featureCover(s.slug,'desktop')}" alt="" decoding="async" fetchpriority="high"></picture>
+          <div class="featured-copy"><p class="featured-kicker">Em destaque · <span data-feature-position>${featuredIndex+1} de ${featured.length}</span></p><h2 data-feature-name>${esc(s.name)}</h2><p data-feature-sub>${esc(s.sub)}</p><div class="featured-actions"><button class="guide-primary" data-act="open" data-slug="${esc(s.slug)}">Ver detalhes</button><button type="button" class="featured-playback" data-feature-playback>${featuredPaused?'Reproduzir':'Pausar'}</button></div></div>
+          <div class="featured-controls" aria-label="Escolher destaque"><button type="button" data-feature-step="-1">Anterior</button><div class="featured-dots">${featured.map((item,index)=>`<button type="button" data-feature-index="${index}" aria-label="Mostrar ${esc(item.name)}" ${index===featuredIndex?'aria-current="true"':''}><span aria-hidden="true"></span></button>`).join('')}</div><button type="button" data-feature-step="1">Próximo</button></div>
+          <p class="sr-only" role="status" data-feature-status></p>
+        </section>`;
+      }
+      function paintFeature(index,announce=false) {
+        const banner=featureHost.querySelector('.featured-banner');if(!banner)return;
+        featuredIndex=(index+featured.length)%featured.length;
+        const s=featureSlide();
+        banner.dataset.featuredSlug=s.slug;
+        banner.querySelector('source').srcset=featureCover(s.slug,'mobile');
+        banner.querySelector('.featured-art img').src=featureCover(s.slug,'desktop');
+        banner.querySelector('[data-feature-position]').textContent=`${featuredIndex+1} de ${featured.length}`;
+        banner.querySelector('[data-feature-name]').textContent=s.name;
+        banner.querySelector('[data-feature-sub]').textContent=s.sub;
+        banner.querySelector('.featured-copy [data-act="open"]').dataset.slug=s.slug;
+        banner.querySelectorAll('[data-feature-index]').forEach((button,i)=>{if(i===featuredIndex)button.setAttribute('aria-current','true');else button.removeAttribute('aria-current');});
+        if(announce)banner.querySelector('[data-feature-status]').textContent=`${s.name}, ${featuredIndex+1} de ${featured.length}`;
+      }
+      function scheduleFeature() {
+        clearTimeout(featuredTimer);featuredTimer=null;
+        const banner=featureHost.querySelector('.featured-banner');
+        const playbackFocused=!!banner?.querySelector('[data-feature-playback]:focus');
+        if(!completeOnboarding||featured.length<2||featuredPaused||reduced()||document.hidden||!banner||(!playbackFocused&&banner.matches(':hover'))||(banner.contains(document.activeElement)&&!playbackFocused))return;
+        featuredTimer=setTimeout(()=>{paintFeature(featuredIndex+1);scheduleFeature();},9000);
+      }
+      featureHost.addEventListener('click',e=>{
+        const playback=e.target.closest('[data-feature-playback]');
+        if(playback){featuredPaused=!featuredPaused;playback.textContent=featuredPaused?'Reproduzir':'Pausar';featureHost.querySelector('[data-feature-status]').textContent=featuredPaused?'Destaques pausados':'Destaques em reprodução';scheduleFeature();return;}
+        const control=e.target.closest('[data-feature-step],[data-feature-index]');if(!control)return;
+        const index=control.hasAttribute('data-feature-step')?featuredIndex+Number(control.dataset.featureStep):Number(control.dataset.featureIndex);
+        paintFeature(index,true);scheduleFeature();
+      });
+      featureHost.addEventListener('pointerenter',scheduleFeature);
+      featureHost.addEventListener('pointerleave',scheduleFeature);
+      featureHost.addEventListener('focusin',scheduleFeature);
+      featureHost.addEventListener('focusout',()=>setTimeout(scheduleFeature,0));
+      document.addEventListener('visibilitychange',scheduleFeature);
+      matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change',scheduleFeature);
       function renderRecommendation() {
-        $('recommendation').innerHTML = completeOnboarding ? `<div class="selection-heading"><div><p class="eyebrow">Seu caminho</p><p>Objetivo: ${esc(name(result.skill))}</p></div><button data-discover-reset>Refazer minhas escolhas</button></div>${recommendation()}` : '';
+        featureHost.innerHTML = completeOnboarding ? featureMarkup() : '';
+        journeyHost.innerHTML = completeOnboarding ? `<div class="selection-heading"><div><h2 class="eyebrow">Seu caminho</h2><p>Objetivo: ${esc(name(result.skill))}</p></div><button data-discover-reset>Refazer minhas escolhas</button></div>${recommendation(true)}` : '';
+        journeyHost.hidden = !completeOnboarding;
+        scheduleFeature();
       }
       function optionArt(nodeId,option,index) {
         if(option.skill)return option.skill;

@@ -180,16 +180,20 @@
     const nEps = SERIE.seasons.reduce((a, s) => a + s.eps.length, 0);
     const nChapters = SERIE.seasons.reduce((a, s) => a + (s.atividades?.length || 0), 0);
     document.title = `${SERIE.name} · AgentFlix`;
-    const responsiveCover = Boolean(SERIE.cover_mobile);
+    const editorialCover = SERIE.cover_layout === "editorial-wide";
+    const responsiveCover = !editorialCover && Boolean(SERIE.cover_mobile);
+    $("tp-hero").closest(".tp-panel").classList.toggle("has-editorial-cover", editorialCover);
     $("tp-hero")
       .closest(".tp-panel")
       .classList.toggle("has-responsive-cover", responsiveCover);
-    $("tp-hero").style.backgroundImage = responsiveCover
+    $("tp-hero").style.backgroundImage = (responsiveCover || editorialCover)
       ? "none"
       : `url(${SERIE.cover})`;
     $("tp-cover").classList.toggle("art-with-title", Boolean(SERIE.cover_has_title));
-    $("tp-cover").hidden = !responsiveCover;
-    $("tp-cover").innerHTML = responsiveCover
+    $("tp-cover").hidden = !(responsiveCover || editorialCover);
+    $("tp-cover").innerHTML = editorialCover
+      ? `<img src="${esc(SERIE.cover)}" alt="" width="1672" height="941" fetchpriority="high">`
+      : responsiveCover
       ? `<source media="(max-width: 600px)" srcset="${esc(SERIE.cover_mobile)}" width="1024" height="1536"><img src="${esc(SERIE.cover)}" alt="" width="1536" height="1024" fetchpriority="high">`
       : "";
     $("tp-kick").textContent =
@@ -352,10 +356,12 @@
     clearInterval(state.ppTimer);
     $("toast").hidden = true;
   }
+  const usagePlayback = window.AgentFlixMetrics?.createPlaybackTracker();
   function loadEp(season, ep, { from } = {}) {
     state.season = season;
     state.ep = ep;
     const e = curEp();
+    usagePlayback?.reset(`${SERIE.slug}:t${sN(season)}:e${eN(season, ep)}`, e.d);
     state.lastChapter = -1;
     $("lesson-share").hidden = !e.share_url;
     $("lesson-share").textContent = "Copiar link da aula";
@@ -1077,11 +1083,16 @@
     if (!$("player").classList.contains("pre")) $("spin").hidden = false;
   });
   video.addEventListener("playing", () => {
+    if (SERIE && !state.miniVideo) usagePlayback?.playing(video.currentTime);
     $("spin").hidden = true;
+  });
+  video.addEventListener("seeking", () => {
+    if (!state.miniVideo) usagePlayback?.tick(video.currentTime, {seeking:true});
   });
   video.addEventListener("timeupdate", () => {
     paint();
     if (state.miniVideo) return;
+    usagePlayback?.tick(video.currentTime, {paused:video.paused,seeking:video.seeking,rate:video.playbackRate});
     saveProgress(false);
     onChapter();
     onPausaAgendada();

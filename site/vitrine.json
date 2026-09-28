@@ -1,5 +1,11 @@
 {
   "schema_version": 1,
+  "destaques": [
+    "pesquisa-audiencia-jev",
+    "transcritor-local",
+    "criar-profile-hermes",
+    "pedagio-da-realidade"
+  ],
   "fileiras": [
     {
       "id": "comece",
@@ -386,6 +392,7 @@
       "colecao": null,
       "passo": 14,
       "antes": [],
+      "cover_layout": "editorial-wide",
       "nota": "Transforme uma ideia ou plano em uma ação verificável, registre o retorno e escolha o próximo passo com base no que aconteceu."
     }
   },

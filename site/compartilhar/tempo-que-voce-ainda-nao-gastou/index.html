@@ -537,7 +537,69 @@
   // o endereço absoluto do Pages fica de reserva.
   const CATALOG_URLS = ["catalog.json", "https://agentsflix.github.io/skills/catalog.json"];
   const COVERS = "https://imagedelivery.net/4Co9W7pMsYa-duNBi7UzxA/covers/"; // Cloudflare Images desde 06/09/2026; /covers/* na Vercel reescreve para o mesmo lugar
-  const coverUrl = (slug, kind) => BY[slug]?.readingCover || `${COVERS}${esc(slug)}-${kind}.jpg/capa`;
+  const LENDAS_COVER_BATCH = "a55506c530bc18a6"; // 56 WebP aprovados; ID imutável, sem apagar as capas anteriores
+  const PRIMARY_COVER_BATCH = "5a6712f044e3c159"; // 148 WebP do lote restante; ativar somente após aceite e upload
+  const LENDAS_ART_TEXT = {
+    "copy-metodo-halbert": "O escritor que vendia por cartas.",
+    "copy-metodo-ogilvy": "O publicitário que pesquisava antes de criar.",
+    "copy-metodo-schwartz": "O publicitário que entendia o desejo das massas.",
+    "copy-metodo-hopkins": "O publicitário que transformou anúncios em ciência.",
+    "copy-metodo-kennedy": "O copywriter que transformava urgência em vendas.",
+    "copy-metodo-bencivenga": "O copywriter que transformava curiosidade em vendas.",
+    "copy-metodo-sugarman": "O copywriter que fazia você ler até o fim.",
+    "copy-metodo-kern": "O marqueteiro que vendia como quem conversa.",
+    "copy-metodo-benson": "O criador da carta de vendas em vídeo.",
+    "copy-metodo-sethi": "O especialista que ensinou a falar de dinheiro.",
+    "copy-metodo-hormozi": "O empreendedor que criava ofertas irrecusáveis.",
+    "copy-metodo-koe": "O criador que fez da curiosidade um negócio.",
+    "copy-metodo-khayat": "100MM com copys aos 17 anos.",
+    "copy-metodo-brown": "O arquiteto das grandes ideias de marketing."
+  };
+  const PRIMARY_ART_TEXT = {
+    "copy-voz": "Inconfundível.",
+    "copy-pesquisa-avatar": "Dentro da cabeça.",
+    "copy-headlines": "A primeira linha.",
+    "copy-big-idea-lead-magnet": "Uma só ideia.",
+    "copy-oferta": "Impossível dizer não.",
+    "copy-sales-page": "Até o botão.",
+    "copy-email": "Toda manhã.",
+    "copy-anuncios": "Parou pra ver.",
+    "copy-vsl-webinar": "Aperte o play.",
+    "copy-vendas-por-chamada": "A ligação.",
+    "copy-auditoria": "Sob a lupa.",
+    "copy-pipeline": "Da ideia à peça.",
+    "copy-lancamento": "Carrinho aberto.",
+    "ops-rotear-tarefa": "A pessoa certa.",
+    "ops-briefing": "Do jeito que você lê.",
+    "ops-revisao-semanal": "Sexta-feira.",
+    "ops-avaliar-fit": "Cabe ou não cabe.",
+    "ads-gate-compliance": "Antes de subir.",
+    "ads-plano": "Antes do primeiro real.",
+    "ads-otimizar": "Todo dia às oito.",
+    "ads-pesquisa": "Cinco fases.",
+    "ads-criativos": "O que venceu.",
+    "ads-tracking": "O pixel.",
+    "hybrid-diagnostico": "O raio-X.",
+    "hybrid-proxima-acao": "A próxima ação.",
+    "hybrid-perfil": "Quem somos.",
+    "hybrid-fundador": "DNA do fundador.",
+    "hybrid-icp": "O cliente ideal. Quem compra e por quê.",
+    "hybrid-marca": "A marca. Antes do logo, existe uma promessa.",
+    "hybrid-oferta": "Oferta e preço. O valor que faz sentido.",
+    "hybrid-cultura": "Os mandamentos. O que o time faz quando ninguém olha.",
+    "hybrid-time": "Quem faz o quê. Cada cadeira precisa de um dono.",
+    "hybrid-tech": "A stack. O que roda — e onde a IA entra.",
+    "hybrid-etl": "Tudo que já existe. A empresa já deixou pistas.",
+    "sop-extrair": "O processo. Da cabeça para o padrão.",
+    "sop-criar": "Por escrito. Um processo. Duas linguagens.",
+    "sop-auditar": "Passa ou não passa. Dez dimensões. Um veredito."
+  };
+  const artText = slug => LENDAS_ART_TEXT[slug] || PRIMARY_ART_TEXT[slug] || "";
+  const coverUrl = (slug, kind) =>
+    state.view === "reading" && BY[slug]?.readingCover ? BY[slug].readingCover
+      : BY[slug]?.cat === "lendas" ? `${COVERS}lendas/${LENDAS_COVER_BATCH}/${encodeURIComponent(slug)}-${kind}.webp/capa`
+        : PRIMARY_ART_TEXT[slug] ? `${COVERS}primarias/${PRIMARY_COVER_BATCH}/${encodeURIComponent(slug)}-${kind}.webp/capa`
+          : BY[slug]?.readingCover || `${COVERS}${encodeURIComponent(slug)}-${kind}.jpg/capa`;
   const FEATURED_DEFAULT = "copy-oferta";
 
   // Um alvo de instalação = uma linha: campo do catálogo, como mostrar, dica e aviso. Um 9º alvo é uma linha nova.
@@ -570,13 +632,13 @@
     trafego:  { id: "ads",      chip: "Tráfego",   badge: "TRÁFEGO PAGO", title: "Tráfego pago",
                 desc: "Meta Ads sem achismo: pesquisa em cinco fases, gate de compliance, plano e unit economics, análise de criativos, auditoria de pixel e otimização diária.",
                 tints: ["#4d3a10", "#5a2a12", "#3d3312"] },
-    lendas:   { id: "lenda",    chip: "Lendas",    badge: "LENDA",        title: "As lendas do copy",
+    lendas:   { id: "lenda",    chip: "Lendas do Copy", badge: "LENDA", title: "As lendas do copy",
                 desc: "O método de um copywriter como procedimento: Halbert, Ogilvy, Schwartz, Hopkins, Kennedy, Bencivenga, Sugarman, Kern, Benson, Sethi, Hormozi, Koe, Khayat e Brown.",
                 tints: ["#2a1c4d", "#2f2a52", "#1b3350", "#3a1030"] },
     base:     { id: "base",     chip: "Base",      badge: "BASE",         title: "Base", desc: "Infraestrutura do hub.", tints: ["#2b2f3a", "#33323a"] }
   };
   const CHIP_TO_CAT = Object.fromEntries(Object.entries(CATS).filter(([k]) => k !== "base").map(([k, v]) => [v.chip, k]));
-  let CHIPS = ["Tudo", ...Object.values(CATS).filter((v) => v.id !== "base").map((v) => v.chip), "Minha lista"];
+  const CHIPS = ["Tudo", "Minha lista", "Lendas do Copy"];
   const CHIP_DESC = { "Tudo": () => `Todas as ${ALL.length} skills do hub, por seção.`, "Minha lista": () => "As skills que você guardou neste navegador." };
 
   // fileiras: as duas do topo são fixas, a curadoria vem do catálogo (manifest → catalog.curated/featured), o resto segue as linhas
@@ -753,6 +815,7 @@
     if (!DISCOVERY_DATA || !window.AgentFlixDiscovery || !window.AgentFlixJourney) throw Error("orientação indisponível");
     DISCOVERY = window.AgentFlixDiscovery.create(DISCOVERY_DATA, BY, {
       authenticated,
+      coverUrl,
       filter() { hidePreview(); state.filter = "Tudo"; state.q = ""; $("q").value = ""; renderChips(); renderCatalog(); },
       enter() {
         if (resumeReadingSkill()) return;
@@ -767,7 +830,6 @@
       changed(external) { hidePreview(); renderCatalog(); if(external && state.open){renderModal();const panel=document.querySelector('#modal .panel');if(panel){panel.tabIndex=-1;panel.focus({preventScroll:true});}} }
     });
     document.body.classList.add("discovery-enabled");
-    CHIPS = ["Tudo", "Minha lista"];
     $("nav").innerHTML = '<a href="#inicio" data-discover-home>Início</a><a href="#guide" data-discover-guide>Como escolher</a><a href="#chips" data-discover-catalog>Catálogo</a><a href="/aprender/">Aprender</a><a href="/assistir/">Assistir</a><a href="#ler" data-discover-reading>Ler</a><a href="/aprofundamento-humano/">Aprofundamento</a>';
     ROW_DEFS = DISCOVERY ? [...TOP_ROWS, ...DISCOVERY.rows] : buildRows(cat);
     heroSlug = (pinnedHero() || nextHero() || ALL[0] || {}).slug || null;
@@ -787,7 +849,7 @@
   // Capa: quem hospeda ([data-cover-host]) ganha has-cover ao carregar; ao falhar, a imagem sai e o host volta ao gradiente.
   const HOST_OFF = "var h=this.closest('[data-cover-host]');if(h){h.classList.remove('has-cover');h.classList.add('no-cover');}";
   const coverImg = (s, cls, kind, { eager = false, hostOff = false, srcset = "" } = {}) =>
-    `<img class="${cls}" alt="" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} src="${coverUrl(s.slug, kind)}"${srcset} onload="this.closest('[data-cover-host]').classList.add('has-cover')" onerror="${hostOff ? HOST_OFF : ""}(this.closest('picture')||this).remove()">`;
+    `<img class="${cls}" alt="${artText(s.slug) ? esc(`Capa de ${s.name}. ${artText(s.slug)}`) : ''}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} src="${coverUrl(s.slug, kind)}"${srcset} onload="this.closest('[data-cover-host]').classList.add('has-cover')" onerror="${hostOff ? HOST_OFF : ""}(this.closest('picture')||this).remove()">`;
   // Cards usam a arte horizontal em todas as telas, com corte 16:9.
   const cardCover = (s) => coverImg(s, "cover", "wide");
   const heroCover = (s) =>
@@ -810,7 +872,7 @@
   const readingMark = () => `<span class="reading-available"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v15M12 5C9 3 5 3 2 4v15c3-1 7-1 10 1 3-2 7-2 10-1V4c-3-1-7-1-10 1Z"/></svg><span>Leitura disponível</span></span>`;
   const readingCardInfo = s => `<div class="journey-info reading-card-info">${readingMark()}<h3>${esc(s.name)}</h3><p>${esc(s.sub)}</p></div>`;
   const cardHtml = (s) => `
-    <div class="card ${DISCOVERY ? 'journey-card' : ''}" data-act="open" data-slug="${esc(s.slug)}" role="button" tabindex="0" aria-label="${state.view === 'reading' ? 'Ler ' : ''}${esc(s.name)}">${artHtml(s, cardCover(s))}${state.view === 'reading' ? readingCardInfo(s) : DISCOVERY ? DISCOVERY.card(s) : ''}
+    <div class="card ${DISCOVERY ? 'journey-card' : ''}" data-act="open" data-slug="${esc(s.slug)}" role="button" tabindex="0" aria-label="${state.view === 'reading' ? 'Ler ' : ''}${esc(s.name)}${artText(s.slug) ? ` — ${esc(artText(s.slug))}` : ''}">${artHtml(s, cardCover(s))}${state.view === 'reading' ? readingCardInfo(s) : DISCOVERY ? DISCOVERY.card(s) : ''}
     </div>`;
 
   // ---------- banner rotativo: sorteia uma obra por carga e troca a cada HERO_MS, sem repetir até fechar a volta ----------
@@ -1109,6 +1171,7 @@
     hidePreview();
     if (!state.open) lastFocus = opener;
     if (state.open !== slug) {
+      if (!isReading(slug)) window.AgentFlixMetrics?.record('skill_open', slug);
       track("card_open", slug); window.clar?.("abriu_card", { skill: slug, alvo: state.target });
       window.clar?.(isReading(slug) ? 'leitura_aberta' : DISCOVERY.locked(slug) ? 'pre_requisito_bloqueado' : 'ficha_liberada', {skill:slug});
     }
@@ -1165,6 +1228,10 @@
       toast('Não foi possível copiar. Selecione o texto e copie manualmente.',6000);return;
     }
     window.clar?.(command?'copiou_comando':'copiou_texto',tags);
+    if (command) {
+      const slug = el.closest('#hero') ? heroFor()?.slug : state.open;
+      if (slug) window.AgentFlixMetrics?.record('skill_copy', slug);
+    }
     const done = () => {
       document.querySelectorAll(`[data-act="copy"][data-key="${CSS.escape(key)}"]`).forEach((c) => {
         const lbl = c.querySelector(".cta-lbl") || c;
@@ -1202,7 +1269,7 @@
     else if (act === "reading-onboarding") startReadingOnboarding(el.dataset.slug);
     else if (act === "read") { e.preventDefault(); setCatalogView("reading"); }
     else if (act === "copy") { e.preventDefault(); copyText(el); }
-    else if (act === "chip") { if(state.view === "reading") setCatalogView("catalog", {scroll:false}); hidePreview(); if (DISCOVERY && ["Tudo", "Minha lista"].includes(el.dataset.filter)) DISCOVERY.setDoor(null); state.filter = el.dataset.filter; renderChips(); renderCatalog(); window.scrollTo({ top: $("chips").offsetTop - 80, behavior: "smooth" }); }
+    else if (act === "chip") { if(state.view === "reading") setCatalogView("catalog", {scroll:false}); hidePreview(); if (DISCOVERY && CHIPS.includes(el.dataset.filter)) DISCOVERY.setDoor(null); state.filter = el.dataset.filter; renderChips(); renderCatalog(); window.scrollTo({ top: $("chips").offsetTop - 80, behavior: "smooth" }); }
     else if (act === "prev") scrollRow(el.dataset.row, -1);
     else if (act === "next") scrollRow(el.dataset.row, 1);
     else if (act === "replay" || act === "enter") { window.clar?.('abertura_iniciada',{origem:act});playIntro(true); }
