@@ -62,4 +62,3 @@ de nova branch após comprovar checkout exclusivo. Não equivale a sessões comp
 nos três clientes.
 
 Release: https://github.com/AgentsFlix/skills/releases/tag/setup-projeto-v1.0.0
-
