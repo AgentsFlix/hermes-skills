@@ -1,4 +1,4 @@
-import { normalizeMetrics, comparison, buildTitleMaps, contentTitle, observations } from "./model.mjs";
+import { normalizeMetrics, comparison, buildTitleMaps, contentTitle, observations, READING_MODES, APPEARANCES } from "./model.mjs";
 
 const byId = (id) => document.getElementById(id);
 const states = ["loading", "signed-out", "forbidden", "mfa", "unavailable", "dashboard"];
@@ -27,7 +27,7 @@ function show(name) {
 function clearMetrics() {
   rendered = false;
   for (const id of ["metric-cards", "skills-ranking", "readings-ranking", "reading-modes-ranking", "appearances-ranking", "lessons-ranking", "daily-chart", "daily-table", "observations", "video-outcomes"]) byId(id).replaceChildren();
-  for (const id of ["window-label", "coverage-text", "collection-meta", "query-status", "chart-description"]) byId(id).textContent = "";
+  for (const id of ["window-label", "coverage-label", "coverage-text", "collection-meta", "query-status", "chart-description"]) byId(id).textContent = "";
 }
 function signedOut() {
   currentUser = null;
@@ -49,91 +49,208 @@ function comparisonText(result, period) {
   if (result.kind === "unchanged") return `Mesmo volume dos ${period} dias anteriores`;
   return `${result.percent > 0 ? "+" : ""}${numberFormat.format(result.percent)}% vs. ${period} dias anteriores`;
 }
+function icon(name) {
+  const node = element("af-icon");
+  node.setAttribute("name", name);
+  node.setAttribute("aria-hidden", "true");
+  return node;
+}
+function svgNode(tag, attributes = {}) {
+  const node = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  Object.entries(attributes).forEach(([key, value]) => node.setAttribute(key, String(value)));
+  return node;
+}
+function compactChange(change) {
+  if (change.kind === "new") return "Primeiros registros";
+  if (change.kind === "unchanged") return "Mesmo volume";
+  return `${change.percent > 0 ? "+" : ""}${numberFormat.format(change.percent)}%`;
+}
 function renderCards(metrics) {
-  const cards = [
-    ["active_visits", "Visitas com atividade", "activity"],
-    ["skill_copies", "Comandos copiados", "copy"],
-    ["reading_opens", "Leituras abertas", "guide"],
-    ["video_starts", "Reproduções iniciadas", "duration"],
-  ].map(([key, label, icon]) => {
-    const card = element("article", "af-card metric-card");
+  const definitions = [
+    ["active_visits", "Visitas com atividade", "activity", "visits"],
+    ["skill_copies", "Comandos copiados", "copy", "copies"],
+    ["reading_opens", "Leituras abertas", "guide", "readings"],
+    ["video_starts", "Reproduções iniciadas", "duration", "videos"],
+  ];
+  const total = chartKeys.reduce((sum, key) => sum + metrics.summary[key], 0);
+  const cards = definitions.map(([key, label, name, tone]) => {
+    const card = element("article", `af-card metric-card metric-card--${tone}`);
     const top = element("div", "metric-topline");
-    const iconNode = element("af-icon");
-    iconNode.setAttribute("name", icon);
-    iconNode.setAttribute("aria-hidden", "true");
-    top.append(element("h2", "af-type-context", label), iconNode);
+    top.append(icon(name), element("h2", "af-type-context", label));
+    const body = element("div", "metric-body");
+    body.append(element("p", "metric-value af-type-context", numberFormat.format(metrics.summary[key])));
     const change = comparison(metrics.summary[key], metrics.previous[key], metrics.coverage);
-    const note = element("p", "metric-comparison af-type-caption", comparisonText(change, metrics.window.days));
-    note.dataset.kind = change.kind;
-    card.append(top, element("p", "metric-value", numberFormat.format(metrics.summary[key])), note);
+    if (change.kind !== "incomplete") {
+      const note = element("p", "metric-comparison af-type-caption", compactChange(change));
+      note.dataset.kind = change.kind;
+      note.setAttribute("aria-label", comparisonText(change, metrics.window.days));
+      note.title = comparisonText(change, metrics.window.days);
+      body.append(note);
+    }
+    card.append(top, body);
+    if (key === "active_visits") card.append(element("p", "metric-footnote af-type-caption", "Sessões de navegação"));
+    else {
+      const meter = element("div", "metric-meter");
+      meter.setAttribute("aria-hidden", "true");
+      const fill = element("span", tone);
+      fill.style.width = `${total ? metrics.summary[key] / total * 100 : 0}%`;
+      meter.append(fill);
+      card.append(meter, element("p", "metric-footnote af-type-caption", total ? `${Math.round(metrics.summary[key] / total * 100)}% das três atividades` : "Sem registros desta atividade"));
+    }
     return card;
   });
-  byId("metric-cards").replaceChildren(...cards);
+  const mix = element("div", "activity-mix");
+  const intro = element("div", "mix-heading");
+  intro.append(element("p", "af-type-context", "Onde está a atividade"), element("p", "af-type-caption", total ? `${numberFormat.format(total)} cópias, aberturas e inícios` : "Sem cópias, leituras ou inícios no período"));
+  const track = element("div", "activity-track");
+  track.setAttribute("role", "img");
+  track.setAttribute("aria-label", total ? definitions.slice(1).map(([key, label]) => `${label}: ${Math.round(metrics.summary[key] / total * 100)}%`).join(". ") : "Sem registros entre cópias, aberturas e inícios.");
+  definitions.slice(1).forEach(([key, label, , tone]) => {
+    if (!metrics.summary[key]) return;
+    const segment = element("span", tone);
+    segment.style.width = `${metrics.summary[key] / total * 100}%`;
+    segment.title = `${label}: ${numberFormat.format(metrics.summary[key])}`;
+    if (metrics.summary[key] / total >= .1) segment.append(element("span", "af-type-context", `${Math.round(metrics.summary[key] / total * 100)}%`));
+    track.append(segment);
+  });
+  mix.append(intro, track);
+  byId("metric-cards").replaceChildren(...cards, mix);
+}
+function rankingTable(kind, entries, maps, labels) {
+  const detail = element("details", "metric-details ranking-detail");
+  detail.append(element("summary", "", "Ver contagens e visitas"));
+  const scroll = element("div", "table-scroll");
+  scroll.tabIndex = 0;
+  scroll.setAttribute("role", "region");
+  scroll.setAttribute("aria-label", `Contagens e visitas: ${kind === "lessons" ? "aulas" : kind === "skills" ? "skills" : "leituras"}`);
+  const table = element("table");
+  const caption = element("caption", "sr-only", "Contagens por conteúdo no período observado");
+  const head = element("thead"), headRow = element("tr");
+  const headings = kind === "lessons" ? ["Aula", "Inícios", "Engajadas", "Concluídas", "Visitas"] : ["Conteúdo", ...labels];
+  headings.forEach((label) => { const cell = element("th", "", label); cell.scope = "col"; headRow.append(cell); });
+  head.append(headRow);
+  const body = element("tbody");
+  entries.forEach((row) => {
+    const line = element("tr");
+    const title = element("th", "", contentTitle(kind, row.content_id, maps)); title.scope = "row"; line.append(title);
+    const values = kind === "lessons" ? [row.events, row.engaged, row.completions, row.visits] : [row.events, row.visits];
+    values.forEach((value) => line.append(element("td", "", numberFormat.format(value))));
+    body.append(line);
+  });
+  table.append(caption, head, body); scroll.append(table); detail.append(scroll);
+  return detail;
 }
 function renderRanking(id, kind, entries, maps, labels = ["Cópias", "Visitas"]) {
   const host = byId(id);
   host.replaceChildren();
+  host.dataset.tone = kind === "skills" ? "copies" : kind === "readings" ? "readings" : "videos";
   if (!entries.length) {
-    host.append(element("p", "rank-empty af-type-caption", "Nenhuma atividade registrada neste período."));
+    const empty = element("div", "rank-empty");
+    const tracks = element("div", "empty-tracks"); tracks.setAttribute("aria-hidden", "true");
+    for (const width of [100, 100, 100]) { const track = element("span"); track.style.width = `${width}%`; tracks.append(track); }
+    empty.append(tracks, element("p", "af-type-caption", "Nenhuma atividade registrada neste período."));
+    host.append(empty);
     return;
   }
   const isLesson = kind === "lessons";
-  const headings = isLesson ? ["Aula", "Inícios", "Engajadas", "Concluídas", "Visitas"] : ["Conteúdo", ...labels];
-  const heading = element("div", `ranking-heading af-type-caption${isLesson ? " lesson-heading" : ""}`);
-  heading.setAttribute("aria-hidden", "true");
-  headings.forEach((text) => heading.append(element("span", "", text)));
   const list = element("ol", "af-list rank-list");
   const peak = Math.max(...entries.map((row) => row.events), 1);
+  const lessonPeak = isLesson ? Math.max(...entries.flatMap((row) => [row.events, row.engaged, row.completions]), 1) : 1;
   entries.forEach((row, index) => {
     const line = element("li", `af-list-row rank-row${isLesson ? " lesson-row" : ""}`);
-    if (index >= 8) line.hidden = true;
-    const copy = element("div", "rank-copy");
-    const name = contentTitle(kind, row.content_id, maps);
-    const title = element("p", "rank-title");
-    const position = element("span", "rank-position", String(index + 1));
+    if (index >= 5) line.hidden = true;
+    const position = element("span", "rank-position", String(index + 1).padStart(2, "0"));
     position.setAttribute("aria-hidden", "true");
-    title.append(position, element("span", "af-type-context", name));
-    copy.append(title);
-    if (isLesson && maps.lessons?.[row.content_id]?.context) copy.append(element("p", "rank-context af-type-caption", maps.lessons[row.content_id].context));
-    if (!isLesson) {
-      const meter = element("div", "rank-meter");
-      meter.setAttribute("aria-hidden", "true");
-      const fill = element("span"); fill.style.width = `${Math.round(row.events / peak * 100)}%`; meter.append(fill); copy.append(meter);
+    const copy = element("div", "rank-copy");
+    const title = element("p", "rank-title af-type-context", contentTitle(kind, row.content_id, maps));
+    const top = element("div", "rank-top");
+    const count = element("p", "rank-number af-type-context", numberFormat.format(row.events));
+    count.setAttribute("aria-label", `${numberFormat.format(row.events)} ${isLesson ? "inícios" : labels[0].toLocaleLowerCase("pt-BR")}`);
+    top.append(title, count); copy.append(top);
+    if (isLesson) {
+      if (maps.lessons?.[row.content_id]?.context) copy.append(element("p", "rank-context af-type-caption", maps.lessons[row.content_id].context));
+      const tracks = element("div", "lesson-tracks");
+      [["Inícios", row.events, "videos"], ["Engajadas", row.engaged, "readings"], ["Concluídas", row.completions, "copies"]].forEach(([label, value, tone]) => {
+        const trackRow = element("div", "lesson-track-row");
+        const labelNode = element("span", "af-type-caption", label);
+        const track = element("div", "rank-meter"); track.setAttribute("aria-hidden", "true");
+        const fill = element("span", tone); fill.style.width = `${value / lessonPeak * 100}%`; track.append(fill);
+        trackRow.append(labelNode, track, element("span", "track-value", numberFormat.format(value)));
+        tracks.append(trackRow);
+      });
+      copy.append(tracks);
+      // A contagem de inícios aparece junto à respectiva barra.
+      count.hidden = true;
+    } else {
+      const meter = element("div", "rank-meter"); meter.setAttribute("aria-hidden", "true");
+      const fill = element("span"); fill.style.width = `${row.events / peak * 100}%`; meter.append(fill); copy.append(meter);
     }
-    line.append(copy);
-    const values = isLesson ? [row.events, row.engaged, row.completions, row.visits] : [row.events, row.visits];
-    values.forEach((value, valueIndex) => {
-      const count = element("p", "rank-number", numberFormat.format(value));
-      count.append(element("small", "", headings[valueIndex + 1]));
-      count.setAttribute("aria-label", `${numberFormat.format(value)} ${headings[valueIndex + 1].toLocaleLowerCase("pt-BR")}`);
-      line.append(count);
-    });
-    list.append(line);
+    line.append(position, copy); list.append(line);
   });
-  host.append(heading, list);
-  if (entries.length > 8) {
+  host.append(list, element("p", "ranking-scale af-type-caption", isLesson ? "Mesma escala para os eventos das aulas exibidas" : "Comprimento das barras comparado ao líder"));
+  if (entries.length > 5) {
     const more = element("button", "af-button af-button--text ranking-more", `Ver todos os ${entries.length} itens`);
     more.type = "button";
     more.setAttribute("aria-expanded", "false");
     more.addEventListener("click", () => {
       const expand = more.getAttribute("aria-expanded") !== "true";
-      [...list.children].forEach((row, index) => { row.hidden = !expand && index >= 8; });
+      [...list.children].forEach((row, index) => { row.hidden = !expand && index >= 5; });
       more.setAttribute("aria-expanded", String(expand));
-      more.textContent = expand ? "Mostrar os primeiros 8" : `Ver todos os ${entries.length} itens`;
+      more.textContent = expand ? "Mostrar os primeiros 5" : `Ver todos os ${entries.length} itens`;
     });
     host.append(more);
   }
+  host.append(rankingTable(kind, entries, maps, labels));
+}
+function renderPreference(id, kind, entries) {
+  const host = byId(id);
+  const known = kind === "reading_modes" ? READING_MODES : APPEARANCES;
+  const ordered = [...entries, ...Object.keys(known).filter((key) => !entries.some((row) => row.content_id === key)).map((content_id) => ({ content_id, events: 0, visits: 0 }))];
+  const total = entries.reduce((sum, row) => sum + row.events, 0);
+  const tones = kind === "reading_modes" ? { human: "readings", skill: "copies", agent: "videos" } : { dark: "videos", paper: "readings" };
+  const visual = element("div", "preference-visual");
+  const donut = element("div", "preference-donut");
+  const svg = svgNode("svg", { viewBox: "0 0 180 180", "aria-hidden": "true" });
+  const circumference = 2 * Math.PI * 70;
+  svg.append(svgNode("circle", { cx: 90, cy: 90, r: 70, class: "donut-base" }));
+  let offset = 0;
+  ordered.forEach((row) => {
+    if (!total || !row.events) return;
+    const length = row.events / total * circumference;
+    const gap = ordered.filter((item) => item.events > 0).length > 1 ? Math.min(3, length / 5) : 0;
+    svg.append(svgNode("circle", { cx: 90, cy: 90, r: 70, class: `donut-segment ${tones[row.content_id] || "copies"}`, "stroke-dasharray": `${length - gap} ${circumference - length + gap}`, "stroke-dashoffset": -offset, transform: "rotate(-90 90 90)" }));
+    offset += length;
+  });
+  const center = element("div", "donut-center");
+  const top = ordered[0];
+  center.append(element("strong", "af-type-context", total ? `${Math.round(top.events / total * 100)}%` : "—"), element("span", "af-type-caption", total ? contentTitle(kind, top.content_id) : "Sem acessos"));
+  donut.append(svg, center);
+  const legend = element("ul", "preference-legend");
+  ordered.forEach((row) => {
+    const item = element("li");
+    const label = element("div", "preference-label");
+    const swatch = element("span", `legend-key ${tones[row.content_id] || "copies"}`); swatch.setAttribute("aria-hidden", "true");
+    label.append(swatch, element("span", "af-type-context", contentTitle(kind, row.content_id)));
+    const stats = element("div", "preference-stats");
+    stats.append(element("strong", "af-type-context", total ? `${Math.round(row.events / total * 100)}%` : "—"), element("span", "af-type-caption", `${numberFormat.format(row.events)} ${row.events === 1 ? "acesso" : "acessos"}`));
+    item.append(label, stats); legend.append(item);
+  });
+  visual.append(donut, legend);
+  const totalNote = element("p", "preference-total af-type-caption", `${numberFormat.format(total)} ${total === 1 ? "acesso observado" : "acessos observados"}`);
+  const detail = element("details", "preference-visits metric-details");
+  detail.append(element("summary", "", "Ver visitas por preferência"));
+  ordered.forEach((row) => detail.append(element("p", "af-type-caption", `${contentTitle(kind, row.content_id)}: ${numberFormat.format(row.visits)} ${row.visits === 1 ? "visita" : "visitas"}`)));
+  host.replaceChildren(visual, totalNote, detail);
 }
 function renderDaily(metrics) {
   const chart = byId("daily-chart");
   const table = byId("daily-table");
   chart.replaceChildren(); table.replaceChildren();
+  chart.style.minWidth = "0";
   if (!metrics.daily.length) {
     byId("chart-note").hidden = true;
     chart.append(element("p", "chart-empty af-type-caption", "Nenhum dia disponível para o período."));
     byId("chart-description").textContent = "Nenhum dia disponível para o período.";
-    chart.style.gridTemplateColumns = "1fr";
-    chart.style.minWidth = "0";
     return;
   }
   const collectionParts = metrics.collection_started_at ? collectionDayFormat.formatToParts(new Date(metrics.collection_started_at)) : [];
@@ -143,39 +260,73 @@ function renderDaily(metrics) {
   byId("chart-note").hidden = metrics.daily.every(isCollected);
   const actualMax = Math.max(0, ...metrics.daily.filter(isCollected).flatMap((row) => chartKeys.map((key) => row[key])));
   const max = Math.max(1, actualMax);
-  chart.style.gridTemplateColumns = `repeat(${metrics.daily.length}, minmax(0, 1fr))`;
-  chart.style.minWidth = `${Math.max(350, metrics.daily.length * 20)}px`;
-  const labelInterval = Math.max(1, Math.ceil(metrics.daily.length / 6));
-  metrics.daily.forEach((row, index) => {
-    const column = element("div", "chart-day");
-    const bars = element("div", "chart-bars");
-    const collected = isCollected(row);
-    bars.dataset.uncollected = String(!collected);
-    chartKeys.forEach((key, keyIndex) => {
-      const bar = element("span", `chart-bar ${["copies", "readings", "videos"][keyIndex]}`);
-      bar.style.height = `${collected ? row[key] / max * 95 : 0}%`;
-      bars.append(bar);
+  const dateInterval = Math.max(1, Math.ceil(metrics.daily.length / 5));
+  chartKeys.forEach((key, keyIndex) => {
+    const tone = ["copies", "readings", "videos"][keyIndex];
+    const row = element("div", "daily-track");
+    const label = element("div", "daily-track-label");
+    label.append(element("span", `legend-key ${tone}`), element("span", "af-type-context", ["Comandos copiados", "Leituras abertas", "Reproduções iniciadas"][keyIndex]));
+    const svg = svgNode("svg", { viewBox: "0 0 900 88", preserveAspectRatio: "none", class: `daily-track-chart ${tone}` });
+    const defs = svgNode("defs");
+    const hatch = svgNode("pattern", { id: `uncollected-${key}`, width: 8, height: 8, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" });
+    hatch.append(svgNode("rect", { width: 8, height: 8, class: "hatch-base" }), svgNode("line", { x1: 0, x2: 0, y1: 0, y2: 8, class: "hatch-line" }));
+    defs.append(hatch); svg.append(defs);
+    const barWidth = 900 / metrics.daily.length;
+    metrics.daily.forEach((day, index) => {
+      if (!isCollected(day)) {
+        // Cada trilha marca os mesmos dias anteriores à coleta, sem tratá-los como zero.
+        svg.append(svgNode("rect", { x: index * barWidth, y: 0, width: barWidth, height: 88, class: "uncollected-day", fill: `url(#uncollected-${key})` }));
+        return;
+      }
+      const height = day[key] / max * 74;
+      if (height > 0) {
+        const bar = svgNode("rect", { x: index * barWidth + barWidth * .15, y: 84 - height, width: barWidth * .7, height, rx: Math.min(3, barWidth / 5), class: "daily-value-bar" });
+        const title = svgNode("title"); title.textContent = `${date(day.date)}: ${numberFormat.format(day[key])}`; bar.append(title); svg.append(bar);
+      }
     });
-    column.append(bars, element("span", "chart-label", index % labelInterval === 0 || index === metrics.daily.length - 1 ? date(row.date) : ""));
-    chart.append(column);
+    [0, 37, 74].forEach((height) => svg.append(svgNode("line", { x1: 0, x2: 900, y1: 84 - height, y2: 84 - height, class: "chart-gridline" })));
+    row.append(label, svg, element("span", "daily-scale af-type-caption", `0–${numberFormat.format(actualMax)}`));
+    chart.append(row);
+  });
+  const axis = element("div", "chart-axis");
+  metrics.daily.forEach((row, index) => {
+    const last = metrics.daily.length - 1;
+    const farFromLast = last - index >= Math.max(2, Math.ceil(dateInterval / 2));
+    if (index === 0 || index === last || (index % dateInterval === 0 && farFromLast)) {
+      const label = element("span", "chart-label", date(row.date));
+      label.style.left = `${(index + .5) / metrics.daily.length * 100}%`;
+      if (index === 0) label.dataset.edge = "start";
+      if (index === metrics.daily.length - 1) label.dataset.edge = "end";
+      axis.append(label);
+    }
     const tableRow = element("tr");
     const day = element("th", "", date(row.date)); day.scope = "row"; tableRow.append(day);
-    chartKeys.forEach((key) => tableRow.append(element("td", "", collected ? numberFormat.format(row[key]) : "Sem coleta")));
+    chartKeys.forEach((key) => tableRow.append(element("td", "", isCollected(row) ? numberFormat.format(row[key]) : "Sem coleta")));
     table.append(tableRow);
   });
-  byId("chart-description").textContent = `Gráfico de comandos copiados, leituras abertas e reproduções iniciadas em ${metrics.daily.length} dias. Maior contagem diária: ${numberFormat.format(actualMax)}. Dias anteriores à coleta aparecem hachurados; não representam zero eventos. Todas as contagens estão disponíveis na tabela abaixo.`;
+  chart.append(axis);
+  const observedDays = metrics.daily.filter(isCollected).length;
+  if (!actualMax) chart.append(element("p", "chart-zero af-type-caption", "Os dias com coleta ainda não registraram cópias, aberturas ou inícios."));
+  else if (observedDays < 2) chart.append(element("p", "chart-zero af-type-caption", "Primeiro dia com registros. O ritmo aparece com os próximos dias de coleta."));
+  byId("chart-description").textContent = `Três trilhas de barras diárias, na mesma escala, mostram comandos copiados, leituras abertas e reproduções iniciadas em ${metrics.daily.length} dias. Escala de zero a ${numberFormat.format(actualMax)}. Dias anteriores à coleta aparecem hachurados; não representam zero eventos. Todas as contagens estão disponíveis na tabela abaixo.`;
 }
 function renderOutcomes(metrics) {
   const summary = metrics.summary;
   const entries = [
-    ["Reproduções iniciadas", summary.video_starts, "Primeiro play registrado"],
-    ["Reproduções engajadas", summary.video_engaged, "Pelo menos 30s de conteúdo, ou 90% de aula curta"],
-    ["Reproduções concluídas", summary.video_completions, "Pelo menos 90% assistidos"],
+    ["Inícios", summary.video_starts, "videos", "Reproduções iniciadas"],
+    ["Engajadas", summary.video_engaged, "readings", "Reproduções engajadas"],
+    ["Concluídas", summary.video_completions, "copies", "Reproduções concluídas"],
   ];
-  byId("video-outcomes").replaceChildren(...entries.map(([label, value, description]) => {
-    const item = element("div");
-    item.append(element("p", "af-type-context", label), element("span", "outcome-value", numberFormat.format(value)));
-    item.append(element("p", "outcome-detail af-type-caption", description));
+  const peak = Math.max(...entries.map(([, value]) => value), 1);
+  byId("video-outcomes").replaceChildren(...entries.map(([label, value, tone, fullLabel]) => {
+    const item = element("div", "outcome");
+    const top = element("div", "outcome-heading");
+    const count = element("span", "outcome-value af-type-context", numberFormat.format(value));
+    count.setAttribute("aria-label", `${numberFormat.format(value)} ${fullLabel.toLocaleLowerCase("pt-BR")}`);
+    top.append(element("p", "af-type-context", label), count);
+    const track = element("div", "outcome-track"); track.setAttribute("aria-hidden", "true");
+    const fill = element("span", tone); fill.style.width = `${value / peak * 100}%`; track.append(fill);
+    item.append(top, track);
     return item;
   }));
 }
@@ -183,6 +334,7 @@ function render(metrics) {
   byId("window-label").textContent = `${dateTime(metrics.window.start)} a ${dateTime(metrics.window.end)} · Horário de Brasília`;
   const complete = metrics.coverage.current_complete && metrics.coverage.previous_complete;
   byId("coverage-note").dataset.incomplete = String(!complete);
+  byId("coverage-label").textContent = !metrics.coverage.current_complete ? "Coleta parcial · Comparação em formação" : !metrics.coverage.previous_complete ? "Período coberto · Comparação em formação" : "Dois períodos cobertos · Comparação disponível";
   byId("coverage-text").textContent = !metrics.coverage.current_complete
     ? "A coleta começou dentro deste período. O volume é parcial e a comparação aguarda dois períodos completos."
     : !metrics.coverage.previous_complete
@@ -192,8 +344,8 @@ function render(metrics) {
   renderDaily(metrics);
   renderRanking("skills-ranking", "skills", metrics.rankings.skills, titleMaps);
   renderRanking("readings-ranking", "readings", metrics.rankings.readings, titleMaps, ["Aberturas", "Visitas"]);
-  renderRanking("reading-modes-ranking", "reading_modes", metrics.rankings.reading_modes, titleMaps, ["Acessos", "Visitas"]);
-  renderRanking("appearances-ranking", "appearances", metrics.rankings.appearances, titleMaps, ["Acessos", "Visitas"]);
+  renderPreference("reading-modes-ranking", "reading_modes", metrics.rankings.reading_modes);
+  renderPreference("appearances-ranking", "appearances", metrics.rankings.appearances);
   renderRanking("lessons-ranking", "lessons", metrics.rankings.lessons, titleMaps);
   renderOutcomes(metrics);
   const notes = observations(metrics, titleMaps);

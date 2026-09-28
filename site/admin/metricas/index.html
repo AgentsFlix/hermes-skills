@@ -64,7 +64,7 @@
 
     <div id="dashboard-state" hidden>
       <div class="dashboard-heading">
-        <div><p class="af-type-context eyebrow">Administração · Visão de CEO</p><h1>O que move o AgentFlix</h1><p class="intro">Uso do acervo para orientar a próxima decisão.</p></div>
+        <div><p class="af-type-context eyebrow">Administração · Visão de CEO</p><h1 class="af-type-context">O que move o AgentFlix</h1><p class="intro">Uso do acervo para orientar a próxima decisão.</p></div>
         <a class="af-button af-button--outline" href="/">Abrir o produto <af-icon name="external" aria-hidden="true"></af-icon></a>
       </div>
 
@@ -80,36 +80,35 @@
         </div>
       </div>
       <p id="query-status" class="query-status af-type-caption" role="status" aria-live="polite"></p>
-      <div id="coverage-note" class="coverage-note"><af-icon name="information" aria-hidden="true"></af-icon><p id="coverage-text" class="af-type-caption"></p></div>
+      <details id="coverage-note" class="coverage-note"><summary><af-icon name="information" aria-hidden="true"></af-icon><span id="coverage-label" class="af-type-context">Cobertura da coleta</span><span class="coverage-prompt af-type-caption">Entender</span></summary><p id="coverage-text" class="af-type-caption"></p></details>
 
-      <section class="metric-grid" aria-label="Números do período" id="metric-cards"></section>
+      <section class="metric-grid" aria-label="Números e distribuição da atividade do período" id="metric-cards"></section>
 
-      <section id="empty-note" class="af-panel empty-note" hidden aria-labelledby="empty-title"><h2 id="empty-title">Ainda sem atividade registrada</h2><p>O período consultado não tem eventos de uso. Os números passam a refletir novas interações após o início da coleta.</p></section>
+      <section id="empty-note" class="af-panel empty-note" hidden aria-labelledby="empty-title"><af-icon name="activity" aria-hidden="true"></af-icon><div><h2 id="empty-title">Ainda sem atividade registrada</h2><p>O período consultado não tem eventos de uso. Os números passam a refletir novas interações após o início da coleta.</p></div></section>
+
+      <div class="rankings-grid format-grid">
+        <section class="af-panel ranking-panel preference-panel" aria-labelledby="modes-title"><div class="section-heading"><div><p class="af-type-context eyebrow">Formato</p><h2 id="modes-title">Modos de leitura</h2></div><af-icon name="guide" aria-hidden="true"></af-icon></div><div id="reading-modes-ranking"></div><details class="metric-details"><summary>O que estes acessos representam</summary><p class="af-type-caption">Acessos iniciais e trocas de modo durante a leitura. A mesma visita pode acessar mais de um modo.</p></details></section>
+        <section class="af-panel ranking-panel preference-panel" aria-labelledby="appearance-title"><div class="section-heading"><div><p class="af-type-context eyebrow">Preferência no leitor</p><h2 id="appearance-title">Aparência no leitor</h2></div><af-icon name="structure" aria-hidden="true"></af-icon></div><div id="appearances-ranking"></div><details class="metric-details"><summary>O que esta preferência representa</summary><p class="af-type-caption">Preferência observada nas aberturas e trocas no leitor. A mesma visita pode registrar as duas aparências.</p></details></section>
+      </div>
 
       <section class="af-panel daily-panel" aria-labelledby="daily-title">
-        <div class="section-heading"><div><p class="af-type-context eyebrow">Ritmo de uso</p><h2 id="daily-title">Atividade ao longo do período</h2></div><p class="af-type-caption">Contagens por dia, no horário de Brasília</p></div>
-        <ul class="chart-legend af-type-caption" aria-label="Séries do gráfico"><li><span class="legend-key copies"></span>Comandos copiados</li><li><span class="legend-key readings"></span>Leituras abertas</li><li><span class="legend-key videos"></span>Reproduções iniciadas</li></ul>
+        <div class="section-heading"><div><p class="af-type-context eyebrow">Ritmo de uso</p><h2 id="daily-title">Ritmo de uso</h2></div><p class="af-type-caption">Contagens diárias · Mesma escala nas três trilhas</p></div>
         <p id="chart-description" class="sr-only"></p>
-        <div id="chart-scroll" class="chart-scroll" tabindex="0" role="region" aria-label="Gráfico diário; use as setas para percorrer o período" aria-describedby="chart-description"><div id="daily-chart" class="daily-chart" aria-hidden="true"></div></div>
+        <div id="chart-scroll" class="chart-scroll" tabindex="0" role="region" aria-label="Evolução diária de cópias, leituras e reproduções" aria-describedby="chart-description"><div id="daily-chart" class="daily-chart" aria-hidden="true"></div></div>
         <p id="chart-note" class="section-note af-type-caption" hidden>Dias hachurados: a coleta ainda não havia começado.</p>
-        <details class="daily-details"><summary>Ver contagens por dia</summary><div class="table-scroll" tabindex="0" role="region" aria-label="Tabela de atividade diária"><table><caption class="sr-only">Atividade diária do período observado</caption><thead><tr><th scope="col">Dia</th><th scope="col">Comandos copiados</th><th scope="col">Leituras abertas</th><th scope="col">Reproduções iniciadas</th></tr></thead><tbody id="daily-table"></tbody></table></div></details>
+        <details class="daily-details metric-details"><summary>Ver contagens por dia</summary><div class="table-scroll" tabindex="0" role="region" aria-label="Tabela de atividade diária"><table><caption class="sr-only">Atividade diária do período observado</caption><thead><tr><th scope="col">Dia</th><th scope="col">Comandos copiados</th><th scope="col">Leituras abertas</th><th scope="col">Reproduções iniciadas</th></tr></thead><tbody id="daily-table"></tbody></table></div></details>
       </section>
 
       <div class="rankings-grid">
-        <section class="af-panel ranking-panel" aria-labelledby="skills-title"><div class="section-heading"><div><p class="af-type-context eyebrow">Skills</p><h2 id="skills-title">Comandos mais copiados</h2></div></div><p class="section-note af-type-caption">Cópias feitas no site. A execução da skill fora do AgentFlix não é medida.</p><div id="skills-ranking"></div></section>
-        <section class="af-panel ranking-panel" aria-labelledby="readings-title"><div class="section-heading"><div><p class="af-type-context eyebrow">Leituras</p><h2 id="readings-title">Conteúdos mais abertos</h2></div></div><p class="section-note af-type-caption">Aberturas do conteúdo Para o humano.</p><div id="readings-ranking"></div></section>
+        <section class="af-panel ranking-panel" aria-labelledby="skills-title"><div class="section-heading"><div><p class="af-type-context eyebrow">Skills</p><h2 id="skills-title">Skills mais copiadas</h2></div><af-icon name="copy" aria-hidden="true"></af-icon></div><p class="section-note af-type-caption">Comandos mais copiados no site</p><div id="skills-ranking"></div><details class="metric-details"><summary>Como a skill é medida</summary><p class="af-type-caption">Cópias feitas no site. A execução da skill fora do AgentFlix não é medida.</p></details></section>
+        <section class="af-panel ranking-panel" aria-labelledby="readings-title"><div class="section-heading"><div><p class="af-type-context eyebrow">Leituras</p><h2 id="readings-title">Leituras mais abertas</h2></div><af-icon name="guide" aria-hidden="true"></af-icon></div><p class="section-note af-type-caption">Conteúdos Para o humano mais abertos</p><div id="readings-ranking"></div></section>
       </div>
 
-      <div class="rankings-grid format-grid">
-        <section class="af-panel ranking-panel" aria-labelledby="modes-title"><div class="section-heading"><div><p class="af-type-context eyebrow">Formato</p><h2 id="modes-title">Modos de leitura</h2></div></div><p class="section-note af-type-caption">Acessos iniciais e trocas de modo durante a leitura.</p><div id="reading-modes-ranking"></div></section>
-        <section class="af-panel ranking-panel" aria-labelledby="appearance-title"><div class="section-heading"><div><p class="af-type-context eyebrow">Preferência no leitor</p><h2 id="appearance-title">Aparência</h2></div></div><p class="section-note af-type-caption">Preferência observada nas aberturas e trocas no leitor.</p><div id="appearances-ranking"></div></section>
-      </div>
+      <section class="af-panel lessons-panel" aria-labelledby="lessons-title"><div class="section-heading"><div><p class="af-type-context eyebrow">Aulas</p><h2 id="lessons-title">Aulas mais iniciadas</h2></div><af-icon name="duration" aria-hidden="true"></af-icon></div><div class="video-outcomes" id="video-outcomes"></div><p class="section-note af-type-caption">Eventos registrados no período. As barras comparam volumes; não representam uma taxa de conversão.</p><div id="lessons-ranking"></div><details class="metric-details"><summary>Entender inícios, engajamento e conclusões</summary><p class="af-type-caption">Início: primeiro play registrado. Engajamento: pelo menos 30 segundos de conteúdo assistidos, ou 90% de uma aula curta. Conclusão: pelo menos 90% efetivamente assistidos. Uma reprodução iniciada antes do período pode engajar ou concluir dentro dele. Os eventos não representam necessariamente o mesmo grupo de reproduções.</p></details></section>
 
-      <section class="af-panel lessons-panel" aria-labelledby="lessons-title"><div class="section-heading"><div><p class="af-type-context eyebrow">Aulas</p><h2 id="lessons-title">Do primeiro play à conclusão</h2></div></div><div class="video-outcomes" id="video-outcomes"></div><p class="section-note af-type-caption">Engajamento: pelo menos 30 segundos de conteúdo assistidos, ou 90% de uma aula curta. Conclusão: pelo menos 90% efetivamente assistidos.</p><div id="lessons-ranking"></div></section>
+      <details class="observations-section metric-details" aria-labelledby="observations-title"><summary id="observations-title">Onde aprofundar a próxima decisão</summary><p class="section-note af-type-caption">Observações de volume e comparação. Os números não explicam sozinhos o motivo de uma mudança.</p><div id="observations" class="observations-grid"></div></details>
 
-      <section class="observations-section" aria-labelledby="observations-title"><div class="section-heading"><div><p class="af-type-context eyebrow">Para a próxima decisão</p><h2 id="observations-title">Onde aprofundar</h2></div></div><p class="section-note af-type-caption">Observações de volume e comparação. Os números não explicam sozinhos o motivo de uma mudança.</p><div id="observations" class="observations-grid"></div></section>
-
-      <section class="measurement-notes" aria-labelledby="measurement-title"><h2 id="measurement-title" class="af-type-context">Como ler estes números</h2><p class="af-type-caption">Visitas são sessões de navegação com atividade registrada, não pessoas únicas. A mesma visita pode gerar mais de uma cópia, abertura ou reprodução. A coleta pode não registrar interações bloqueadas pelo navegador ou realizadas offline.</p><p id="collection-meta" class="af-type-caption"></p></section>
+      <details class="measurement-notes metric-details"><summary id="measurement-title">Como ler estes números</summary><p class="af-type-caption">Visitas são sessões de navegação com atividade registrada, não pessoas únicas. A mesma visita pode gerar mais de uma cópia, abertura ou reprodução. A coleta pode não registrar interações bloqueadas pelo navegador ou realizadas offline.</p><p class="af-type-caption">A distribuição da atividade reúne comandos copiados, leituras Para o humano abertas e reproduções iniciadas. Os percentuais mostram a participação de cada tipo no total desses três eventos; acessos aos modos e mudanças de aparência são apresentados separadamente.</p><p id="collection-meta" class="af-type-caption"></p></details>
     </div>
   </main>
   <footer class="app-footer"><span class="af-type-caption">AgentFlix · Área restrita</span><a class="af-button af-button--text" href="/privacidade.html">Privacidade</a></footer>
