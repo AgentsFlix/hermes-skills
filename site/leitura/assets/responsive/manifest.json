@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "encoding": {
+    "codec": "cwebp",
+    "quality": 82,
+    "method": 6,
+    "sharp_yuv": true
+  },
+  "covers": [
+    {
+      "source": "/leitura/assets/editorial/flow-v1.webp",
+      "sha256": "f4c63605ec7c8c361fa69fca365d93c2d6ae7b2e3b5ed6b08d1e337e2869ff0c",
+      "width": 1672,
+      "height": 941,
+      "copies": [
+        {
+          "src": "/leitura/assets/responsive/modelo-de-flow-f4c63605ec7c-640-q82.webp",
+          "width": 640,
+          "height": 361,
+          "bytes": 57660,
+          "sha256": "2cf88b71501249d3511d66374a3f9c3da92dece2c8347bc03e31049b31bc0125"
+        },
+        {
+          "src": "/leitura/assets/responsive/modelo-de-flow-f4c63605ec7c-960-q82.webp",
+          "width": 960,
+          "height": 541,
+          "bytes": 110282,
+          "sha256": "b31d33e1add46f0168a7008cb035729e193e951c703e17fb7bbd1fdbc9df0268"
+        }
+      ]
+    },
+    {
+      "source": "/leitura/assets/editorial/hormozi-v1.webp",
+      "sha256": "caf2f708e5f80fcf6de8539edaa3a5f8aba2767ccbdb050321994155de262f81",
+      "width": 1672,
+      "height": 941,
+      "copies": [
+        {
+          "src": "/leitura/assets/responsive/copy-metodo-hormozi-caf2f708e5f8-640-q82.webp",
+          "width": 640,
+          "height": 361,
+          "bytes": 66146,
+          "sha256": "d5aa7198240e60bcc2bbc354daa9fe0a198fc4f79d9cfd5103c39e799850d68a"
+        },
+        {
+          "src": "/leitura/assets/responsive/copy-metodo-hormozi-caf2f708e5f8-960-q82.webp",
+          "width": 960,
+          "height": 541,
+          "bytes": 130464,
+          "sha256": "5433e8d6bd9781a2414760930e0c93bc89ebd9be2bef49af04c5bedab1740ec5"
+        }
+      ]
+    },
+    {
+      "source": "/leitura/assets/editorial/dia-22-v1.webp",
+      "sha256": "c8e09fc7da88d2caeb3a2f748659990a5fadbf85e3f12b13b9fe9694fab16034",
+      "width": 1672,
+      "height": 941,
+      "copies": [
+        {
+          "src": "/leitura/assets/responsive/habitos-que-cabem-c8e09fc7da88-640-q82.webp",
+          "width": 640,
+          "height": 361,
+          "bytes": 67626,
+          "sha256": "bea3a1cdc6f0523188376868a4b85a97c060ec1b0ed88e7b547aec01982cb51f"
+        },
+        {
+          "src": "/leitura/assets/responsive/habitos-que-cabem-c8e09fc7da88-960-q82.webp",
+          "width": 960,
+          "height": 541,
+          "bytes": 133830,
+          "sha256": "b0e008fbd84ce26e0f99d6b9837cf2ba0351ac1a2eb292963133da147b3de79b"
+        }
+      ]
+    },
+    {
+      "source": "/leitura/tempo-que-voce-ainda-nao-gastou/capa-v1.webp",
+      "sha256": "7f57044db9d2a150bad79f47ddee59b8cd96b31fdd060477acd3e86906b9d315",
+      "width": 1672,
+      "height": 941,
+      "copies": [
+        {
+          "src": "/leitura/assets/responsive/tempo-que-voce-ainda-nao-gastou-7f57044db9d2-640-q82.webp",
+          "width": 640,
+          "height": 361,
+          "bytes": 61164,
+          "sha256": "60e7559ec463ca03eba6b7e6a813edaca5ac2cffbf5f2af6569c1878c93e4763"
+        },
+        {
+          "src": "/leitura/assets/responsive/tempo-que-voce-ainda-nao-gastou-7f57044db9d2-960-q82.webp",
+          "width": 960,
+          "height": 541,
+          "bytes": 116758,
+          "sha256": "ba893f598756db2ceefca473247cc73d50307a8ea155ebbcfa764592280b903a"
+        }
+      ]
+    }
+  ]
+}
