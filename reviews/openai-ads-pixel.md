@@ -6,9 +6,9 @@ A loja continua desligada e em modo de teste. Não cria campanhas. Publicação 
 
 ## Verificação
 
-- Testes funcionais da fonte autoritativa: consentimento, exclusão de QA/previews, campos permitidos, preservação do checkout, propriedade da compra, pagamento pendente e reembolso, configuração sem segredo.
+- 178 testes públicos passaram (1 skip declarado), além de check_site e check da reserva. Testes funcionais da fonte autoritativa: consentimento, exclusão de QA/previews, campos permitidos, preservação do checkout, propriedade da compra, pagamento pendente e reembolso, configuração sem segredo.
 - QA local em 1440, 768 e 390 px com adaptador sintético, sem enviar eventos externos. Novos controles com 44 px; nenhuma rolagem horizontal. Recusa, revogação e reabertura verificadas.
-- Capturas em `design-review/openai-ads-pixel/`: `before-*` usa a vitrine local sem o adaptador de consentimento; `consent-*` mostra a nova escolha; `privacy-*` mostra a seção e os controles. Todos os estados usam dados locais, sem conta de aluno.
+- Capturas em `design-review/openai-ads-pixel/`: `before-*` usa a vitrine local carregada com o painel fechado após recusa; `consent-*` mostra a nova escolha; `privacy-*` mostra a seção e os controles. Todos os estados usam dados locais, sem conta de aluno.
 
 ## Limites
 
