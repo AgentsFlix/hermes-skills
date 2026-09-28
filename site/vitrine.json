@@ -394,6 +394,14 @@
       "antes": [],
       "cover_layout": "editorial-wide",
       "nota": "Transforme uma ideia ou plano em uma ação verificável, registre o retorno e escolha o próximo passo com base no que aconteceu."
+    },
+    "setup-projeto": {
+      "fileira": "comece",
+      "colecao": null,
+      "passo": 15,
+      "antes": [],
+      "cover_layout": "editorial-wide",
+      "nota": "Prepare um projeto novo ou existente em duas etapas para Codex, Claude Code e Hermes. A skill task decide branch e worktree em cada mudança."
     }
   },
   "colecoes": {

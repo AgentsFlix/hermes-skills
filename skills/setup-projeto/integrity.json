@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "version": "1.0.0",
+  "algorithm": "sha256",
+  "files": {
+    "LICENSE": "6244738960f2a27905404edf750104381130189da33464d197b46c300126a48d",
+    "SKILL.md": "aacf6626321c94b3eda05fbb29182539c8d05616e5f017a7e27a8d525c56d4c8",
+    "agents/openai.yaml": "0c048ba2d6f49045cab45aee0c62687736122bd0ab88d8fd3332f027111eae84",
+    "assets/task/SKILL.md": "39d2f00328efbfcfe0f56ef5a645597240404e1a9537d575cbb567d6327efa4c",
+    "assets/task/agents/openai.yaml": "78127c7ffd0749dd714fd77ae013a001cc6c47928c2c70bfb5c2297f5e8d7cde",
+    "assets/task/references/workflow.md": "2c0fbfb04b57b8c44682e6ec5889dd2eeb40c27ba9a41f069ec7c0094a8895f4",
+    "assets/task/scripts/task_context.py": "cf464ac0e0991d7df99a52440668ce05e6040cd6b09f69039d518788182e5bf0",
+    "references/ativacao.md": "ac5c4cf039d1ce647558dbae5e050856fc0713ff50e7910c59f6775dd6bf3531",
+    "references/ciclo-de-vida.md": "388f42c467f47a0b1a0b383189e42f69cc5488893893f6abf3ba61af3a7f0998",
+    "references/conhecimento.okf.md": "33f233fb843ff714436afb8fdb902362299802f18aacde72a124467498800169",
+    "references/contrato-agentflix.md": "2137cd2f1e4e627a271e1ccffd9874d4a209537cbb107825ca1e424d4787ceff",
+    "references/existing-project.md": "f9116e97d735f75b48ad83ca8abbd179854cb2184e7e51f067b12c5976990888",
+    "references/github.md": "11678e5e112c9adba26182e141ccfb5a1b2fe41377e1bfb56ffd37acd7c7116d",
+    "references/identidade.json": "8a210220cbf79fa972cd3425942bf9976e78701907ec722d6db088870865e665",
+    "references/project-contract.md": "eb38e9aa7278d5e934d68a122456eda842949c6cf866425867455abc0646cf80",
+    "scripts/auditar.py": "d97f7f9b48b862bedc0999d20a20223055c80e8f70f0adba6088ea8a81f52f40",
+    "scripts/setup_project.py": "f8a3d22b835efac35db584bc09646dd8a6e649ad9dc6dd2678c2a3d32118ffbe",
+    "templates/estado-da-skill.md": "5ef67d67b29cf2600ddb7ad2fc93a714664646c87b542b5a9faaf65db2c9da35",
+    "templates/evento-de-uso.json": "0fe9c83959c6d7effb59f52a7bc16a7463c8bf819355d66efcc9289f21e22b6d"
+  }
+}

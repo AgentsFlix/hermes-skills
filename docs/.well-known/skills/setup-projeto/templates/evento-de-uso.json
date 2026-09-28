@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "event_id": "EXEMPLO-SUBSTITUIR",
+  "run_id": "EXECUCAO-SUBSTITUIR",
+  "skill_id": "setup-projeto",
+  "at": "2026-09-08T15:00:00Z",
+  "origin": "human",
+  "operation": "create",
+  "result": "completed",
+  "version": "1.0.0",
+  "content_revision": "1.0.0",
+  "artifact_ref": "artefatos/entrega-r1.md",
+  "verification": "passed"
+}

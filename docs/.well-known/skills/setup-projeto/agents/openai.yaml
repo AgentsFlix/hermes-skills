@@ -1,0 +1,4 @@
+interface:
+  display_name: "Setup de projeto"
+  short_description: "Prepare repositórios para agentes de código"
+  default_prompt: "Use $setup-projeto para preparar este projeto, novo ou existente, e deixar a skill task pronta para desenvolver."
