@@ -876,19 +876,24 @@
 
   // ---------- banner rotativo: sorteia uma obra por carga e troca a cada HERO_MS, sem repetir até fechar a volta ----------
   const HERO_MS = 9000;
-  let heroSlug = null, heroPool = [], heroHover = false, heroTimer = null;
+  let heroSlug = null, heroPool = [], heroHover = false, heroTimer = null, heroPreparing = false;
   function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
   function pinnedHero() { const want = new URLSearchParams(location.search).get("destaque"); return want && BY[want] ? BY[want] : null; }
   function nextHero() { if (!heroPool.length) heroPool = shuffle(ALL.map((s) => s.slug).filter((x) => x !== heroSlug)); return BY[heroPool.pop()]; }
   function heroFor() { return pinnedHero() || (heroSlug && BY[heroSlug]) || (CAT && CAT.featured && BY[CAT.featured]) || BY[FEATURED_DEFAULT] || ALL[0]; }
-  function swapHero() {
-    if (state.view === "reading" || pinnedHero() || state.open || introPhase !== "off" || document.hidden || heroHover || ALL.length < 2) return;
+  async function swapHero() {
+    if (heroPreparing || $("hero").hidden || state.view === "reading" || pinnedHero() || state.open || introPhase !== "off" || document.hidden || heroHover || ALL.length < 2) return;
     const s = nextHero(); if (!s) return;
-    const kind = window.matchMedia("(max-width: 860px)").matches ? "mobile" : "desktop";
-    let done = false;
-    const go = () => { if (done) return; done = true; const el = $("hero"); el.classList.add("swapping"); setTimeout(() => { heroSlug = s.slug; renderHero(); }, 380); };
-    const img = new Image(); img.onload = go; img.onerror = go; img.src = coverUrl(s.slug, kind);   // pré-carrega a arte antes de trocar
-    setTimeout(go, 1500);
+    heroPreparing = true;
+    const kind = window.matchMedia("(max-width: 600px)").matches ? "mobile" : "desktop";
+    const img = new Image(); img.src = coverUrl(s.slug, kind);
+    try {
+      const {decodeImage} = await import('/design-system/navigation.mjs');
+      await decodeImage(img, new AbortController().signal);
+      if ($("hero").hidden || state.view === "reading" || pinnedHero() || state.open || introPhase !== "off" || document.hidden || heroHover) return;
+      heroSlug = s.slug; renderHero();
+    } catch (_) { /* Keep the current complete cover when the next one is unavailable. */ }
+    finally { heroPreparing = false; }
   }
   function startHeroRotation() {
     clearInterval(heroTimer);

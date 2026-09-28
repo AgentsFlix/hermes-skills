@@ -149,6 +149,8 @@ export function mountNavigation({ header, viewport, screen, loader, error, retry
   async function navigate(input, { history = true, focus = true } = {}) {
     const value = resolve(input);
     if (!value || disposed) return false;
+    // Selecting the current destination must not remount a lesson or reset its scroll.
+    if (activeStage && viewport.dataset.state === 'ready' && urlFor(value) === urlFor(current)) return true;
     controller?.abort();
     disposeStage(activeStage);
     disposeStage(preparingStage);
@@ -234,22 +236,16 @@ export function mountNavigation({ header, viewport, screen, loader, error, retry
   let refreshSerial = 0;
   async function refresh() {
     const stage = activeStage, id = serial, refreshId = ++refreshSerial;
-    if (!stage || disposed || controller.signal.aborted) return;
+    if (!stage || disposed || controller.signal.aborted || viewport.dataset.state !== 'ready') return false;
     const { signal } = controller;
-    stage.beforeRefresh?.();
-    showState('loading');
+    // An update belongs to the mounted page. Keep its layout, focus and playback alive.
+    // Only navigate() may replace the page with the branded loading/error screen.
     try {
       await prepareVisuals(stage.visualRoot || screen, signal, { timeout, images: stage.images });
-      if (disposed || signal.aborted || serial !== id || refreshSerial !== refreshId) return;
-      await stage.beforeReady?.({ signal });
-      showState('ready');
-      stage.afterReady?.();
+      return !disposed && !signal.aborted && serial === id && refreshSerial === refreshId;
     } catch (_) {
-      if (disposed || signal.aborted || serial !== id || refreshSerial !== refreshId) return;
-      controller.abort();
-      disposeStage(stage); activeStage = undefined;
-      screen.replaceChildren();
-      failedTarget = { ...current }; showState('error');
+      // A failed image update cannot dispose a course or erase the current selection.
+      return false;
     }
   }
   return { ready, navigate, refresh, get current() { return { ...current }; }, dispose() {

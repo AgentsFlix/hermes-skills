@@ -4,6 +4,7 @@
  */
 import { mountNavigation, bounded } from './navigation.mjs';
 import { isPreviewVisual, isDormantRouteVisual, mountPreviewVisuals } from './preview-visuals.mjs';
+import { mountLiveVisuals } from './live-visuals.mjs';
 window.AgentFlixProductShell = true;
 const $ = id => document.getElementById(id);
 const header = $('shell-header'), home = $('page');
@@ -119,47 +120,20 @@ function bodyImages(root) {
 }
 function observeVisuals(root, life, stage) {
   mountPreviewVisuals(root.querySelector('#preview'), life);
-  let scheduled = false;
-  let knownImages = new Map();
-  const routeImages = () => [...root.querySelectorAll('img')].filter(image => !isPreviewVisual(image));
+  let revealed = false;
   // Capture failures before legacy fallback handlers remove a required image.
   const failed = new Set();
   life.listen(root, 'error', event => {
-    if (event.target.tagName !== 'IMG' || isPreviewVisual(event.target) || isDormantRouteVisual(event.target, root)) return;
+    if (revealed || event.target.tagName !== 'IMG' || isPreviewVisual(event.target) || isDormantRouteVisual(event.target, root)) return;
     failed.add(event.target);
-    if (viewport.dataset.state === 'ready') void shell.refresh();
   }, true);
-  const imageKey = image => image.getAttribute('src') + '|' + image.getAttribute('srcset') + '|' + image.currentSrc;
   stage.beforeReady = () => {
     if ([...failed].some(image => image.getAttribute('src'))) throw Error('Required image failed');
-    knownImages = new Map(routeImages().map(image => [image, imageKey(image)]));
-  };
-  let pausedForGate = [];
-  stage.beforeRefresh = () => {
-    pausedForGate = [...root.querySelectorAll('video')].filter(video => !video.paused);
-    pausedForGate.forEach(video => video.pause());
   };
   stage.afterReady = () => {
+    if (!revealed) { revealed = true; mountLiveVisuals(root, life); }
     stage.reveal?.();
-    pausedForGate.forEach(video => { if (!life.signal.aborted) void video.play().catch(() => {}); });
-    pausedForGate = [];
   };
-  const changed = (records = []) => {
-    const newImages = routeImages().some(image => !isDormantRouteVisual(image, root) && (image.getAttribute('src') || image.getAttribute('srcset')) && knownImages.get(image) !== imageKey(image));
-    const backgroundChanged = records.some(record => !isPreviewVisual(record.target) && !isDormantRouteVisual(record.target, root) && (record.attributeName === 'poster' || record.attributeName === 'style' && (record.target.style.backgroundImage || /background(?:-image)?\s*:/i.test(record.oldValue || ''))));
-    if (!newImages && !backgroundChanged) return;
-    if (scheduled || viewport.dataset.state !== 'ready') return;
-    scheduled = true;
-    queueMicrotask(() => {
-      scheduled = false;
-      if (life.signal.aborted) return;
-      stage.images = bodyImages(root);
-      void shell.refresh();
-    });
-  };
-  const observer = new MutationObserver(changed);
-  life.listen(window, 'resize', () => changed());
-  life.observe(observer, root, { subtree: true, childList: true, attributes: true, attributeOldValue: true, attributeFilter: ['src','srcset','poster','style','hidden'] });
 }
 async function routeStage(target, signal) {
   const life = window.AgentFlixRouteLife.create(signal);

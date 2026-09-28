@@ -102,7 +102,7 @@
         if(compact)return `<div class="recommended-inline" data-recommended="${esc(s.slug)}"><div><p class="eyebrow">${r.done?'Seu caminho está em dia':'Recomendado para você'}</p><p><strong>${esc(s.name)}</strong> · ${esc(reason)}</p></div><button class="guide-primary" data-act="open" data-slug="${esc(s.slug)}">${journey.has(s.slug)?'Rever a skill':'Começar por aqui'}</button></div>`;
         return `<article class="recommended-piece" data-recommended="${esc(s.slug)}"><img alt="" src="${cover(s.slug)}"><div><p class="eyebrow">${r.done?'Seu caminho está em dia':'Recomendado para você'}</p><h2>${esc(s.name)}</h2><p>${esc(s.sub)}</p><p class="recommend-reason">${esc(reason)}</p>${completeOnboarding?`<button class="guide-primary" data-act="open" data-slug="${esc(s.slug)}">${journey.has(s.slug)?'Rever a skill':'Começar por aqui'}</button>`:''}</div></article>`;
       }
-      let featuredIndex = 0, featuredTimer = null, featuredPaused = false;
+      let featuredIndex = 0, featuredWanted = 0, featuredTimer = null, featuredPaused = false, featureController = null;
       const featureHost = $('recommendation');
       const journeyHost = document.createElement('section');
       journeyHost.id = 'journey-summary';
@@ -120,13 +120,29 @@
           <p class="sr-only" role="status" data-feature-status></p>
         </section>`;
       }
-      function paintFeature(index,announce=false) {
+      async function paintFeature(index,announce=false) {
         const banner=featureHost.querySelector('.featured-banner');if(!banner)return;
-        featuredIndex=(index+featured.length)%featured.length;
-        const s=featureSlide();
+        featuredWanted=(index+featured.length)%featured.length;
+        const nextIndex=featuredWanted, s=featured[nextIndex];
+        featureController?.abort();
+        const controller=new AbortController();featureController=controller;
+        const picture=banner.querySelector('.featured-art').cloneNode(true);
+        picture.querySelector('source').srcset=featureCover(s.slug,'mobile');
+        const image=picture.querySelector('img');image.src=featureCover(s.slug,'desktop');
+        try {
+          const {decodeImage}=await import('/design-system/navigation.mjs');
+          await decodeImage(image,controller.signal);
+          if(controller.signal.aborted||featureHost.querySelector('.featured-banner')!==banner||featureHost.closest('[hidden]')||(!announce&&(featuredPaused||document.hidden)))return;
+        } catch (_) {
+          if(!controller.signal.aborted&&announce&&featureHost.querySelector('.featured-banner')===banner)
+            banner.querySelector('[data-feature-status]').textContent='Não foi possível carregar este destaque. Tente novamente.';
+          return;
+        } finally {
+          if(featureController===controller){featureController=null;scheduleFeature();}
+        }
+        featuredIndex=nextIndex;
         banner.dataset.featuredSlug=s.slug;
-        banner.querySelector('source').srcset=featureCover(s.slug,'mobile');
-        banner.querySelector('.featured-art img').src=featureCover(s.slug,'desktop');
+        banner.querySelector('.featured-art').replaceWith(picture);
         banner.querySelector('[data-feature-position]').textContent=`${featuredIndex+1} de ${featured.length}`;
         banner.querySelector('[data-feature-name]').textContent=s.name;
         banner.querySelector('[data-feature-sub]').textContent=s.sub;
@@ -138,15 +154,15 @@
         clearTimeout(featuredTimer);featuredTimer=null;
         const banner=featureHost.querySelector('.featured-banner');
         const playbackFocused=!!banner?.querySelector('[data-feature-playback]:focus');
-        if(onboardingOpen||featured.length<2||featuredPaused||reduced()||document.hidden||!banner||(!playbackFocused&&banner.matches(':hover'))||(banner.contains(document.activeElement)&&!playbackFocused))return;
-        featuredTimer=setTimeout(()=>{paintFeature(featuredIndex+1);scheduleFeature();},9000);
+        if(onboardingOpen||featured.length<2||featuredPaused||featureController||reduced()||document.hidden||featureHost.closest('[hidden]')||!banner||(!playbackFocused&&banner.matches(':hover'))||(banner.contains(document.activeElement)&&!playbackFocused))return;
+        featuredTimer=setTimeout(()=>{void paintFeature(featuredWanted+1);},9000);
       }
       featureHost.addEventListener('click',e=>{
         const playback=e.target.closest('[data-feature-playback]');
         if(playback){featuredPaused=!featuredPaused;playback.textContent=featuredPaused?'Reproduzir':'Pausar';featureHost.querySelector('[data-feature-status]').textContent=featuredPaused?'Destaques pausados':'Destaques em reprodução';scheduleFeature();return;}
         const control=e.target.closest('[data-feature-step],[data-feature-index]');if(!control)return;
-        const index=control.hasAttribute('data-feature-step')?featuredIndex+Number(control.dataset.featureStep):Number(control.dataset.featureIndex);
-        paintFeature(index,true);scheduleFeature();
+        const index=control.hasAttribute('data-feature-step')?featuredWanted+Number(control.dataset.featureStep):Number(control.dataset.featureIndex);
+        void paintFeature(index,true);scheduleFeature();
       });
       featureHost.addEventListener('pointerenter',scheduleFeature);
       featureHost.addEventListener('pointerleave',scheduleFeature);
@@ -155,6 +171,7 @@
       document.addEventListener('visibilitychange',scheduleFeature);
       matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change',scheduleFeature);
       function renderRecommendation() {
+        featureController?.abort();featureController=null;featuredWanted=featuredIndex;
         featureHost.innerHTML = !onboardingOpen ? featureMarkup() : '';
         journeyHost.innerHTML = `<div class="selection-heading">${completeOnboarding ? `<div><h2 class="eyebrow">Seu caminho</h2><p>Objetivo: ${esc(name(result.skill))}</p></div>` : ''}<button data-discover-reset>Refazer minhas escolhas</button></div>${completeOnboarding ? recommendation(true) : ''}`;
         journeyHost.hidden = onboardingOpen;
@@ -298,11 +315,12 @@
       return {matches,card,context,extras,bind,cancel,setDoor,toggleGuide,resume,installation,installationButton,gate,status,
         locked:journey.locked, renderRecommendation,
         presented() {
+          scheduleFeature();
           if (!onboardingOpen || $('discovery').hidden) return;
           if (hooks.authenticated) { visit.markPresented(); window.AgentFlixMemory?.flush(); }
           event('onboarding_exibido');
         },
-        endVisit(){target=null;if(onboardingOpen && visit.wasPresented()){onboardingOpen=false;hooks.filter();}},
+        endVisit(){clearTimeout(featuredTimer);featureController?.abort();target=null;if(onboardingOpen && visit.wasPresented()){onboardingOpen=false;hooks.filter();}},
         get catalogAvailable(){return !onboardingOpen;},
         get completed(){return completeOnboarding;},
         rows:data.fileiras.map(f=>({id:f.id,title:()=>f.titulo,note:f.sub,ids:available.filter(slug=>data.skills[slug].fileira===f.id),journey:true})),

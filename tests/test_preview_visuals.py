@@ -66,12 +66,9 @@ console.log('PASS local decode, replacement, failure and route disposal');
     def test_route_observer_keeps_hover_assets_outside_the_page_gate(self):
         source = (WEB / 'design-system/product-shell.mjs').read_text()
         self.assertIn("mountPreviewVisuals(root.querySelector('#preview'), life)", source)
-        self.assertIn("filter(image => !isPreviewVisual(image))", source)
         self.assertIn("event.target.tagName !== 'IMG' || isPreviewVisual(event.target)", source)
-        self.assertIn("!isPreviewVisual(record.target)", source)
-        self.assertIn("!isDormantRouteVisual(image, root)", source)
-        self.assertIn("'poster','style','hidden'", source)
-        self.assertIn("void shell.refresh()", source)
+        self.assertIn("mountLiveVisuals(root, life)", source)
+        self.assertNotIn("shell.refresh()", source)
 
 
 if __name__ == '__main__':
