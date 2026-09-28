@@ -15,3 +15,16 @@ O app macOS foi instalado e aberto na Mesa. A primeira conclusão do onboarding 
 ## Limites
 
 URLs precisam de legenda manual ou automática acessível. O fluxo completo de transcrição no Windows ainda não foi ensaiado.
+
+
+## Atualização da distribuição em 28/09/2026
+
+O catálogo oficial ainda apontava para a release 1.1.0. A release 1.2.0 inclui o HTML, as fontes,
+as duas ilustrações, os vídeos tratados e o motor no repositório, na cópia portátil e no ZIP.
+Os hashes confirmaram bytes idênticos nessas três distribuições e no aplicativo macOS aprovado.
+A orientação manda obter o pacote completo e executar o instalador oficial; se recebeu somente
+um documento ou algum ativo faltar, aponta para o ZIP 1.2.0 e seu recibo de integridade.
+
+Interface compartilhada conferida em 1440, 768 e 390 px: ilustrações carregadas, texto/botão legíveis
+sem rolagem horizontal. Na janela desktop, o cartão YouTube revelou o campo, aceitou colagem e
+habilitou Transcrever vídeo. A atualização deve ser reinstalada para alterar apps já existentes.

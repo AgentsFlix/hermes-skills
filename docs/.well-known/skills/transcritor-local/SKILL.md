@@ -38,6 +38,19 @@ Use para instalar, diagnosticar ou operar o transcritor de áudio e vídeo no co
 O padrão é instalar neste computador. Sem acesso ao terminal do destino, entregue as instruções e diga
 que o app ainda não foi instalado. Um agente remoto não deve instalar no próprio servidor por engano.
 
+## Pacote e interface oficiais
+
+Instale executando os scripts deste pacote. Use `assets/index.html`, as fontes Archivo e as
+ilustrações `assets/escolher-arquivo.webp` e `assets/colar-youtube.webp` exatamente como distribuídos.
+Não recrie a interface nem substitua as imagens por uma versão provisória. Se a instalação anterior
+mostra só entrada de arquivo, atualize o pacote inteiro e execute novamente o instalador; copiar
+apenas o `SKILL.md` não atualiza o aplicativo.
+
+Se recebeu apenas o texto da skill ou faltar algum arquivo listado ao final, obtenha e extraia o
+[pacote completo 1.2.0](https://raw.githubusercontent.com/AgentsFlix/skills/transcritor-local-v1.2.0/docs/packages/transcritor-local.zip)
+antes de executar o bootstrap. Confira os hashes dos arquivos com `integrity.json`. Depois de instalar,
+confira os dois cartões ilustrados e clique em **Cole URL do YouTube** para revelar o campo de URL.
+
 ## Quick Reference
 
 Recupere destino, sistema, arquitetura, arquivos e contexto da conversa e memória relevante. Destino e sistema são obrigatórios para instalar; mídia é obrigatória só para transcrever. Detecte o ambiente antes de perguntar. Sem terminal no destino, entregue instruções e diga que não instalou.

@@ -46,6 +46,19 @@ Use para instalar, diagnosticar ou operar o transcritor de áudio e vídeo no co
 O padrão é instalar neste computador. Sem acesso ao terminal do destino, entregue as instruções e diga
 que o app ainda não foi instalado. Um agente remoto não deve instalar no próprio servidor por engano.
 
+## Pacote e interface oficiais
+
+Instale executando os scripts deste pacote. Use `assets/index.html`, as fontes Archivo e as
+ilustrações `assets/escolher-arquivo.webp` e `assets/colar-youtube.webp` exatamente como distribuídos.
+Não recrie a interface nem substitua as imagens por uma versão provisória. Se a instalação anterior
+mostra só entrada de arquivo, atualize o pacote inteiro e execute novamente o instalador; copiar
+apenas o `SKILL.md` não atualiza o aplicativo.
+
+Se recebeu apenas o texto da skill ou faltar algum arquivo listado ao final, obtenha e extraia o
+[pacote completo 1.2.0](https://raw.githubusercontent.com/AgentsFlix/skills/transcritor-local-v1.2.0/docs/packages/transcritor-local.zip)
+antes de executar o bootstrap. Confira os hashes dos arquivos com `integrity.json`. Depois de instalar,
+confira os dois cartões ilustrados e clique em **Cole URL do YouTube** para revelar o campo de URL.
+
 ## Quick Reference
 
 Recupere destino, sistema, arquitetura, arquivos e contexto da conversa e memória relevante. Destino e sistema são obrigatórios para instalar; mídia é obrigatória só para transcrever. Detecte o ambiente antes de perguntar. Sem terminal no destino, entregue instruções e diga que não instalou.
@@ -1443,7 +1456,7 @@ Sem evento de execução, não afirmar uso. Sem observação contínua, não afi
   "files": {
     ".skillignore": "0c1c503f01dab58053ed6795bded89a80792a7c2c819e7be3696a075bf79290b",
     "LICENSE": "6244738960f2a27905404edf750104381130189da33464d197b46c300126a48d",
-    "SKILL.md": "88d81a793fb73c455668f55979948b542b7f7aeda9ae9211c2934a6b1381bad8",
+    "SKILL.md": "4e1363f58a4376ef44614caf8cf286754d65528df8544375cce5a36a4ae9ae14",
     "assets/TranscritorApp.swift": "95fa2ecd2caca3f5dd669cda40c9dce77f519d0924cf5087a58eebade6b3355a",
     "assets/TranscritorAppWindows.py": "992800eac60c935e01ec1936faed9c5d2c43d5843d3b42d77341da970a8881b1",
     "assets/agentflix-logo.svg": "66653e32a09ca0fc5e3edc61781ce27d634b2eb61dfa6a6adc508912a1e3def6",
