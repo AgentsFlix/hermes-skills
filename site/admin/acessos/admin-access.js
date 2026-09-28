@@ -419,6 +419,11 @@ byId("mfa-form").addEventListener("submit", async (event) => {
     byId("mfa-qr").removeAttribute("src");
     const { data: session, error: sessionError } = await client.auth.getSession();
     if (sessionError || !session?.session) throw sessionError || new Error("session unavailable");
+    const next = new URLSearchParams(location.search).get("next");
+    const { data: admin, error: adminError } = await client.rpc("is_profile_admin");
+    if (next === "/admin/metricas/" && admin === true && !adminError) {
+      location.assign(next); return;
+    }
     await loadAdmin(session.session);
   } catch (error) {
     console.warn("AgentFlix MFA verification unavailable", error?.name);

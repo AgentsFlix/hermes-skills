@@ -50,7 +50,13 @@
       body.id = 'reader-skill'; body.setAttribute('role','tabpanel'); body.setAttribute('aria-labelledby','reader-tab-skill'); body.hidden = true;
       tabs.insertAdjacentHTML('afterend', '<section id="human-reader" role="tabpanel" aria-labelledby="reader-tab-human" aria-busy="true"><p class="reader-message" role="status">Carregando leitura…</p></section>');
     }
-    let root = panel.querySelector('#human-reader');
+    let root = panel.querySelector('#human-reader'), loaded = false, opened = false;
+    function recordOpening() {
+      if (!loaded || opened || root.hidden) return false;
+      opened = true;
+      window.AgentFlixMetrics?.record('reading_open', slug, {mode:'human', appearance:root.dataset.readingTheme});
+      return true;
+    }
     const contentURL = new URL(READINGS[slug], document.baseURI);
     const scrollToReading = () => scroller.scrollBy({ top: root.getBoundingClientRect().top - scroller.getBoundingClientRect().top - (tabs?.offsetHeight || 0), behavior: 'instant' });
     const closePreferences = () => {
@@ -69,6 +75,9 @@
         button.setAttribute('aria-selected', String(name === value)); button.tabIndex = name === value ? 0 : -1;
       }
       root.hidden = name !== 'human'; body.hidden = name !== 'skill';
+      if (loaded && wasReading !== (name === 'human')) {
+        if (!recordOpening()) window.AgentFlixMetrics?.record('reading_mode', slug, {mode:name});
+      }
       if(name === 'skill') window.dispatchEvent(new Event('resize'));
       if(scroll) scroller.scrollTop = positions[name] ?? tabStart;
     }
@@ -106,7 +115,9 @@
           root.dataset.readerFormat = 'essay';
         }
         bindReader(root, data, contentURL, scrollToReading, signal, slug);
-        bindPreferences(root, scroller, signal, {fixedPaper: essay});
+        bindPreferences(root, scroller, signal, {fixedPaper: essay, slug});
+        loaded = true;
+        if (!recordOpening() && root.hidden) window.AgentFlixMetrics?.record('reading_mode', slug, {mode:'skill'});
         sharing?.addButton(root.querySelector('.reading-toolbar'));
         const legal = root.querySelector('.legal');
         legal.textContent = data.disclaimer;
@@ -192,7 +203,7 @@ async function copy(text,btn){try{await navigator.clipboard.writeText(text);btn.
     $('next').addEventListener('click', () => show(index + 1, true), {signal});
     show(index);
   }
-function bindPreferences(root, scroller, signal, {fixedPaper = false} = {}) {
+function bindPreferences(root, scroller, signal, {fixedPaper = false, slug = null} = {}) {
   const $ = id => root.querySelector('#hr-' + id);
   const listen = (target, name, fn) => target.addEventListener(name, fn, { signal });
   const KEY = 'agentflix-reading-v1';
@@ -227,8 +238,10 @@ function bindPreferences(root, scroller, signal, {fixedPaper = false} = {}) {
     const anchor = [...root.querySelectorAll('.reading h2, .reading h3, .reading p, .compare-row')]
       .find(el => { const rect = el.getBoundingClientRect(); return rect.bottom > edge && rect.top < innerHeight; });
     const top = anchor?.getBoundingClientRect().top;
+    const previousTheme = prefs.theme;
     prefs = normalize(next);
     apply();
+    if (!fixedPaper && !root.hidden && prefs.theme !== previousTheme) window.AgentFlixMetrics?.record('reading_appearance', slug, {appearance:prefs.theme});
     if (anchor) scroller.scrollBy(0, anchor.getBoundingClientRect().top - top);
     try {
       localStorage.setItem(KEY, JSON.stringify(prefs));

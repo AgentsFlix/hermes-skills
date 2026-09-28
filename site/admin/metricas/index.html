@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#141414">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="Métricas de uso do AgentFlix para orientar decisões de produto e conteúdo.">
+  <title>Métricas | Administração AgentFlix</title>
+  <link rel="icon" href="/brand/favicon-dark.ico">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="/design-system/tokens.css">
+  <link rel="stylesheet" href="/design-system/primitives.css">
+  <link rel="stylesheet" href="/design-system/icons.css">
+  <link rel="stylesheet" href="metrics.css">
+  <script src="/design-system/icons.js" defer></script>
+</head>
+<body>
+  <a class="skip-link af-button" href="#main">Pular para o painel</a>
+  <header class="app-header">
+    <a class="brand" href="/" aria-label="Voltar à AgentFlix"><img src="/brand/horizontal-transparente-dark.svg" alt="AgentFlix"></a>
+    <nav aria-label="Administração">
+      <a href="/admin/metricas/" aria-current="page">Métricas</a>
+      <a href="/admin/acessos/">Acessos</a>
+      <a href="/conta/">Minha conta</a>
+    </nav>
+  </header>
+
+  <main id="main" class="dashboard-shell">
+    <section id="loading-state" class="access-state af-panel" role="status">
+      <af-icon name="privacy" aria-hidden="true"></af-icon>
+      <p class="af-type-context">Administração</p>
+      <h1>Conferindo acesso ao painel</h1>
+      <p>Carregando suas permissões e os números do período.</p>
+    </section>
+    <section id="signed-out-state" class="access-state af-panel" hidden>
+      <af-icon name="privacy" aria-hidden="true"></af-icon>
+      <p class="af-type-context">Administração</p>
+      <h1>Entre para ver as métricas</h1>
+      <p>O painel está disponível para administradores da AgentFlix.</p>
+      <a class="af-button" href="/entrar/?next=%2Fadmin%2Fmetricas%2F">Entrar na AgentFlix</a>
+    </section>
+    <section id="forbidden-state" class="access-state af-panel" hidden>
+      <af-icon name="privacy" aria-hidden="true"></af-icon>
+      <p class="af-type-context">Administração</p>
+      <h1>Acesso restrito</h1>
+      <p>Esta conta não tem permissão para consultar as métricas.</p>
+      <a class="af-button" href="/conta/">Voltar à minha conta</a>
+    </section>
+    <section id="mfa-state" class="access-state af-panel" hidden>
+      <af-icon name="privacy" aria-hidden="true"></af-icon>
+      <p class="af-type-context">Acesso seguro</p>
+      <h1>Confirme o segundo fator</h1>
+      <p>Use o aplicativo autenticador no painel de acessos. Depois, volte às métricas para carregar os números.</p>
+      <a class="af-button" href="/admin/acessos/?next=%2Fadmin%2Fmetricas%2F">Confirmar autenticação</a>
+    </section>
+    <section id="unavailable-state" class="access-state af-panel" hidden>
+      <af-icon name="warning" aria-hidden="true"></af-icon>
+      <p class="af-type-context">Consulta indisponível</p>
+      <h1>Os números não carregaram</h1>
+      <p>Não foi possível consultar as métricas agora. Tente carregar novamente.</p>
+      <button id="retry-button" class="af-button" type="button">Tentar novamente</button>
+    </section>
+
+    <div id="dashboard-state" hidden>
+      <div class="dashboard-heading">
+        <div><p class="af-type-context eyebrow">Administração · Visão de CEO</p><h1>O que move o AgentFlix</h1><p class="intro">Uso do acervo para orientar a próxima decisão.</p></div>
+        <a class="af-button af-button--outline" href="/">Abrir o produto <af-icon name="external" aria-hidden="true"></af-icon></a>
+      </div>
+
+      <div class="period-toolbar">
+        <div><p class="af-type-context">Período observado</p><p id="window-label" class="af-type-caption"></p></div>
+        <div class="period-controls">
+          <fieldset class="period-choice"><legend class="sr-only">Últimos dias</legend><div class="af-segmented">
+            <label><input type="radio" name="period" value="7"><span class="af-type-context">7 dias</span></label>
+            <label><input type="radio" name="period" value="30" checked><span class="af-type-context">30 dias</span></label>
+            <label><input type="radio" name="period" value="90"><span class="af-type-context">90 dias</span></label>
+          </div></fieldset>
+          <button id="refresh-button" class="af-button af-button--outline" type="button"><af-icon name="restart" aria-hidden="true"></af-icon>Atualizar</button>
+        </div>
+      </div>
+      <p id="query-status" class="query-status af-type-caption" role="status" aria-live="polite"></p>
+      <div id="coverage-note" class="coverage-note"><af-icon name="information" aria-hidden="true"></af-icon><p id="coverage-text" class="af-type-caption"></p></div>
+
+      <section class="metric-grid" aria-label="Números do período" id="metric-cards"></section>
+
+      <section id="empty-note" class="af-panel empty-note" hidden aria-labelledby="empty-title"><h2 id="empty-title">Ainda sem atividade registrada</h2><p>O período consultado não tem eventos de uso. Os números passam a refletir novas interações após o início da coleta.</p></section>
+
+      <section class="af-panel daily-panel" aria-labelledby="daily-title">
+        <div class="section-heading"><div><p class="af-type-context eyebrow">Ritmo de uso</p><h2 id="daily-title">Atividade ao longo do período</h2></div><p class="af-type-caption">Contagens por dia, no horário de Brasília</p></div>
+        <ul class="chart-legend af-type-caption" aria-label="Séries do gráfico"><li><span class="legend-key copies"></span>Comandos copiados</li><li><span class="legend-key readings"></span>Leituras abertas</li><li><span class="legend-key videos"></span>Reproduções iniciadas</li></ul>
+        <p id="chart-description" class="sr-only"></p>
+        <div id="chart-scroll" class="chart-scroll" tabindex="0" role="region" aria-label="Gráfico diário; use as setas para percorrer o período" aria-describedby="chart-description"><div id="daily-chart" class="daily-chart" aria-hidden="true"></div></div>
+        <p id="chart-note" class="section-note af-type-caption" hidden>Dias hachurados: a coleta ainda não havia começado.</p>
+        <details class="daily-details"><summary>Ver contagens por dia</summary><div class="table-scroll" tabindex="0" role="region" aria-label="Tabela de atividade diária"><table><caption class="sr-only">Atividade diária do período observado</caption><thead><tr><th scope="col">Dia</th><th scope="col">Comandos copiados</th><th scope="col">Leituras abertas</th><th scope="col">Reproduções iniciadas</th></tr></thead><tbody id="daily-table"></tbody></table></div></details>
+      </section>
+
+      <div class="rankings-grid">
+        <section class="af-panel ranking-panel" aria-labelledby="skills-title"><div class="section-heading"><div><p class="af-type-context eyebrow">Skills</p><h2 id="skills-title">Comandos mais copiados</h2></div></div><p class="section-note af-type-caption">Cópias feitas no site. A execução da skill fora do AgentFlix não é medida.</p><div id="skills-ranking"></div></section>
+        <section class="af-panel ranking-panel" aria-labelledby="readings-title"><div class="section-heading"><div><p class="af-type-context eyebrow">Leituras</p><h2 id="readings-title">Conteúdos mais abertos</h2></div></div><p class="section-note af-type-caption">Aberturas do conteúdo Para o humano.</p><div id="readings-ranking"></div></section>
+      </div>
+
+      <div class="rankings-grid format-grid">
+        <section class="af-panel ranking-panel" aria-labelledby="modes-title"><div class="section-heading"><div><p class="af-type-context eyebrow">Formato</p><h2 id="modes-title">Modos de leitura</h2></div></div><p class="section-note af-type-caption">Acessos iniciais e trocas de modo durante a leitura.</p><div id="reading-modes-ranking"></div></section>
+        <section class="af-panel ranking-panel" aria-labelledby="appearance-title"><div class="section-heading"><div><p class="af-type-context eyebrow">Preferência no leitor</p><h2 id="appearance-title">Aparência</h2></div></div><p class="section-note af-type-caption">Preferência observada nas aberturas e trocas no leitor.</p><div id="appearances-ranking"></div></section>
+      </div>
+
+      <section class="af-panel lessons-panel" aria-labelledby="lessons-title"><div class="section-heading"><div><p class="af-type-context eyebrow">Aulas</p><h2 id="lessons-title">Do primeiro play à conclusão</h2></div></div><div class="video-outcomes" id="video-outcomes"></div><p class="section-note af-type-caption">Engajamento: pelo menos 30 segundos de conteúdo assistidos, ou 90% de uma aula curta. Conclusão: pelo menos 90% efetivamente assistidos.</p><div id="lessons-ranking"></div></section>
+
+      <section class="observations-section" aria-labelledby="observations-title"><div class="section-heading"><div><p class="af-type-context eyebrow">Para a próxima decisão</p><h2 id="observations-title">Onde aprofundar</h2></div></div><p class="section-note af-type-caption">Observações de volume e comparação. Os números não explicam sozinhos o motivo de uma mudança.</p><div id="observations" class="observations-grid"></div></section>
+
+      <section class="measurement-notes" aria-labelledby="measurement-title"><h2 id="measurement-title" class="af-type-context">Como ler estes números</h2><p class="af-type-caption">Visitas são sessões de navegação com atividade registrada, não pessoas únicas. A mesma visita pode gerar mais de uma cópia, abertura ou reprodução. A coleta pode não registrar interações bloqueadas pelo navegador ou realizadas offline.</p><p id="collection-meta" class="af-type-caption"></p></section>
+    </div>
+  </main>
+  <footer class="app-footer"><span class="af-type-caption">AgentFlix · Área restrita</span><a class="af-button af-button--text" href="/privacidade.html">Privacidade</a></footer>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.min.js"></script>
+  <script type="module" src="metrics.mjs"></script>
+</body>
+</html>

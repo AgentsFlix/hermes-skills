@@ -66,6 +66,7 @@
     });
   });
 
+  window.AgentFlixMetrics?.record('reading_mode', null, {mode:'agent'});
   fetch("manifest.json", { cache: "no-cache" })
     .then((response) => response.ok ? response.json() : Promise.reject(new Error(`HTTP ${response.status}`)))
     .then((manifest) => {

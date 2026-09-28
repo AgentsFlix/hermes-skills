@@ -21,6 +21,7 @@ function fillProfile(profile, user) {
   byId("name").value = profile.name || "";
   byId("phone").value = profile.phone || "";
   byId("admin-access-link").hidden = profile.role !== "admin";
+  byId("admin-metrics-link").hidden = profile.role !== "admin";
   setStatus();
 }
 
