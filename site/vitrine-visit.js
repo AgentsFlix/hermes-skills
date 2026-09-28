@@ -30,13 +30,35 @@
   function load() {
     try { return decode(JSON.parse(storage.getItem(key))); } catch { return null; }
   }
+  function wasPresented() {
+    try {
+      const value = JSON.parse(storage.getItem(key));
+      // Percursos anteriores já começaram: não obrigar a conta a repeti-los.
+      return value?.version === 1 && (value.presented === true ||
+        ['avulsa','colecao','guia'].includes(value.kind) && Array.isArray(value.answers) &&
+        typeof value.completed === 'boolean');
+    } catch { return false; }
+  }
+  function markPresented() {
+    if (wasPresented()) return true;
+    try {
+      const previous = JSON.parse(storage.getItem(key));
+      const value = previous?.version === 1 ? previous : {version:1};
+      storage.setItem(key, JSON.stringify({...value, presented:true}));
+      return true;
+    } catch { return false; }
+  }
   function save(kind, answers, completed) {
-    const value = {version:1,revision,kind,answers,completed};
+    const value = {version:1,revision,kind,answers,completed,presented:true};
     const decoded = decode(value);
     if (!decoded) return false;
     if (completed) value.goal = decoded.result.skill;
     try { storage.setItem(key, JSON.stringify(value)); return true; } catch { return false; }
   }
-  function clear() { try { storage.removeItem(key); } catch {} }
-  return {key,load,save,clear};
+  function clear() {
+    // Refazer escolhas é voluntário; não apaga o histórico da primeira entrada.
+    if (wasPresented()) { try { storage.setItem(key, JSON.stringify({version:1,presented:true})); } catch {} }
+    else { try { storage.removeItem(key); } catch {} }
+  }
+  return {key,load,save,clear,wasPresented,markPresented};
 });

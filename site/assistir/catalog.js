@@ -30,16 +30,17 @@
   let activeController;
 
   window.AgentFlixWatchCatalog = {
-    create(data, hooks) {
+    create(data, hooks, scope = document, life = window.AgentFlixRouteLife.create()) {
       activeController?.abort();
-      activeController = new AbortController();
-      const { signal } = activeController;
-      const root = document.getElementById("watch-catalog");
-      const query = document.getElementById("watch-query");
-      const search = document.getElementById("watch-search");
-      const searchToggle = document.getElementById("watch-search-toggle");
-      const listToggle = document.getElementById("watch-list");
-      const status = document.getElementById("watch-status");
+      const controller = activeController = new AbortController();
+      const { signal } = controller;
+      life.onDispose(() => controller.abort());
+      const root = scope.getElementById("watch-catalog");
+      const query = scope.getElementById("watch-query");
+      const search = scope.getElementById("watch-search");
+      const searchToggle = scope.getElementById("watch-search-toggle");
+      const listToggle = scope.getElementById("watch-list");
+      const status = scope.getElementById("watch-status");
       const available = model.available(data);
       let saved = hooks.read("agentflix-watch-list-v1", []);
       saved = Array.isArray(saved)
@@ -58,6 +59,9 @@
         return chapters ? `Temporada 1 · ${chapters} ${chapters===1?'capítulo interativo':'capítulos interativos'}` : series.em_breve ? "Temporada 1 · Em breve" : `${series.ano ? esc(series.ano) + " · " : ""}${model.episodes(series).length} episódios`;
       };
       const cover = (series, large = false) => {
+        if (series.cover_layout === "editorial-wide") {
+          return `<picture class="series-cover"><img src="${esc(large ? series.cover : series.cover_wide)}" alt="" width="1672" height="941" ${large ? 'fetchpriority="high"' : 'loading="lazy"'}></picture>`;
+        }
         const image = `<img src="${esc(large ? series.cover : series.cover_wide)}" alt="" ${series.cover_mobile ? 'width="1536" height="1024"' : ""} ${large ? 'fetchpriority="high"' : 'loading="lazy"'}>`;
         return series.cover_mobile
           ? `<picture class="series-cover${series.cover_has_title ? " art-with-title" : ""}"><source media="(max-width: 600px)" srcset="${esc(series.cover_mobile)}" width="1024" height="1536">${image}</picture>`
@@ -74,7 +78,7 @@
         const label = episode
           ? `Continuar ${series.name}`
           : `Mais informações sobre ${series.name}`;
-        return `<article class="watch-card${series.cover_mobile ? " has-responsive-cover" : ""}" data-series-card="${esc(series.slug)}">
+        return `<article class="watch-card${series.cover_layout === "editorial-wide" ? " has-editorial-cover" : series.cover_mobile ? " has-responsive-cover" : ""}" data-series-card="${esc(series.slug)}">
           <div class="watch-art">
             <a href="${esc(url(series, episode ? { ...resume, number: series.seasons[resume.season].n } : null))}" data-series="${esc(series.slug)}" ${episode ? "data-play" : ""} aria-label="${esc(label)}">${cover(series)}<span class="watch-cover-fallback">${esc(series.name)}</span><span class="watch-card-play">${icon(episode ? "play" : "info")}</span></a>
             ${bookmark(series)}
@@ -109,7 +113,7 @@
         const started = model
           .episodes(series)
           .some((item) => model.progress(item.episode, hooks.read));
-        return `<section class="watch-hero${series.cover_mobile ? " has-responsive-cover" : ""}" aria-labelledby="watch-featured-name">
+        return `<section class="watch-hero${series.cover_layout === "editorial-wide" ? " has-editorial-cover" : series.cover_mobile ? " has-responsive-cover" : ""}" aria-labelledby="watch-featured-name">
           <div class="watch-hero-art">${cover(series, true)}</div><div class="watch-hero-shade"></div>
           <div class="watch-hero-copy"><p class="watch-kicker">${esc(series.badge || "AgentFlix")}</p>
             <h1 id="watch-featured-name">${esc(series.name)}</h1>
@@ -209,7 +213,7 @@
             signal,
           }),
         );
-        requestAnimationFrame(updateRails);
+        life.frame(updateRails);
       }
 
       function message(title, text) {
@@ -322,7 +326,7 @@
         },
         { signal },
       );
-      document
+      scope
         .getElementById("watch-search-close")
         .addEventListener("click", closeSearch, { signal });
       search.addEventListener("submit", (event) => event.preventDefault(), {
@@ -374,7 +378,7 @@
         },
         { signal },
       );
-      return { render, message, reset };
+      return { render, message, reset, dispose: () => controller.abort(), search: () => searchToggle.click() };
     },
   };
 })();

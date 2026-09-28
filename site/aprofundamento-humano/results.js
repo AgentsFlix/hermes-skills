@@ -1,9 +1,10 @@
-(function () {
+function AgentFlixMountAssessmentResults(options) {
+  const { root = document, life = window.AgentFlixRouteLife.create(), header = document.querySelector('header'), routeURL = new URL(location.href) } = options || {};
   "use strict";
-  const status = document.getElementById("results-status");
-  const actions = document.getElementById("results-actions");
-  const list = document.getElementById("results-list");
-  const localList = document.getElementById("results-local");
+  const status = root.getElementById("results-status");
+  const actions = root.getElementById("results-actions");
+  const list = root.getElementById("results-list");
+  const localList = root.getElementById("results-local");
   const states = new Map(), mounts = new Map();
   let client, store, userId = null, rows = [], available = false, more = false, requestVersion = 0;
   const node = (tag, className, text) => {
@@ -14,7 +15,7 @@
   };
   const button = (label, fn, kind = "secondary") => {
     const b = node("button", "af-button af-button--" + kind, label);
-    b.type = "button"; b.addEventListener("click", fn); return b;
+    b.type = "button"; life.listen(b, "click", fn); return b;
   };
   function loginLink() {
     const link = node("a", "af-button af-button--primary", "Entrar para salvar");
@@ -107,7 +108,7 @@
           await store.remove(record.id);
           if (owner !== userId) return;
           states.delete(record.id); updateMounts(); await refresh();
-          document.getElementById("results-title").focus();
+          root.getElementById("results-title").focus();
         } catch (_) {
           if (owner !== userId) return;
           confirmButton.disabled = false;
@@ -189,7 +190,7 @@
     return new Promise((resolve, reject) => {
       const script = document.createElement("script");
       script.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.min.js";
-      const timer = setTimeout(() => reject(Error("auth timeout")), 8000);
+      const timer = life.timeout(() => reject(Error("auth timeout")), 8000);
       script.onload = () => { clearTimeout(timer); resolve(); };
       script.onerror = () => { clearTimeout(timer); reject(Error("auth unavailable")); };
       document.head.append(script);
@@ -197,38 +198,45 @@
   }
   async function initialize() {
     try {
-      const response = await fetch("/api/config", { cache: "no-store", signal: AbortSignal.timeout(8000) });
+      const response = await fetch("/api/config", { cache: "no-store", signal: AbortSignal.any([life.signal, AbortSignal.timeout(8000)]) });
       if (!response.ok) throw Error("config unavailable");
       const config = await response.json();
       if (!config.supabaseUrl || !config.supabaseAnonKey) throw Error("auth unavailable");
       await loadSupabase();
       client = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
+      life.onDispose(() => client.auth.stopAutoRefresh?.());
       const { data, error } = await client.auth.getSession();
+      if (life.signal.aborted) return;
       if (error) throw error;
       userId = data.session?.user?.id || null; available = true;
       store = window.AgentFlixAssessmentStore.create(client, () => userId);
-      client.auth.onAuthStateChange((_event, session) => {
+      const subscription = client.auth.onAuthStateChange((_event, session) => {
         const next = session?.user?.id || null;
         if (next === userId) return;
         userId = next;
         clearOwnedSession(); states.clear(); rows = [];
         // Interrompe a exibição e operações da identidade anterior, inclusive em outra aba.
-        document.querySelector("#agent-prompt-dialog")?.close();
-        document.getElementById("disc").hidden = true;
-        document.getElementById("assessment-hub").hidden = true;
+        root.querySelector("#agent-prompt-dialog")?.close();
+        root.getElementById("disc").hidden = true;
+        root.getElementById("assessment-hub").hidden = true;
         list.replaceChildren(); localList.replaceChildren();
         location.reload();
       });
+      life.onDispose(() => { requestVersion++; userId = null; states.clear(); mounts.clear(); rows = []; subscription.data?.subscription?.unsubscribe(); client.auth.stopAutoRefresh?.(); });
       if (userId) void refresh();
       else {
         status.textContent = "Entre para salvar e consultar seus resultados em qualquer dispositivo. Respostas individuais ficam apenas nesta aba.";
         actions.append(loginLink());
       }
     } catch (_) {
+      if (life.signal.aborted) return;
       status.textContent = "Não foi possível conectar à conta. Você pode responder e copiar seu resultado nesta aba.";
       actions.append(button("Reconectar", () => location.reload()));
     }
   }
   const ready = initialize();
   window.AgentFlixAssessmentResults = Object.freeze({ ready, key, mount });
-})();
+  return window.AgentFlixAssessmentResults;
+}
+window.AgentFlixMountAssessmentResults = AgentFlixMountAssessmentResults;
+if (!window.AgentFlixShellEntry && !window.AgentFlixProductShell && document.getElementById('results-list')) AgentFlixMountAssessmentResults();

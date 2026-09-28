@@ -1,10 +1,11 @@
-(function () {
+function AgentFlixMountAssessments(options) {
+  const { root = document, life = window.AgentFlixRouteLife.create(), header = document.querySelector('header'), routeURL = new URL(location.href) } = options || {};
   "use strict";
   const catalog = window.AgentFlixAssessments;
   const model = window.AgentFlixAssessmentModel;
   const icons = window.AgentFlixIcons;
-  const hub = document.getElementById("assessment-hub");
-  const disc = document.getElementById("disc");
+  const hub = root.getElementById("assessment-hub");
+  const disc = root.getElementById("disc");
   const labels = ["Nada parecido comigo", "Pouco parecido comigo", "Em parte parecido comigo", "Bastante parecido comigo", "Muito parecido comigo"];
   const stages = ["Qual afirmação MENOS COMBINA com o que você pensa?", "Agora, qual afirmação MAIS COMBINA com o que você pensa?", "Entre as duas restantes, qual COMBINA MENOS com o que você pensa?"];
   const pointLabels = { 0: "Não concordo", 9: "Concordo muito", 1: "Concordo um pouco", 4: "Concordo" };
@@ -19,7 +20,7 @@
   function button(text, action, kind = "secondary") {
     const element = node("button", "button af-button button-" + kind, text);
     element.type = "button";
-    element.addEventListener("click", action);
+    life.listen(element, "click", action);
     return element;
   }
   function icon(name, className) {
@@ -91,7 +92,7 @@
     const content = node("div", "assessment-content");
     const back = node("a", "back-catalog");
     back.append(icon("previous"), document.createTextNode(" Biblioteca de assessments"));
-    back.href = "#catalogo";
+    back.href = "/aprofundamento-humano/#catalogo";
     const heading = node("h2", "", title);
     heading.id = "assessment-title";
     heading.tabIndex = -1;
@@ -121,7 +122,7 @@
 
     const art = node("figure", "assessment-overview-art");
     const image = node("img");
-    image.src = "assets/" + test.id + ".webp";
+    image.src = "/aprofundamento-humano/assets/" + test.id + ".webp";
     image.alt = "Ilustração do assessment " + test.title;
     image.width = 1536;
     image.height = 1024;
@@ -199,9 +200,9 @@
         choice.dataset.scale = String(i + 1);
         const input = node("input"); input.type = "radio"; input.name = test.id + "-q" + index; input.value = i + 1;
         input.checked = state.answers[index] === i + 1;
-        input.addEventListener("change", () => {
+        life.listen(input, "change", () => {
           state.answers[index] = i + 1; save();
-          document.getElementById("assessment-next").disabled = !isComplete();
+          root.getElementById("assessment-next").disabled = !isComplete();
           const count = state.answers.filter(a => model.validAnswer(test, a)).length;
           content.querySelector("progress").value = count;
           content.querySelector(".assessment-progress p").textContent = count + " de " + test.items.length + " perguntas respondidas";
@@ -230,7 +231,7 @@
         const choice = node("button", "ranking-choice"); choice.type = "button";
         choice.dataset.choice = index;
         choice.append(node("span", "ranking-choice-marker", String.fromCharCode(65 + index)), node("strong", "", statement.text), node("span", "", "Exemplo: " + statement.example));
-        choice.addEventListener("click", () => { order.push(index); save(); render(); });
+        life.listen(choice, "click", () => { order.push(index); save(); render(); });
         choices.append(choice);
       });
       content.append(choices);
@@ -306,9 +307,9 @@
     else renderLikert();
     focusTitle();
   }
-  function route() {
+  function route(url = new URL(location.href)) {
     const aliases = { mbti: "jung", "modos-de-aprendizagem": "aprendizagem", "modo-de-agir": "acao" };
-    const hash = location.hash.slice(1);
+    const hash = url.hash.slice(1);
     const id = aliases[hash] || hash;
     if (!Object.hasOwn(catalog, id)) {
       hub.hidden = true; disc.hidden = false;
@@ -318,8 +319,12 @@
     disc.hidden = true; hub.hidden = false;
     render();
   }
-  window.AgentFlixAssessmentResults.ready.then(() => {
-    window.addEventListener("hashchange", route);
-    route();
+  const ready = window.AgentFlixAssessmentResults.ready.then(() => {
+    if (life.signal.aborted) return;
+    life.listen(window, "hashchange", () => route());
+    route(routeURL);
   });
-})();
+  return { ready };
+}
+window.AgentFlixMountAssessments = AgentFlixMountAssessments;
+if (!window.AgentFlixShellEntry && !window.AgentFlixProductShell && document.getElementById('assessment-hub')) AgentFlixMountAssessments();

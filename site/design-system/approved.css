@@ -1,7 +1,50 @@
-/* Approved pilot R4 patterns. Load after tokens and consumer composition styles. */
+/* Canonical approved compositions. Load after tokens and primitives; local consumer styles may precede this sheet only to preserve a documented variant. */
 
-/* Appearance disclosure and native segmented radios (shared by pilot R3/R4). */
-.af-appearance svg, .af-segmented svg {
+/* Page 49, approved 2026-09-28. Scoped: never restyle legacy headers. */
+.af-shell-header { position: sticky; top: 0; z-index: 3; display: flex; flex-wrap: wrap; align-items: center; gap: var(--af-space-2) var(--af-space-6); padding: var(--af-space-6) var(--af-space-8); background: var(--af-panel); border-bottom: 1px solid var(--af-line); }
+.af-shell-header a { color: inherit; text-decoration: none; }
+.af-shell-header a:focus-visible { outline: var(--af-focus-width) solid var(--af-link); outline-offset: var(--af-focus-offset); }
+.af-shell-brand { flex-shrink: 0; display: flex; align-items: center; min-height: var(--af-target); }
+.af-shell-brand img { width: 160px; height: 32px; object-fit: contain; }
+.af-shell-audience { display: flex; gap: var(--af-space-1); padding: var(--af-space-1); border: 1px solid var(--af-line); border-radius: var(--af-radius-choice); flex-shrink: 0; }
+.af-shell-audience a { padding: 0 var(--af-space-4); display: flex; align-items: center; min-height: var(--af-target); border-radius: var(--af-radius-card); color: var(--af-muted); }
+.af-shell-audience a[aria-current] { background: var(--af-active); color: var(--af-text); }
+.af-shell-nav { position: relative; display: flex; align-items: center; gap: var(--af-space-2); min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.af-shell-nav a { position: relative; z-index: 1; flex-shrink: 0; display: flex; align-items: center; justify-content: center; min-height: var(--af-target); padding: 0 var(--af-space-4); font-size: var(--af-text-md); line-height: var(--af-line-height); color: var(--af-muted); white-space: nowrap; }
+.af-shell-nav a[aria-current], .af-shell-nav a[data-pending] { color: var(--af-text); }
+.af-shell-marker { position: absolute; left: 0; top: 0; height: var(--af-target); border-radius: var(--af-radius-action); background: var(--af-active); pointer-events: none; transition: transform var(--af-motion-enter) ease, width var(--af-motion-enter) ease; }
+.af-shell-tools { display: flex; gap: var(--af-space-2); align-items: center; margin-left: auto; }
+#shell-header #search { display: flex !important; }
+.af-shell-tools [data-shell-search] { font: inherit; text-decoration: none; padding-inline: var(--af-space-3); }
+.af-shell-tools a { display: flex; align-items: center; justify-content: center; min-height: var(--af-target); padding: 0 var(--af-space-3); }
+.af-shell-tools .account { border: 1px solid var(--af-line); border-radius: var(--af-radius-action); padding-inline: var(--af-space-4); }
+.af-shell-viewport { position: relative; }
+.af-shell-route { display: block; }
+.af-shell-subnav { margin: var(--af-space-4) var(--af-gutter); }
+.af-shell-subnav [aria-current="page"] { background: var(--af-active); border-radius: var(--af-radius-action); }
+.af-shell-error { margin: var(--af-space-8) auto; max-width: 60ch; padding: var(--af-space-6); }
+.af-shell-loader { position: relative; display: flex; align-items: center; justify-content: center; min-height: inherit; overflow: hidden; background: var(--af-bg); }
+.af-shell-loader video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .32; }
+.af-shell-loading-content { position: relative; display: flex; flex-direction: column; align-items: center; gap: var(--af-space-4); }
+.af-shell-loading-content p { margin: 0; }
+.af-shell-viewport [hidden] { display: none !important; }
+@media (max-width: 1100px) {
+  .af-shell-nav { order: 4; flex: 1 0 100%; }
+}
+@media (max-width: 600px) {
+  .af-shell-header { padding: var(--af-space-4); gap: var(--af-space-2) var(--af-space-3); }
+  .af-shell-brand img { width: 132px; }
+  .af-shell-audience { order: 4; margin-inline: auto; }
+  .af-shell-nav { order: 5; gap: var(--af-space-1); }
+  .af-shell-nav a { font-size: var(--af-text-sm); padding-inline: calc(var(--af-space-5) / 2); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .af-shell-marker { transition: none; }
+  .af-shell-loader video { display: none; }
+}
+
+/* Appearance disclosure composition (shared by pilot R3/R4). */
+.af-appearance svg {
   width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.6;
 }
 .af-appearance summary { min-height: var(--af-target); font-size: var(--af-text-md); font-weight: 400; white-space: nowrap; }
@@ -23,54 +66,11 @@
 .af-appearance fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
 .af-appearance fieldset + fieldset { margin-top: var(--af-space-5); }
 .af-appearance legend { padding: 0; margin-bottom: var(--af-space-2); color: var(--af-muted); }
-.af-segmented { display: grid; grid-template-columns: 1fr 1fr; padding: var(--af-space-1); gap: var(--af-space-1); border-radius: var(--af-radius-card); background: color-mix(in srgb, var(--af-text) 6%, var(--af-panel)); }
-.af-segmented label { position: relative; cursor: pointer; min-width: 0; }
-.af-segmented label > span { display: flex; min-height: var(--af-target); align-items: center; justify-content: center; gap: var(--af-space-1); border: 1px solid transparent; border-radius: var(--af-radius-field); color: var(--af-muted); }
-.af-segmented svg { visibility: hidden; width: 16px; }
-.af-segmented input:checked + span { background: var(--af-panel); border-color: var(--af-muted); color: var(--af-text); }
-.af-segmented input:checked + span svg { visibility: visible; }
-.af-segmented input:focus-visible + span { outline: var(--af-focus-width) solid var(--af-link); outline-offset: 2px; }
 @media (max-width: 600px) {
   .af-appearance summary { padding-inline: var(--af-space-3); }
   .af-appearance-symbol { display: none; }
   .af-appearance-panel { left: 0; right: auto; }
 }
-
-/* Final chapter list. Only R4 opts in; historical chapter styles remain local.
-   Explicit aside/list selectors preserve the inherited R3 cascade specificity. */
-aside.af-chapters ol.af-chapter-list {
-  list-style: none; margin: 0; border-radius: var(--af-radius-choice);
-  display: grid; gap: var(--af-space-1); padding: var(--af-space-2); border: 0;
-  background: color-mix(in srgb, var(--af-text) 2%, var(--af-panel));
-}
-aside.af-chapters .af-chapter-list li + li { border: 0; }
-aside.af-chapters .af-chapter-list button {
-  width: 100%; text-align: left; background: transparent; color: var(--af-muted);
-  font-size: var(--af-text-md); font-weight: 400; border-radius: var(--af-radius-card);
-  display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: var(--af-space-3);
-  align-items: center; padding: var(--af-space-3); min-height: var(--af-target);
-  border: 0; line-height: 1.4;
-  transition: background var(--af-motion-fast), color var(--af-motion-fast);
-}
-aside.af-chapters .af-chapter-list button:hover {
-  color: var(--af-text);
-  background: color-mix(in srgb, var(--af-text) 4%, var(--af-panel));
-}
-aside.af-chapters .af-chapter-list [aria-current] {
-  color: var(--af-text); border-color: var(--af-line);
-  background: color-mix(in srgb, var(--af-text) 8%, var(--af-panel));
-}
-.af-chapters .af-chapter-marker {
-  display: grid; place-items: center; width: 32px; height: 32px;
-  border-radius: var(--af-radius-action); color: var(--af-muted);
-  background: color-mix(in srgb, var(--af-text) 5%, var(--af-panel));
-  font-size: var(--af-text-md); font-variant-numeric: tabular-nums;
-}
-.af-chapters .af-chapter-marker svg {
-  width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6;
-}
-.af-chapters [aria-current] .af-chapter-marker { background: var(--af-text); color: var(--af-panel); }
-.af-chapters .af-chapter-label { min-width: 0; }
 
 /* Finite, manual spatial gallery, including responsive and reduced-motion rules. */
 .af-gallery { padding-bottom: var(--af-space-10); }
