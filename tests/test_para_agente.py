@@ -12,7 +12,9 @@ class ParaAgenteTests(unittest.TestCase):
     def test_home_and_agent_page_expose_the_two_audiences(self):
         home = (SITE / "index.html").read_text()
         page = (AGENT / "index.html").read_text()
-        self.assertIn('class="audience-switch"', home)
+        self.assertIn('class="af-shell-audience af-type-context"', home)
+        self.assertIn('data-audience="humano" aria-current="page">Para humano</a>', home)
+        self.assertIn('data-audience="agente">Para agente</a>', home)
         self.assertIn('href="/para-agente/"', home)
         self.assertIn('>Para humano</a>', page)
         self.assertIn('aria-current="page">Para agente</a>', page)

@@ -55,7 +55,8 @@ def render(template, entry, site):
         if count != 1: raise ValueError(f'Template precisa de um {key}')
     result = re.sub(r'<title>[^<]*</title>', lambda _: f'<title>{esc(share["title"])} | AgentFlix</title>', result, count=1)
     result = re.sub(r'<link rel="canonical" href="[^"]*">', lambda _: f'<link rel="canonical" href="{url}">', result, count=1)
-    result = result.replace('<head>', '<head>\n<base href="/">', 1)
+    if '<base href="/">' not in result:
+        result = result.replace('<head>', '<head>\n<base href="/">', 1)
     result = result.replace('<html lang="pt-BR">', f'<html lang="pt-BR" data-shared-reading="{slug}">', 1)
     return '<!-- Gerado por scripts/build_reading_shares.py a partir da vitrine e do manifest. -->\n' + result
 

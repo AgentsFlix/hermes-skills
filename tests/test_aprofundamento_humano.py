@@ -14,7 +14,8 @@ class AprofundamentoHumanoTests(unittest.TestCase):
         home = (SITE / "index.html").read_text()
         page = (AREA / "index.html").read_text()
 
-        self.assertGreaterEqual(home.count('href="/aprofundamento-humano/"'), 2)
+        self.assertIn('href="/aprofundamento-humano/" data-section="aprofundamento">Aprofundamento</a>', home)
+        self.assertEqual(home.count('data-section="aprofundamento"'), 1)
         self.assertIn('aria-current="page">Aprofundamento humano</a>', page)
         self.assertNotIn('src="../analytics.js"', page)
         self.assertIn("6</strong> assessments disponíveis", page)

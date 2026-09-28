@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
+<base href="/">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AgentFlix</title>
@@ -27,6 +28,8 @@
 <link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
 <link rel="preload" href="catalog.json" as="fetch" crossorigin>
 <link rel="stylesheet" href="design-system/tokens.css">
+<link rel="stylesheet" href="design-system/primitives.css">
+<link rel="stylesheet" href="design-system/approved.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
@@ -457,41 +460,36 @@
 </div>
 
 <div class="page" id="page">
-  <header class="top">
-    <a class="brand" data-act="home" aria-label="AgentFlix" aria-disabled="true" tabindex="-1">
+  <header class="af-shell-header" id="shell-header" data-af-composition="persistent-navigation">
+    <a class="af-shell-brand" href="/#inicio" aria-label="AgentFlix">
       <img class="logo" src="brand/horizontal-transparente-dark.svg" alt="AgentFlix">
     </a>
-    <div class="audience-switch" aria-label="Experiência AgentFlix">
-      <a class="active" href="/" aria-current="page">Para humano</a>
-      <a href="/para-agente/">Para agente</a>
-    </div>
-    <nav class="main" id="nav">
-      <a href="#copy">Copy</a>
-      <a href="#negocios">Negócios</a>
-      <a href="#sop">Processos</a>
-      <a href="#op">Operação</a>
-      <a href="#ads">Tráfego</a>
-      <a href="#lenda">Lendas</a>
-      <a href="/aprofundamento-humano/">Aprofundamento</a>
-      <a href="/aprender/">Aprender</a>
+    <nav class="af-shell-audience af-type-context" aria-label="Experiência AgentFlix">
+      <a href="/" data-audience="humano" aria-current="page">Para humano</a>
+      <a href="/para-agente/" data-audience="agente">Para agente</a>
     </nav>
-    <span class="onboarding-header-note">Sua próxima descoberta começa aqui</span>
-    <a class="onboarding-reading" href="#ler" data-discover-reading>Ler livremente</a>
-    <a class="onboarding-reading" href="/aprender/">Aprender</a>
-    <div class="spacer"></div>
+    <nav class="af-shell-nav af-type-context" id="nav" data-main-nav aria-label="Navegação principal">
+      <span class="af-shell-marker" id="selection" aria-hidden="true"></span>
+      <a href="/#inicio" data-section="inicio">Início</a>
+      <a href="/assistir/" data-section="assistir">Assistir</a>
+      <a href="/#ler" data-section="ler">Ler</a>
+      <a href="/aprofundamento-humano/" data-section="aprofundamento">Aprofundamento</a>
+    </nav>
+    <div class="af-shell-tools af-type-context">
     <div class="search" id="search">
-      <button class="search-toggle" data-act="search" aria-label="Buscar" aria-expanded="false" aria-controls="q"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="7.5"/><path d="m16 16 5 5"/></svg></button>
+      <button class="af-button af-button--text" data-shell-search aria-label="Buscar" aria-expanded="false" aria-controls="q">Buscar</button>
       <input id="q" type="search" aria-label="Buscar skill, lenda ou gênero" placeholder="Buscar skill, lenda ou gênero" autocomplete="off" hidden>
     </div>
-    <button class="count" data-act="chip" data-filter="Minha lista"><span id="listCount">Minha lista · 0</span></button>
+    <button class="count" data-act="chip" data-filter="Minha lista" hidden><span id="listCount">Minha lista · 0</span></button>
     <div class="account-entry" id="accountEntry">
-      <a class="acct" id="acctBtn" href="/entrar/">ENTRAR</a>
-      <button class="acct" id="accountMenuToggle" type="button" aria-expanded="false" aria-controls="accountMenu" data-logged="1" hidden>MINHA CONTA</button>
+      <a class="account" id="acctBtn" href="/entrar/">Entrar</a>
+      <button class="af-button af-button--secondary" id="accountMenuToggle" type="button" aria-expanded="false" aria-controls="accountMenu" data-logged="1" hidden>Minha conta</button>
       <div class="account-menu" id="accountMenu" aria-label="Opções da conta" hidden>
         <a href="/conta/">Editar informações</a>
         <button id="signOutBtn" type="button">Sair</button>
         <p id="accountMenuStatus" role="status" hidden></p>
       </div>
+    </div>
     </div>
   </header>
 
@@ -771,7 +769,7 @@
 
   // O registro editorial libera leitura, nunca conclusão do guia ou instalação.
   const isReading = slug => !!BY[slug] && !!window.AgentFlixReader?.supports(slug);
-  const canOpenCard = slug => !!BY[slug] && (!!DISCOVERY?.completed || isReading(slug));
+  const canOpenCard = slug => !!BY[slug] && (!!DISCOVERY?.catalogAvailable || isReading(slug));
   const pendingReadingKey = "agentflix-reading-skill";
   let pendingReadingSkill = "";
   function startReadingOnboarding(slug) {
@@ -781,7 +779,7 @@
     resumeDiscovery();
   }
   function resumeReadingSkill() {
-    if (!DISCOVERY?.completed) return false;
+    if (!DISCOVERY?.catalogAvailable) return false;
     let slug = pendingReadingSkill;
     try { slug = slug || sessionStorage.getItem(pendingReadingKey); sessionStorage.removeItem(pendingReadingKey); } catch(e) {}
     pendingReadingSkill = "";
@@ -813,6 +811,7 @@
     if (!DISCOVERY_DATA || !window.AgentFlixDiscovery || !window.AgentFlixJourney) throw Error("orientação indisponível");
     DISCOVERY = window.AgentFlixDiscovery.create(DISCOVERY_DATA, BY, {
       authenticated,
+      memoryAvailable: window.AgentFlixMemory.status.available,
       coverUrl,
       filter() { hidePreview(); state.filter = "Tudo"; state.q = ""; $("q").value = ""; renderChips(); renderCatalog(); },
       enter() {
@@ -828,7 +827,7 @@
       changed(external) { hidePreview(); renderCatalog(); if(external && state.open){renderModal();const panel=document.querySelector('#modal .panel');if(panel){panel.tabIndex=-1;panel.focus({preventScroll:true});}} }
     });
     document.body.classList.add("discovery-enabled");
-    $("nav").innerHTML = '<a href="#inicio" data-discover-home>Início</a><a href="#guide" data-discover-guide>Como escolher</a><a href="#chips" data-discover-catalog>Catálogo</a><a href="/aprender/">Aprender</a><a href="/assistir/">Assistir</a><a href="#ler" data-discover-reading>Ler</a><a href="/aprofundamento-humano/">Aprofundamento</a>';
+    // The persistent host owns the four top-level destinations. Discovery stays in content.
     ROW_DEFS = DISCOVERY ? [...TOP_ROWS, ...DISCOVERY.rows] : buildRows(cat);
     heroSlug = (pinnedHero() || nextHero() || ALL[0] || {}).slug || null;
     if (!DISCOVERY) startHeroRotation();
@@ -971,7 +970,7 @@
   }
 
   function renderCatalog() {
-    const ready = !!DISCOVERY?.completed;
+    const ready = !!DISCOVERY?.catalogAvailable;
     const guideLink = document.querySelector('#nav [data-discover-guide]');
     if (guideLink) guideLink.textContent = ready ? 'Meu caminho' : 'Como escolher';
     const reading = state.view === "reading";
@@ -982,9 +981,7 @@
     $("discovery").hidden = ready || reading;
     document.body.classList.toggle("choosing", !ready && !reading);
     document.body.classList.toggle("public-reading", !ready && reading);
-    const brand = document.querySelector('.top .brand');
-    if (ready || reading) { brand.setAttribute('href','#inicio'); brand.removeAttribute('aria-disabled'); brand.removeAttribute('tabindex'); }
-    else { brand.removeAttribute('href'); brand.setAttribute('aria-disabled','true'); brand.setAttribute('tabindex','-1'); }
+    // The persistent brand link remains usable during discovery and loading.
     if (!ready && !reading) { $("rows").innerHTML = ""; $("results").innerHTML = ""; $("recommendation").innerHTML = ""; return; }
     $("results").classList.toggle("reading-catalog", reading);
     $("recommendation").hidden = reading;
@@ -1017,7 +1014,7 @@
 
   function focusCatalogView() {
     const target = state.view === "reading" ? $("reading-heading") : $("chips");
-    if(!target || (!DISCOVERY?.completed && state.view !== "reading")) return;
+    if(!target || (!DISCOVERY?.catalogAvailable && state.view !== "reading")) return;
     if(state.view === "reading") {
       window.scrollTo({top:0, behavior:"instant"});
       $("nav").scrollLeft = $("nav").scrollWidth;
@@ -1027,7 +1024,7 @@
   function resumeDiscovery() {
     closeModal();
     if(state.view === "reading") setCatalogView("catalog", {scroll:false, updateUrl:false});
-    history.replaceState(null, "", location.pathname + location.search + (DISCOVERY?.completed ? "#inicio" : "#guide"));
+    history.replaceState(null, "", location.pathname + location.search + (DISCOVERY?.catalogAvailable ? "#inicio" : "#guide"));
     DISCOVERY?.resume();
   }
   function setCatalogView(view, {scroll = true, updateUrl = true} = {}) {
@@ -1039,7 +1036,7 @@
     }
     renderHero(); renderCatalog();
     if(scroll) {
-      if(DISCOVERY?.completed || view === "reading") focusCatalogView();
+      if(DISCOVERY?.catalogAvailable || view === "reading") focusCatalogView();
       else $("discovery").scrollIntoView({block:"start"});
     }
   }
@@ -1075,8 +1072,8 @@
     const reading = isReading(s.slug);
     const editorial = reading && s.editorialOnly;
     const installable = !s.readingOnly || TARGETS.some(target => s.cmdFor[target.id]);
-    const skillReady = !editorial && !!DISCOVERY?.completed && !DISCOVERY.locked(s.slug);
-    const skillGate = editorial ? "" : !DISCOVERY?.completed
+    const skillReady = !editorial && !!DISCOVERY?.catalogAvailable && !DISCOVERY.locked(s.slug);
+    const skillGate = editorial ? "" : !DISCOVERY?.catalogAvailable
       ? `<section class="reading-skill-gate"><h2>Leve esta skill para o seu agente</h2><p>A leitura é livre. Para usar a skill, escolha seu caminho e veja por onde começar.</p><button class="guide-primary" data-act="reading-onboarding" data-slug="${esc(s.slug)}">Escolher meu caminho</button></section>`
       : !skillReady ? DISCOVERY.gate(s) : "";
     if (!reading && !skillReady) {
@@ -1160,10 +1157,10 @@
 
   // ---------- ações (atualizações pontuais: nada de refazer o DOM inteiro a cada clique) ----------
   let lastFocus = null;
-  function updateInert() { try { $("page").inert = introPhase !== "off" || !!state.open; } catch (e) {} }
+  function updateInert() { try { const inert = introPhase !== "off" || !!state.open; $("page").inert = inert; $('shell-header').inert = inert; } catch (e) {} }
   function openModal(slug) {
     if(!canOpenCard(slug))return;
-    if(isReading(slug) && !DISCOVERY?.completed && state.view !== "reading")
+    if(isReading(slug) && !DISCOVERY?.catalogAvailable && state.view !== "reading")
       setCatalogView("reading", {scroll:false, updateUrl:false});
     const opener = pvCard || document.activeElement;
     hidePreview();
@@ -1248,7 +1245,7 @@
     const el = e.target.closest("[data-act]");
     if (!el) return;
     const act = el.dataset.act;
-    if (!DISCOVERY?.completed && (['chip','target'].includes(act) ||
+    if (!DISCOVERY?.catalogAvailable && (['chip','target'].includes(act) ||
       (act === 'toggle' && !isReading(el.dataset.slug)) ||
       (act === 'install-focus' && !isReading(state.open)))) { e.preventDefault(); return; }
     if (act === "stop") return;   // clique dentro do painel: o closest para aqui e o overlay não recebe "close"
@@ -1272,7 +1269,7 @@
     else if (act === "next") scrollRow(el.dataset.row, 1);
     else if (act === "replay" || act === "enter") { window.clar?.('abertura_iniciada',{origem:act});playIntro(true); }
     else if (act === "skip") stopIntro(true);
-    else if (act === "home") { e.preventDefault(); if (DISCOVERY?.completed || state.view === "reading") resumeDiscovery(); }
+    else if (act === "home") { e.preventDefault(); if (DISCOVERY?.catalogAvailable || state.view === "reading") resumeDiscovery(); }
     else if (act === "account") { if (shop.on) openAuth(); }
     else if (act === "auth-close") closeAuth();
     else if (act === "logout") logout();
@@ -1282,6 +1279,7 @@
   });
   document.addEventListener("keydown", (e) => {
     if (e.defaultPrevented) return;
+    if (window.AgentFlixProductShell && !$("page").contains(e.target) && !$("shell-header").contains(e.target) && !$("modal").contains(e.target) && !$("intro").contains(e.target)) return;
     if (e.key === "Escape") { hidePreview(); if (!state.open && !$("q").hidden && !state.q) toggleSearch(false); if (introPhase !== "gate") stopIntro(true); closeAuth(); closeModal(); return; }
     if ((e.key === "Enter" || e.key === " ") && introPhase === "gate" && !e.target.closest('.intro-reading')) { e.preventDefault(); playIntro(true); return; }
     const typing = /^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement || {}).tagName || "");
@@ -1295,7 +1293,7 @@
     target?.focus({preventScroll:true});
   }
   function toggleSearch(force) {
-    if(!DISCOVERY?.completed && state.view !== "reading")return;
+    if(!DISCOVERY?.catalogAvailable && state.view !== "reading")return;
     const open = force === undefined ? $("q").hidden : force;
     if (!open && state.q) { $("q").focus(); return; }
     $("q").hidden = !open; $("search").classList.toggle("open", open);
@@ -1329,6 +1327,7 @@
   let qTimer = null;
   $("q").addEventListener("input", (e) => { hidePreview(); state.q = e.target.value; clearTimeout(qTimer); qTimer = setTimeout(renderCatalog, 80); });
   window.addEventListener("hashchange", () => {
+    if (window.AgentFlixProductShell && location.pathname !== "/") return;
     const h = hashSlug();
     if(h === "ler") setCatalogView("reading", {updateUrl:false});
     else if(h && BY[h]) openModal(h);
@@ -1643,6 +1642,7 @@
     $("accountMenuToggle").hidden = !signedIn;
     closeAccountMenu();
   }
+  window.addEventListener('agentflix:memory-ready', event => renderAccountStatus(event.detail?.signedIn === true));
   $("accountMenuToggle").addEventListener("click", () => {
     const menu = $("accountMenu");
     menu.hidden = !menu.hidden;
@@ -1803,6 +1803,7 @@
 
   // ---------- boot ----------
   function showLoadError(msg) {
+    if ($('shell-header')) return; // The shared shell owns retry without replacing the discovery DOM.
     window.AgentFlixLoader?.hide();
     $("hero").className = "hero";
     $("catalog-stage").hidden = true;document.body.classList.add('choosing');
@@ -1810,20 +1811,43 @@
     $("discovery").innerHTML='<div class="discovery-error"><h1>Não consegui carregar seu ponto de partida.</h1><p>Tente de novo para escolher seu caminho.</p><button class="guide-primary" onclick="location.reload()">Tentar novamente</button></div>';
     $("footTotal").textContent = "catálogo indisponível";
   }
-  (async () => {
+  let homeReadyResolve, homeReadyReject, homeBoot, homeSuccessful = false;
+  window.AgentFlixHome = {
+    ready: null,
+    retry() { if (!homeSuccessful) { homeBoot?.abort(); startHome(); } },
+    show(view) { setCatalogView(view, {scroll:false, updateUrl:false}); },
+    shared(slug) { setCatalogView('reading', {scroll:false, updateUrl:false}); if (isReading(slug)) openModal(slug); },
+    presented() { DISCOVERY?.presented(); },
+    leave() { hidePreview(); closeModal(true); stopIntro(true); closeAuth(); clearTimeout(qTimer); DISCOVERY?.endVisit(); },
+    search() { toggleSearch(true); },
+  };
+  function startHome() {
+    homeBoot = new AbortController();
+    const controller = homeBoot, signal = controller.signal;
+    window.AgentFlixHome.ready = new Promise((resolve, reject) => { homeReadyResolve = resolve; homeReadyReject = reject; });
+    const resolveReady = homeReadyResolve, rejectReady = homeReadyReject;
+    // The host handles errors; suppress rejection before the module starts.
+    window.AgentFlixHome.ready.catch(() => {});
+    (async () => {
+    try {
     const accountMemory = await window.AgentFlixMemory.start();
+    if (signal.aborted) return;
     renderAccountStatus(accountMemory.signedIn === true);
     let cat = null, lastErr = null;
     for (const url of CATALOG_URLS) {
-      try { const r = await fetch(url, { cache: "no-cache" }); if (!r.ok) throw new Error("HTTP " + r.status); cat = await r.json(); if (cat && Array.isArray(cat.skills)) break; cat = null; }
-      catch (e) { lastErr = e; }
+      try { const r = await fetch(url, { cache: "no-cache", signal: AbortSignal.any([signal, AbortSignal.timeout(15000)]) }); if (!r.ok) throw new Error("HTTP " + r.status); cat = await r.json(); if (cat && Array.isArray(cat.skills)) break; cat = null; }
+      catch (e) { if (signal.aborted) return; lastErr = e; }
     }
-    if (!cat) { showLoadError(lastErr && lastErr.message || "sem rede"); return; }
-    try { const r = await fetch('vitrine.json', { cache: 'no-cache' }); if(r.ok) DISCOVERY_DATA = await r.json(); } catch(e) { /* Sem curadoria, a orientação deve ser recarregada. */ }
-    try { cat = {...cat, skills: await window.AgentFlixReader.catalogSkills(cat.skills)}; loadCatalog(cat, accountMemory.signedIn === true); window.AgentFlixLoader?.hide(); }
-    catch (e) { console.error(e); showLoadError("catálogo inválido: " + (e && e.message || e)); return; }
+    if (!cat) throw lastErr || Error("Catálogo indisponível");
+    try { const r = await fetch('vitrine.json', { cache: 'no-cache', signal: AbortSignal.any([signal, AbortSignal.timeout(15000)]) }); if(r.ok) DISCOVERY_DATA = await r.json(); } catch(e) { /* Sem curadoria, a orientação deve ser recarregada. */ }
+    cat = {...cat, skills: await window.AgentFlixReader.catalogSkills(cat.skills)};
+    if (signal.aborted) return;
+    loadCatalog(cat, accountMemory.signedIn === true); homeSuccessful = true; resolveReady();
     initShop();   // só muda algo se a loja estiver ligada em /api/config
-  })();
+    } catch (e) { if (!signal.aborted) { showLoadError("catálogo indisponível"); rejectReady(e); } }
+    })();
+  }
+  startHome();
 })();
 </script>
 <div class="consent" id="consent" hidden role="dialog" aria-label="Privacidade e cookies">
@@ -1836,5 +1860,7 @@
   bar.addEventListener("click", (e) => { const b = e.target.closest("button[data-consent]"); if (!b) return; const v = b.dataset.consent; try { localStorage.setItem(consentKey, v); } catch (err) {} bar.hidden = true; window.clarity?.("consentv2", { ad_Storage: "denied", analytics_Storage: v === "granted" ? "granted" : "denied" }); });
 })();
 </script>
+<script src="/design-system/route-lifecycle.js"></script>
+<script type="module" src="/design-system/product-shell.mjs"></script>
 </body>
 </html>

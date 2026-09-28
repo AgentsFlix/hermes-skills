@@ -1,6 +1,7 @@
 /* Porta de acesso do acervo. A decisão de direito acontece no Supabase e a mídia só recebe token no servidor. */
-(() => {
+function AgentFlixMountWatchAccess(options) {
   "use strict";
+  const { root = document, life = window.AgentFlixRouteLife?.create() || { signal: new AbortController().signal, onDispose() {} }, routeURL = new URL(location.href) } = options || {};
 
   const CATALOG_PRODUCT_ID = "assistir";
   const SERIES_PRODUCT_PREFIX = `${CATALOG_PRODUCT_ID}:`;
@@ -9,10 +10,9 @@
   let client = null;
   let session = null;
 
-  document.documentElement.classList.add("watch-access-pending");
   const pendingStyle = document.createElement("style");
   pendingStyle.textContent = "html.watch-access-pending body{visibility:hidden}";
-  document.head.append(pendingStyle);
+  if (root === document) { document.documentElement.classList.add("watch-access-pending"); document.head.append(pendingStyle); }
 
   function withBody(callback) {
     if (document.body) callback();
@@ -43,7 +43,7 @@
 
   async function config() {
     const response = await fetch("/api/config", {
-      cache: "no-store",
+      cache: "no-store", signal: life.signal,
       headers: { accept: "application/json" },
     });
     if (!response.ok) throw new Error("config unavailable");
@@ -53,12 +53,12 @@
   }
 
   function nextPath() {
-    const path = `${location.pathname}${location.search}${location.hash}`;
+    const path = `${routeURL.pathname}${routeURL.search}${routeURL.hash}`;
     return path.startsWith("/") ? path : "/assistir/";
   }
 
   function requestedSeriesSlug() {
-    const url = new URL(location.href);
+    const url = routeURL;
     const fromQuery = url.pathname.replace(/\/$/, "") === "/assistir" ? url.searchParams.get("s") : null;
     const fromPath = /^\/(?:assistir|aulas)\/([a-z0-9]+(?:-[a-z0-9]+)*)\//.exec(url.pathname)?.[1];
     const slug = fromQuery || fromPath;
@@ -88,21 +88,21 @@
   }
 
   function hideWatchSurface() {
-    document.getElementById("title-page")?.setAttribute("hidden", "");
-    document.getElementById("player")?.setAttribute("hidden", "");
-    const tools = document.querySelector(".watch-tools");
+    root.getElementById("title-page")?.setAttribute("hidden", "");
+    root.getElementById("player")?.setAttribute("hidden", "");
+    const tools = root.querySelector(".watch-tools");
     if (tools) tools.hidden = true;
   }
 
   function showState(title, message, action) {
+    if (life.signal.aborted) return;
     withBody(() => {
       hideWatchSurface();
-      const root = document.getElementById("watch-catalog");
-      const state = `<section class="watch-state watch-access-state"><p class="watch-kicker">AGENTFLIX ASSISTIR</p><h1>${title}</h1><p>${message}</p>${action || ""}</section>`;
-      if (root) {
-        root.hidden = false;
-        root.innerHTML = state;
-        root.querySelector("a,button")?.focus({ preventScroll: true });
+      const catalog = root.getElementById("watch-catalog");
+      const state = `<section class="watch-state watch-access-state"><p class="watch-kicker">AgentFlix · Assistir</p><h1>${title}</h1><p>${message}</p>${action || ""}</section>`;
+      if (catalog) {
+        catalog.hidden = false;
+        catalog.innerHTML = state;
       } else {
         document.body.innerHTML = `<main style="max-width:680px;margin:0 auto;padding:72px 24px;font-family:Archivo,Arial,sans-serif;line-height:1.5;background:#141414;color:#f5f5f5;min-height:100vh">${state}</main>`;
       }
@@ -116,7 +116,9 @@
       await Promise.all([loadSupabase(), loadMemory()]);
       const publicConfig = await config();
       client = window.supabase.createClient(publicConfig.supabaseUrl, publicConfig.supabaseAnonKey);
+      life.onDispose(() => { session = null; tokenCache.clear(); client.auth.stopAutoRefresh?.(); });
       const result = await client.auth.getSession();
+      if (life.signal.aborted) return false;
       session = result.data?.session || null;
       if (!session?.user) {
         window.AgentFlixMemory.clearSignedOut();
@@ -129,8 +131,16 @@
         return false;
       }
       const memory = await window.AgentFlixMemory.connect(client, session.user);
+      if (life.signal.aborted) return false;
+      const subscription = client.auth.onAuthStateChange((_event, next) => {
+        if (next?.user?.id === session?.user?.id) return;
+        session = null; tokenCache.clear(); accessScope.catalog = false; accessScope.series.clear();
+        root.getElementById('video')?.pause();
+        showState('Entre novamente para assistir', 'Sua sessão mudou. Confirme a conta antes de continuar.', '<a class="watch-button primary" href="/entrar/">Entrar</a>');
+      });
+      life.onDispose(() => { session = null; tokenCache.clear(); subscription.data?.subscription?.unsubscribe(); client.auth.stopAutoRefresh?.(); });
       const reloadKey = `agentflix-memory-reload:${session.user.id}:${location.pathname}`;
-      if (memory.changed && !document.getElementById("watch-catalog")) {
+      if (memory.changed && !root.getElementById("watch-catalog")) {
         let reloading = false;
         try {
           reloading = sessionStorage.getItem(reloadKey) === "1";
@@ -157,6 +167,7 @@
         );
         return false;
       }
+      if (life.signal.aborted) return false;
       if (!allowsSeries(requestedSeriesSlug()) && requestedSeriesSlug()) {
         showState(
           "Esta série ainda não está liberada",
@@ -186,7 +197,7 @@
     if (cached?.pending) return cached.pending;
 
     const pending = fetch(`/api/stream-token?uid=${encodeURIComponent(uid)}`, {
-      cache: "no-store",
+      cache: "no-store", signal: life.signal,
       headers: { authorization: `Bearer ${session.access_token}`, accept: "application/json" },
     })
       .then(async (response) => {
@@ -211,11 +222,14 @@
     await Promise.allSettled(unique.map(tokenFor));
   }
 
-  window.AgentFlixWatchAccess = Object.freeze({
+  const access = Object.freeze({
     ready: authorize(),
     allowsSeries,
     prefetch,
     cachedToken: (uid) => tokenCache.get(uid)?.token || null,
     tokenFor,
   });
-})();
+  return access;
+}
+window.AgentFlixMountWatchAccess = AgentFlixMountWatchAccess;
+if (!window.AgentFlixShellEntry && !window.AgentFlixProductShell) window.AgentFlixWatchAccess = AgentFlixMountWatchAccess();

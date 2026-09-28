@@ -18,7 +18,7 @@ function context() {
     badge:'BASE', syn:'Sinopse aprovada', how:'Uso aprovado', cast:[], gen:[], traits:[], n:1
   };
   const modal = {hidden:true, innerHTML:'', querySelector:()=>({})};
-  const c = {BY:by, state:{view:'catalog',open:null}, DISCOVERY:{completed:false,
+  const c = {BY:by, state:{view:'catalog',open:null}, DISCOVERY:{completed:false,catalogAvailable:false,
     locked:()=>false, cancel(){}, gate:()=>'<section>PRÉ-REQUISITO</section>',
     bind:()=>installed.push('bind'), installation:()=>'<button>MARCAR</button>',
     installationButton:()=>'<button>MARCAR</button>', context:()=>'',extras:()=>''},
@@ -45,19 +45,19 @@ for (const slug of ['skill-sem-leitura','constructor','slug-inexistente']) {
   const {c}=context();vm.runInContext(method('openModal'),c);c.openModal(slug);assert.equal(c.state.open,null);
 }
 // Gates belong to the skill tab. No installer, installed control or binding is rendered early.
-for (const completed of [false,true]) for (const locked of [false,true]) {
+for (const completed of [false,true]) for (const catalogAvailable of [false,true]) for (const locked of [false,true]) {
   const {c,modal,mounted,installed}=context();c.state.open=registry[0];
-  c.DISCOVERY.completed=completed;c.DISCOVERY.locked=()=>locked;
+  c.DISCOVERY.completed=completed;c.DISCOVERY.catalogAvailable=catalogAvailable;c.DISCOVERY.locked=()=>locked;
   vm.runInContext(method('renderModal'),c);c.renderModal();
   assert.deepEqual(mounted,[registry[0]]);assert(modal.innerHTML.includes('has-human-reader'));
-  assert.equal(installed.length>0,completed&&!locked);
-  assert.equal(modal.innerHTML.includes('COMANDO ORIGINAL'),completed&&!locked);
-  assert.equal(modal.innerHTML.includes('MARCAR'),completed&&!locked);
-  assert.equal(modal.innerHTML.includes('reading-onboarding'),!completed);
-  assert.equal(modal.innerHTML.includes('PRÉ-REQUISITO'),completed&&locked);
+  assert.equal(installed.length>0,catalogAvailable&&!locked);
+  assert.equal(modal.innerHTML.includes('COMANDO ORIGINAL'),catalogAvailable&&!locked);
+  assert.equal(modal.innerHTML.includes('MARCAR'),catalogAvailable&&!locked);
+  assert.equal(modal.innerHTML.includes('reading-onboarding'),!catalogAvailable);
+  assert.equal(modal.innerHTML.includes('PRÉ-REQUISITO'),catalogAvailable&&locked);
 }
 {
-  const {c,modal,mounted,installed}=context();c.state.open='skill-sem-leitura';c.DISCOVERY.completed=true;c.DISCOVERY.locked=()=>true;
+  const {c,modal,mounted,installed}=context();c.state.open='skill-sem-leitura';c.DISCOVERY.catalogAvailable=true;c.DISCOVERY.locked=()=>true;
   vm.runInContext(method('renderModal'),c);c.renderModal();assert.equal(mounted.length,0);assert.equal(installed.length,0);assert(modal.innerHTML.includes('PRÉ-REQUISITO'));
 }
 // The explicit handoff survives reload and is consumed only on completion.
@@ -66,7 +66,7 @@ for (const completed of [false,true]) for (const locked of [false,true]) {
   vm.runInContext('const pendingReadingKey="agentflix-reading-skill";let pendingReadingSkill="";'+method('startReadingOnboarding')+method('resumeReadingSkill'),c);
   c.startReadingOnboarding(registry[0]);assert.equal(writes.length,1);assert.equal(c.DISCOVERY.completed,false);
   assert.equal(c.resumeReadingSkill(),false);assert.equal(storage.size,1);
-  vm.runInContext('pendingReadingSkill=""',c);c.DISCOVERY.completed=true;
+  vm.runInContext('pendingReadingSkill=""',c);c.DISCOVERY.catalogAvailable=true;
   assert.equal(c.resumeReadingSkill(),true);assert.deepEqual(opened,[registry[0],'skill-tab']);assert.equal(storage.size,0);
   assert.equal(c.resumeReadingSkill(),false);
   storage.set('agentflix-reading-skill','skill-sem-leitura');assert.equal(c.resumeReadingSkill(),false);
@@ -75,7 +75,7 @@ for (const completed of [false,true]) for (const locked of [false,true]) {
 {
   const {c,opened}=context();c.sessionStorage={getItem(){throw Error('blocked');},setItem(){throw Error('blocked');},removeItem(){throw Error('blocked');}};
   vm.runInContext('const pendingReadingKey="agentflix-reading-skill";let pendingReadingSkill="";'+method('startReadingOnboarding')+method('resumeReadingSkill'),c);
-  c.startReadingOnboarding(registry[0]);c.DISCOVERY.completed=true;assert.equal(c.resumeReadingSkill(),true);assert.deepEqual(opened,[registry[0],'skill-tab']);
+  c.startReadingOnboarding(registry[0]);c.DISCOVERY.catalogAvailable=true;assert.equal(c.resumeReadingSkill(),true);assert.deepEqual(opened,[registry[0],'skill-tab']);
 }
 // Enter on the free-reading link must not trigger the intro's global shortcut.
 {
@@ -88,15 +88,16 @@ for (const completed of [false,true]) for (const locked of [false,true]) {
 }
 // Boot must not display an opening animation or mark it seen: the loader only follows catalog readiness.
 (async()=>{
-  const boot = source.split('  // ---------- boot ----------')[1].split('  (async () => {')[1].split('\n})();\n</script>')[0];
+  const boot = method('startHome');
   for (const view of ['reading','catalog']) for (const signedIn of [false,true]) {
     const writes=[],intros=[],catalogCalls=[],accountStates=[];
     const c={CATALOG_URLS:['catalog.json'],DISCOVERY_DATA:null,state:{view},
+      AbortController,AbortSignal,homeBoot:null,homeReadyResolve:null,homeReadyReject:null,homeSuccessful:false,
       fetch:async()=>({ok:true,json:async()=>({skills:[]})}),
-      window:{AgentFlixMemory:{start:async()=>({signedIn})},AgentFlixReader:{catalogSkills:async s=>s},matchMedia:()=>({matches:false})},
+      window:{AgentFlixHome:{ready:null},AgentFlixMemory:{start:async()=>({signedIn})},AgentFlixReader:{catalogSkills:async s=>s},matchMedia:()=>({matches:false})},
       sessionStorage:{getItem:()=>null,setItem:(...args)=>writes.push(args)},
       loadCatalog:(catalog,authenticated)=>catalogCalls.push(authenticated),renderAccountStatus:value=>accountStates.push(value),initShop(){},playIntro:()=>intros.push(true),showLoadError:message=>{throw Error(message);},console};
-    vm.createContext(c);await vm.runInContext('(async()=>{'+boot,c);
+    vm.createContext(c);vm.runInContext(boot+'\nstartHome();',c);await c.window.AgentFlixHome.ready;
     assert.equal(intros.length,0);assert.equal(writes.length,0);
     assert.deepEqual(catalogCalls,[signedIn]);
     assert.deepEqual(accountStates,[signedIn]);

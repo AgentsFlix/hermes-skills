@@ -1,8 +1,9 @@
 /* Reprodução, paradas e ficha da série. Entrada do acervo em catalog.js. */
-(() => {
+function AgentFlixMountPlayer(options) {
+  const { root = document, life = window.AgentFlixRouteLife.create(), header = document.querySelector('header'), routeURL = new URL(location.href) } = options || {};
   "use strict";
   // ---------- utilidades ----------
-  const $ = (id) => document.getElementById(id);
+  const $ = (id) => root.getElementById(id);
   const fmt = (s) => {
     s = Math.max(0, Math.round(s || 0));
     return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
@@ -207,9 +208,9 @@
           ? `Assistir T${sN(r.season)}:E${eN(r.season, r.ep)}`
           : "Assistir";
     const hasMaterials = SERIE.seasons.some(s => s.atividades?.length);
-    document.querySelector('[data-act="resume"]').hidden = hasMaterials && !nEps;
-    document.querySelector('[data-act="resume"]').disabled = !nEps;
-    document.querySelector('[data-act="restart"]').hidden = !nEps;
+    root.querySelector('[data-act="resume"]').hidden = hasMaterials && !nEps;
+    root.querySelector('[data-act="resume"]').disabled = !nEps;
+    root.querySelector('[data-act="restart"]').hidden = !nEps;
     $("tp-resume").hidden = !(p > 0);
     $("tp-bar").style.width = Math.round(p * 100) + "%";
     $("tp-resume-text").textContent =
@@ -228,10 +229,10 @@
     renderEps();
     renderMaterials();
     selectTitleTab("eps");
-    requestAnimationFrame(measureDescriptions);
+    life.frame(measureDescriptions);
   }
   function selectTitleTab(tab) {
-    document.querySelectorAll('.tp-tabs [role="tab"]').forEach(button => {
+    root.querySelectorAll('.tp-tabs [role="tab"]').forEach(button => {
       const selected = button.dataset.tab === tab;
       button.classList.toggle("on", selected);
       button.setAttribute("aria-selected", String(selected));
@@ -318,7 +319,9 @@
     const onReady = () => {
       if (startAt > 0 && startAt < (video.duration || Infinity) - 3)
         video.currentTime = startAt;
-      if (autoplay) video.play().catch(() => {});
+      if (autoplay) Promise.resolve(options?.visible).then(() => {
+        if (!life.signal.aborted && requestId === state.streamRequest) video.play().catch(() => {});
+      });
     };
     if (window.Hls && Hls.isSupported()) {
       const hls = new Hls({ startPosition: -1 });
@@ -334,7 +337,7 @@
       });
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = src;
-      video.addEventListener("loadedmetadata", onReady, { once: true });
+      life.listen(video, "loadedmetadata", onReady, { once: true });
     } else
       showErr(
         window.Hls
@@ -713,7 +716,7 @@
     $("player").classList.add("ui");
     clearTimeout(state.uiTimer);
     if (!hold && !video.paused && !state.drawer && !state.pop)
-      state.uiTimer = setTimeout(
+      state.uiTimer = life.timeout(
         () => $("player").classList.remove("ui"),
         2800,
       );
@@ -793,7 +796,7 @@
       t.innerHTML = `<b>${rot} →</b>${esc(a.label || c.n)}`;
       t.hidden = false;
       clearTimeout(state.toastTimer);
-      state.toastTimer = setTimeout(() => {
+      state.toastTimer = life.timeout(() => {
         t.hidden = true;
       }, 5000);
       showUI(false);
@@ -846,10 +849,10 @@
     let n = 5;
     const w = $("pp-wipe");
     w.style.transition = "width 5s linear";
-    requestAnimationFrame(() => {
+    life.frame(() => {
       w.style.width = "100%";
     });
-    state.ppTimer = setInterval(() => {
+    state.ppTimer = life.interval(() => {
       n--;
       if ($("pp-n")) $("pp-n").textContent = n;
       if (n <= 0) {
@@ -937,7 +940,7 @@
     clearInterval(state.escolhaTimer);
     if (ch.tempo) {
       const t0 = performance.now();
-      state.escolhaTimer = setInterval(() => {
+      state.escolhaTimer = life.interval(() => {
         const r = Math.max(0, ch.tempo - (performance.now() - t0) / 1000);
         const n = $("esc-n"),
           b = $("esc-bar");
@@ -982,7 +985,7 @@
     t.innerHTML = `<b>VOCÊ ESCOLHEU →</b>${esc(o.label)}`;
     t.hidden = false;
     clearTimeout(state.toastTimer);
-    state.toastTimer = setTimeout(() => {
+    state.toastTimer = life.timeout(() => {
       t.hidden = true;
     }, 3500);
   }
@@ -1039,7 +1042,7 @@
   // ---------- telas ----------
   function show(screen) {
     $("watch-catalog").hidden = true;
-    document.querySelector("header.top").inert = screen === "player";
+    header.inert = screen === "player";
     $("title-page").hidden = screen !== "title";
     $("player").hidden = screen !== "player";
     document.body.style.overflow = screen === "player" ? "hidden" : "";
@@ -1069,27 +1072,27 @@
   }
 
   // ---------- eventos do vídeo ----------
-  video.addEventListener("play", () => {
+  life.listen(video, "play", () => {
     setPaused(false);
     $("spin").hidden = true;
     bumpUI();
   });
-  video.addEventListener("pause", () => {
+  life.listen(video, "pause", () => {
     setPaused(true);
     saveProgress(true);
     showUI(true);
   });
-  video.addEventListener("waiting", () => {
+  life.listen(video, "waiting", () => {
     if (!$("player").classList.contains("pre")) $("spin").hidden = false;
   });
-  video.addEventListener("playing", () => {
+  life.listen(video, "playing", () => {
     if (SERIE && !state.miniVideo) usagePlayback?.playing(video.currentTime);
     $("spin").hidden = true;
   });
-  video.addEventListener("seeking", () => {
+  life.listen(video, "seeking", () => {
     if (!state.miniVideo) usagePlayback?.tick(video.currentTime, {seeking:true});
   });
-  video.addEventListener("timeupdate", () => {
+  life.listen(video, "timeupdate", () => {
     paint();
     if (state.miniVideo) return;
     usagePlayback?.tick(video.currentTime, {paused:video.paused,seeking:video.seeking,rate:video.playbackRate});
@@ -1112,8 +1115,8 @@
     };
     video.requestVideoFrameCallback(watchFrame);
   }
-  video.addEventListener("progress", paint);
-  video.addEventListener("ended", () => {
+  life.listen(video, "progress", paint);
+  life.listen(video, "ended", () => {
     if (state.miniVideo) {
       setPaused(true);
       showUI(true);
@@ -1121,15 +1124,15 @@
     }
     endOfEpisode();
   });
-  video.addEventListener("volumechange", () => {
+  life.listen(video, "volumechange", () => {
     $("btn-mute").style.opacity = video.muted || video.volume === 0 ? 0.5 : 1;
   });
-  $("vol").addEventListener("input", (ev) => {
+  life.listen($("vol"), "input", (ev) => {
     video.volume = ev.target.value / 100;
     video.muted = video.volume === 0;
   });
 
-  $("lesson-share").addEventListener("click", async () => {
+  life.listen($("lesson-share"), "click", async () => {
     const url = curEp()?.share_url;
     if (!url) return;
     const fullUrl = new URL(url, window.location.origin).href;
@@ -1145,13 +1148,13 @@
   });
 
   // ---------- cliques ----------
-  document.addEventListener("click", (ev) => {
+  life.listen(root, "click", (ev) => {
     const el = ev.target.closest("[data-act], [data-speed]");
     if (!el) return;
     if (el.dataset.speed) {
       video.playbackRate = parseFloat(el.dataset.speed);
       $("btn-speed").firstChild.textContent = el.dataset.speed + "x";
-      document
+      root
         .querySelectorAll("[data-speed]")
         .forEach((b) => b.classList.toggle("on", b === el));
       openPop(false);
@@ -1267,7 +1270,7 @@
     } else if (a === "escolher") escolher(+el.dataset.i);
     else if (a === "trocar-caminho") trocarCaminho();
   });
-  document.addEventListener("click", (ev) => {
+  life.listen(root, "click", (ev) => {
     if (
       state.seasonMenu &&
       !ev.target.closest("#season-sel") &&
@@ -1286,9 +1289,9 @@
       if (state.checkout !== null) openCheckout(state.checkout);
     }
   });
-  document.addEventListener("keydown", (ev) => {
+  life.listen(root, "keydown", (ev) => {
     if (ev.target.matches('.tp-tabs [role="tab"]')) {
-      const tabs = [...document.querySelectorAll('.tp-tabs [role="tab"]')];
+      const tabs = [...root.querySelectorAll('.tp-tabs [role="tab"]')];
       let index = tabs.indexOf(ev.target);
       if (ev.key === "ArrowRight") index = (index + 1) % tabs.length;
       else if (ev.key === "ArrowLeft") index = (index - 1 + tabs.length) % tabs.length;
@@ -1347,8 +1350,8 @@
       }
     }
   });
-  $("player").addEventListener("mousemove", bumpUI);
-  $("player").addEventListener("touchstart", () => showUI(false), {
+  life.listen($("player"), "mousemove", bumpUI);
+  life.listen($("player"), "touchstart", () => showUI(false), {
     passive: true,
   });
   // scrubber
@@ -1360,7 +1363,7 @@
       (video.duration || curEp().d)
     );
   };
-  rail.addEventListener("mousemove", (ev) => {
+  life.listen(rail, "mousemove", (ev) => {
     const t = railT(ev.clientX);
     $("pv").style.left = (t / (video.duration || curEp().d)) * 100 + "%";
     $("pv-img").src = thumb(state.miniVideo?.uid || curEp().uid, 180, t);
@@ -1370,20 +1373,20 @@
       paint();
     }
   });
-  rail.addEventListener("mousedown", (ev) => {
+  life.listen(rail, "mousedown", (ev) => {
     if (ev.target.closest(".mk")) return;
     rail.classList.add("drag");
     video.currentTime = railT(ev.clientX);
     paint();
   });
-  document.addEventListener("mouseup", () => rail.classList.remove("drag"));
-  rail.addEventListener("click", (ev) => {
+  life.listen(root, "mouseup", () => rail.classList.remove("drag"));
+  life.listen(rail, "click", (ev) => {
     if (ev.target.closest(".mk")) return;
     video.currentTime = railT(ev.clientX);
     paint();
     bumpUI();
   });
-  rail.addEventListener(
+  life.listen(rail,
     "touchstart",
     (ev) => {
       if (ev.target.closest(".mk")) return;
@@ -1392,7 +1395,7 @@
     },
     { passive: true },
   );
-  rail.addEventListener(
+  life.listen(rail,
     "touchmove",
     (ev) => {
       video.currentTime = railT(ev.touches[0].clientX);
@@ -1400,28 +1403,28 @@
     },
     { passive: true },
   );
-  window.addEventListener("beforeunload", () => {
+  life.listen(window, "beforeunload", () => {
     if (!$("player").hidden) saveProgress(true);
   });
 
   // A descrição completa continua acessível sem transformar o texto em ação de reprodução.
   function measureDescriptions() {
     const syn = $("tp-syn"),
-      toggle = document.querySelector(".syn-toggle");
+      toggle = root.querySelector(".syn-toggle");
     if (syn && toggle && !syn.parentElement.classList.contains("expanded"))
       toggle.hidden = syn.scrollHeight <= syn.clientHeight + 1;
-    document.querySelectorAll(".ep-description").forEach((el) => {
+    root.querySelectorAll(".ep-description").forEach((el) => {
       const p = el.querySelector(".ds"),
         b = el.querySelector(".desc-toggle");
       if (!el.classList.contains("expanded"))
         b.hidden = p.scrollHeight <= p.clientHeight + 1;
     });
   }
-  new MutationObserver(() =>
-    requestAnimationFrame(measureDescriptions),
-  ).observe($("eps"), { childList: true });
-  window.addEventListener("resize", measureDescriptions);
-  document.addEventListener("click", (e) => {
+  life.observe(new MutationObserver(() =>
+    life.frame(measureDescriptions),
+  ), $("eps"), { childList: true });
+  life.listen(window, "resize", measureDescriptions);
+  life.listen(root, "click", (e) => {
     const syn = e.target.closest(".syn-toggle");
     if (syn) {
       const expanded = syn.parentElement.classList.toggle("expanded");
@@ -1464,7 +1467,7 @@
     $("player").hidden = true;
     $("title-page").hidden = true;
     $("watch-catalog").hidden = false;
-    document.querySelector("header.top").inert = false;
+    header.inert = false;
     document.body.style.overflow = "";
     if (push) history.pushState(null, "", seriesUrl(null));
     document.title = "Assistir · AgentFlix";
@@ -1499,9 +1502,9 @@
       window.scrollTo({ top: 0, behavior: "instant" });
     }
   }
-  function route() {
-    const lesson = AgentFlixWatchModel.lessonRoute(location.pathname);
-    const slug = lesson?.slug || new URLSearchParams(location.search).get("s");
+  function route(url = new URL(location.href)) {
+    const lesson = AgentFlixWatchModel.lessonRoute(url.pathname);
+    const slug = lesson?.slug || url.searchParams.get("s");
     if (!slug) {
       showCatalog();
       return;
@@ -1521,7 +1524,7 @@
     state.ep = 0;
     state.allSeasons = false;
     state.seasonMenu = false;
-    const m = lesson ? [null, lesson.season, lesson.episode] : /^#t(\d+)e(\d+)$/.exec(location.hash);
+    const m = lesson ? [null, lesson.season, lesson.episode] : /^#t(\d+)e(\d+)$/.exec(url.hash);
     const si = m ? seasonIdxByN(m[1]) : -1;
     const activity = m && si >= 0 && SERIE.seasons[si].atividades?.find(e => e.n === +m[2]);
     const ei = m && si >= 0 ? SERIE.seasons[si].eps.findIndex((e, i) => eN(si, i) === +m[2]) : -1;
@@ -1531,7 +1534,7 @@
   }
   async function loadCatalog() {
     try {
-      const response = await fetch("/assistir/series.json", { cache: "no-store" });
+      const response = await fetch("/assistir/series.json", { cache: "no-store", signal: life.signal });
       if (!response.ok) throw Error("Catálogo indisponível");
       const data = await response.json();
       if (!Array.isArray(data.series)) throw Error("Catálogo inválido");
@@ -1550,23 +1553,26 @@
         ),
       );
       await window.AgentFlixWatchAccess.prefetch(streamUids);
+      if (life.signal.aborted) return;
       SERIES = data.series;
       catalog = AgentFlixWatchCatalog.create(data, {
         read: store.get,
         select: selectSeries,
         home: () => showCatalog({ push: true, focus: true }),
-      });
-      route();
+      }, root, life);
+      route(routeURL);
     } catch (error) {
+      if (life.signal.aborted) return;
+      if (window.AgentFlixProductShell) throw error;
       $("watch-catalog").innerHTML =
         '<div class="watch-state"><h1>Não foi possível carregar as séries</h1><p>Tente novamente em instantes.</p><button class="watch-button primary" id="watch-retry">Tentar novamente</button></div>';
       $("watch-retry").onclick = loadCatalog;
     }
   }
-  window.addEventListener("popstate", () => {
+  life.listen(window, "popstate", () => {
     if (catalog) route();
   });
-  document.addEventListener("click", (event) => {
+  life.listen(root, "click", (event) => {
     const link = event.target.closest("[data-watch-home]");
     if (
       !link ||
@@ -1583,7 +1589,16 @@
   });
   async function start() {
     const allowed = await window.AgentFlixWatchAccess?.ready;
-    if (allowed) loadCatalog();
+    if (life.signal.aborted) return;
+    if (allowed) await loadCatalog();
   }
-  start();
-})();
+  life.onDispose(() => {
+    if (SERIE) releaseVideo();
+    catalog?.dispose();
+    header.inert = false; document.body.style.overflow = '';
+    if (document.fullscreenElement === $("player")) void document.exitFullscreen();
+  });
+  return { ready: start(), search: () => catalog?.search(), dispose: () => life.dispose() };
+}
+window.AgentFlixMountPlayer = AgentFlixMountPlayer;
+if (!window.AgentFlixShellEntry && !window.AgentFlixProductShell && document.getElementById('video')) void import('/design-system/route-lifecycle.js').then(() => AgentFlixMountPlayer());

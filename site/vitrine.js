@@ -32,6 +32,9 @@
       const visit = window.AgentFlixVisit(data, {getItem:key=>visitStorage.getItem(key),setItem:(key,value)=>visitStorage.setItem(key,value),removeItem:key=>visitStorage.removeItem(key)});
       const restored = visit.load();
       if (restored) ({door,trail,result,kind,answers,completed:completeOnboarding} = restored);
+      // A apresentação, não a conclusão das perguntas, decide a primeira entrada.
+      // Sem memória remota confirmada, não presumir que a conta é nova.
+      let onboardingOpen = hooks.authenticated && hooks.memoryAvailable !== false && !visit.wasPresented();
       const event = (name, tags) => window.clar?.(name,{porta:kind,objetivo:result?.skill,...tags});
       const saveVisit = () => visit.save(kind,answers,completeOnboarding);
       let lens = null, current = null, run = 0, timeout = null, release = null, target = null;
@@ -75,6 +78,7 @@
         $('discovery').querySelector('[data-door-continue]').addEventListener('click',()=>{const choice=$('doors').querySelector('input:checked');if(choice)start(choice.value);});
       }
       function start(choice) {
+        onboardingOpen=true;
         kind=choice;answers=[];door=kind==='guia'?null:kind; completeOnboarding=false; result=null; target=null;
         trail=[kind==='avulsa'?'o_que_agora':'inicio'];saveVisit();event('onboarding_iniciado');
         $('discovery').hidden=false; $('entry-stage').hidden=true; $('guide').hidden=false;
@@ -82,7 +86,7 @@
       }
       function toggleGuide() {
         event('onboarding_reiniciado');visit.clear();kind=null;answers=[];trail=['inicio'];
-        completeOnboarding=false;result=null;target=null;door=null;
+        completeOnboarding=false;result=null;target=null;door=null;onboardingOpen=true;
         home();
         hooks.filter();scroll($('discovery'));titleFocus($('discovery'));
       }
@@ -134,7 +138,7 @@
         clearTimeout(featuredTimer);featuredTimer=null;
         const banner=featureHost.querySelector('.featured-banner');
         const playbackFocused=!!banner?.querySelector('[data-feature-playback]:focus');
-        if(!completeOnboarding||featured.length<2||featuredPaused||reduced()||document.hidden||!banner||(!playbackFocused&&banner.matches(':hover'))||(banner.contains(document.activeElement)&&!playbackFocused))return;
+        if(onboardingOpen||featured.length<2||featuredPaused||reduced()||document.hidden||!banner||(!playbackFocused&&banner.matches(':hover'))||(banner.contains(document.activeElement)&&!playbackFocused))return;
         featuredTimer=setTimeout(()=>{paintFeature(featuredIndex+1);scheduleFeature();},9000);
       }
       featureHost.addEventListener('click',e=>{
@@ -151,9 +155,9 @@
       document.addEventListener('visibilitychange',scheduleFeature);
       matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change',scheduleFeature);
       function renderRecommendation() {
-        featureHost.innerHTML = completeOnboarding ? featureMarkup() : '';
-        journeyHost.innerHTML = completeOnboarding ? `<div class="selection-heading"><div><h2 class="eyebrow">Seu caminho</h2><p>Objetivo: ${esc(name(result.skill))}</p></div><button data-discover-reset>Refazer minhas escolhas</button></div>${recommendation(true)}` : '';
-        journeyHost.hidden = !completeOnboarding;
+        featureHost.innerHTML = !onboardingOpen ? featureMarkup() : '';
+        journeyHost.innerHTML = `<div class="selection-heading">${completeOnboarding ? `<div><h2 class="eyebrow">Seu caminho</h2><p>Objetivo: ${esc(name(result.skill))}</p></div>` : ''}<button data-discover-reset>Refazer minhas escolhas</button></div>${completeOnboarding ? recommendation(true) : ''}`;
+        journeyHost.hidden = onboardingOpen;
         scheduleFeature();
       }
       function optionArt(nodeId,option,index) {
@@ -180,7 +184,7 @@
         });
         $('guide').querySelector('[data-guide-reset]').addEventListener('click',toggleGuide);
         $('guide').querySelector('[data-enter-selection]')?.addEventListener('click',()=>{
-          completeOnboarding=true;saveVisit();if(hooks.authenticated)window.AgentFlixMemory?.flush();event('onboarding_concluido');$('discovery').hidden=true;hooks.filter();renderRecommendation();scroll($('recommendation'));titleFocus($('recommendation'));hooks.enter();
+          completeOnboarding=true;onboardingOpen=false;saveVisit();if(hooks.authenticated)window.AgentFlixMemory?.flush();event('onboarding_concluido');$('discovery').hidden=true;hooks.filter();renderRecommendation();scroll($('recommendation'));titleFocus($('recommendation'));hooks.enter();
         });
       }
       function status(s) {
@@ -289,10 +293,17 @@
         $('entry-stage').hidden=true;$('guide').hidden=completeOnboarding;$('discovery').hidden=completeOnboarding;
         if(completeOnboarding)renderRecommendation();else paintGuide();
         event('caminho_restaurado');
-      } else event('onboarding_exibido');
+      }
       window.addEventListener('storage',e=>{if(e.key===journey.key||e.key===null){journey.reload();hooks.changed(true);renderRecommendation();}});
       return {matches,card,context,extras,bind,cancel,setDoor,toggleGuide,resume,installation,installationButton,gate,status,
-        locked:journey.locked, renderRecommendation, endVisit(){target=null;},
+        locked:journey.locked, renderRecommendation,
+        presented() {
+          if (!onboardingOpen || $('discovery').hidden) return;
+          if (hooks.authenticated) { visit.markPresented(); window.AgentFlixMemory?.flush(); }
+          event('onboarding_exibido');
+        },
+        endVisit(){target=null;if(onboardingOpen && visit.wasPresented()){onboardingOpen=false;hooks.filter();}},
+        get catalogAvailable(){return !onboardingOpen;},
         get completed(){return completeOnboarding;},
         rows:data.fileiras.map(f=>({id:f.id,title:()=>f.titulo,note:f.sub,ids:available.filter(slug=>data.skills[slug].fileira===f.id),journey:true})),
         get door(){return door;}

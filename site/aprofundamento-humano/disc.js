@@ -1,4 +1,5 @@
-(function () {
+function AgentFlixMountDisc(options) {
+  const { root = document, life = window.AgentFlixRouteLife.create(), header = document.querySelector('header'), routeURL = new URL(location.href) } = options || {};
   "use strict";
 
   const data = window.AgentFlixDiscData;
@@ -7,28 +8,28 @@
   const dimensions = ["D", "I", "S", "C"];
 
   const elements = {
-    intro: document.getElementById("disc-intro"),
-    quiz: document.getElementById("disc-quiz"),
-    result: document.getElementById("disc-result"),
-    start: document.getElementById("start-disc"),
-    form: document.getElementById("disc-form"),
-    questionList: document.getElementById("question-list"),
-    roundKicker: document.getElementById("round-kicker"),
-    roundTitle: document.getElementById("round-title"),
-    roundHelpShell: document.getElementById("round-help"),
-    roundHelp: document.getElementById("round-help-copy"),
-    answeredCount: document.getElementById("answered-count"),
-    questionProgress: document.getElementById("question-progress"),
-    formMessage: document.getElementById("form-message"),
-    previous: document.getElementById("previous-round"),
-    next: document.getElementById("next-round"),
-    resultTitle: document.getElementById("result-title"),
-    resultLede: document.getElementById("result-lede"),
-    scoreGrid: document.getElementById("score-grid"),
-    profileReading: document.getElementById("profile-reading"),
-    copy: document.getElementById("copy-result"),
-    copyStatus: document.getElementById("copy-status"),
-    restart: document.getElementById("restart-disc")
+    intro: root.getElementById("disc-intro"),
+    quiz: root.getElementById("disc-quiz"),
+    result: root.getElementById("disc-result"),
+    start: root.getElementById("start-disc"),
+    form: root.getElementById("disc-form"),
+    questionList: root.getElementById("question-list"),
+    roundKicker: root.getElementById("round-kicker"),
+    roundTitle: root.getElementById("round-title"),
+    roundHelpShell: root.getElementById("round-help"),
+    roundHelp: root.getElementById("round-help-copy"),
+    answeredCount: root.getElementById("answered-count"),
+    questionProgress: root.getElementById("question-progress"),
+    formMessage: root.getElementById("form-message"),
+    previous: root.getElementById("previous-round"),
+    next: root.getElementById("next-round"),
+    resultTitle: root.getElementById("result-title"),
+    resultLede: root.getElementById("result-lede"),
+    scoreGrid: root.getElementById("score-grid"),
+    profileReading: root.getElementById("profile-reading"),
+    copy: root.getElementById("copy-result"),
+    copyStatus: root.getElementById("copy-status"),
+    restart: root.getElementById("restart-disc")
   };
 
   let state;
@@ -64,7 +65,7 @@
   }
 
   function scrollToShell() {
-    document.getElementById("disc").scrollIntoView({ behavior: "smooth", block: "start" });
+    root.getElementById("disc").scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   function startAssessment() {
@@ -111,7 +112,7 @@
       input.value = String(choiceIndex);
       input.checked = Boolean(state.answers[questionIndex]) && state.answers[questionIndex][roundId] === choiceIndex;
       input.disabled = model.isChoiceUsed(state.answers, questionIndex, roundId, choiceIndex);
-      input.addEventListener("change", function () {
+      life.listen(input, "change", function () {
         selectChoice(questionIndex, roundId, choiceIndex);
       });
 
@@ -160,7 +161,7 @@
   function updateProgress(activeId) {
     const order = ["most", "least", "somewhat", "result"];
     const activeIndex = order.indexOf(activeId);
-    document.querySelectorAll("[data-progress]").forEach(function (item) {
+    root.querySelectorAll("[data-progress]").forEach(function (item) {
       const index = order.indexOf(item.dataset.progress);
       item.classList.toggle("is-current", index === activeIndex);
       item.classList.toggle("is-complete", index < activeIndex);
@@ -262,7 +263,7 @@
     state.result = { scores: scores, primary: primary };
     window.AgentFlixAgentPrompt.ensure(state, window.AgentFlixAgentPrompt.disc(data, scores), state.answers, completed);
     saveState();
-    window.AgentFlixAssessmentResults.mount(document.getElementById("disc-save-state"), state.agentRecord, completed);
+    window.AgentFlixAssessmentResults.mount(root.getElementById("disc-save-state"), state.agentRecord, completed);
 
     elements.quiz.hidden = true;
     elements.intro.hidden = true;
@@ -310,7 +311,7 @@
   }
 
   function openAgentPrompt() {
-    window.AgentFlixAgentPromptUI.open(state.agentRecord, document.getElementById("disc-agent-prompt"));
+    window.AgentFlixAgentPromptUI.open(state.agentRecord, root.getElementById("disc-agent-prompt"));
   }
 
   function resultText() {
@@ -350,24 +351,28 @@
     elements.quiz.hidden = true;
     elements.intro.hidden = false;
     setButtonText(elements.start, "Iniciar assessment");
-    document.getElementById("disc-title").setAttribute("tabindex", "-1");
-    document.getElementById("disc-title").focus({ preventScroll: true });
+    root.getElementById("disc-title").setAttribute("tabindex", "-1");
+    root.getElementById("disc-title").focus({ preventScroll: true });
     scrollToShell();
   }
 
-  elements.start.addEventListener("click", startAssessment);
-  elements.form.addEventListener("submit", nextRound);
-  elements.previous.addEventListener("click", previousRound);
-  elements.copy.addEventListener("click", copyResult);
-  document.getElementById("disc-agent-prompt").addEventListener("click", openAgentPrompt);
-  elements.restart.addEventListener("click", restartAssessment);
+  life.listen(elements.start, "click", startAssessment);
+  life.listen(elements.form, "submit", nextRound);
+  life.listen(elements.previous, "click", previousRound);
+  life.listen(elements.copy, "click", copyResult);
+  life.listen(root.getElementById("disc-agent-prompt"), "click", openAgentPrompt);
+  life.listen(elements.restart, "click", restartAssessment);
 
   elements.start.disabled = true;
-  window.AgentFlixAssessmentResults.ready.then(() => {
+  const ready = window.AgentFlixAssessmentResults.ready.then(() => {
+    if (life.signal.aborted) return;
     storageKey = window.AgentFlixAssessmentResults.key("agentflix-disc-v1");
     state = loadState();
     elements.start.disabled = false;
     if (state.result && state.result.scores && state.result.primary) showResult();
     else if (state.started) setButtonText(elements.start, "Continuar assessment");
   });
-})();
+  return { ready };
+}
+window.AgentFlixMountDisc = AgentFlixMountDisc;
+if (!window.AgentFlixShellEntry && !window.AgentFlixProductShell && document.getElementById('disc-form')) AgentFlixMountDisc();

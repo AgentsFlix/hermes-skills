@@ -1,9 +1,10 @@
-(() => {
+function AgentFlixMountAgent(options) {
+  const { root = document, life = window.AgentFlixRouteLife.create(), header = document.querySelector('header'), routeURL = new URL(location.href) } = options || {};
   "use strict";
 
-  const prompt = document.getElementById("agent-prompt");
-  const status = document.getElementById("copy-status");
-  const tabs = [...document.querySelectorAll("[data-target]")];
+  const prompt = root.getElementById("agent-prompt");
+  const status = root.getElementById("copy-status");
+  const tabs = [...root.querySelectorAll("[data-target]")];
   const fallbackTargets = {
     codex: { label: "Codex", install_field: "npx_codex", verification: "Confirme a skill em ~/.agents/skills e abra uma nova sessão." },
     "claude-code": { label: "Claude Code", install_field: "npx_claude_code", verification: "Confirme a skill no diretório informado pelo instalador e abra uma nova sessão." },
@@ -44,21 +45,21 @@
       tab.tabIndex = selected ? 0 : -1;
       if (selected && focus) tab.focus();
     });
-    document.getElementById("target-label").textContent = target.label;
-    document.getElementById("target-title").textContent = target.kind === "read_only" ? "Uso sem instalação" : target.kind === "upload_or_project" ? "Upload ou Project" : "Instalação por skill";
-    document.getElementById("target-field").textContent = target.fallback_field ? `${primaryField} ou ${target.fallback_field}` : primaryField;
-    document.getElementById("target-description").innerHTML = target.kind === "read_only"
+    root.getElementById("target-label").textContent = target.label;
+    root.getElementById("target-title").textContent = target.kind === "read_only" ? "Uso sem instalação" : target.kind === "upload_or_project" ? "Upload ou Project" : "Instalação por skill";
+    root.getElementById("target-field").textContent = target.fallback_field ? `${primaryField} ou ${target.fallback_field}` : primaryField;
+    root.getElementById("target-description").innerHTML = target.kind === "read_only"
       ? `O agente lê <code>${primaryField}</code>. Se não conseguir abrir o artefato, entrega a URL para handoff e para sem improvisar.`
       : target.fallback_field
         ? `O prompt usa <code>${primaryField}</code> quando o formato principal estiver disponível e <code>${target.fallback_field}</code> como alternativa.`
         : `O prompt escolhe a skill e copia o campo <code>${primaryField}</code> do catálogo.`;
-    document.getElementById("target-verification").textContent = target.verification;
+    root.getElementById("target-verification").textContent = target.verification;
   }
 
-  document.querySelector("[data-copy=prompt]").addEventListener("click", copyPrompt);
+  life.listen(root.querySelector("[data-copy=prompt]"), "click", copyPrompt);
   tabs.forEach((tab, index) => {
-    tab.addEventListener("click", () => selectTarget(tab.dataset.target));
-    tab.addEventListener("keydown", (event) => {
+    life.listen(tab, "click", () => selectTarget(tab.dataset.target));
+    life.listen(tab, "keydown", (event) => {
       if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return;
       event.preventDefault();
       const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
@@ -67,13 +68,18 @@
   });
 
   window.AgentFlixMetrics?.record('reading_mode', null, {mode:'agent'});
-  fetch("manifest.json", { cache: "no-cache" })
+  const ready = fetch("/para-agente/manifest.json", { cache: "no-cache", signal: life.signal })
     .then((response) => response.ok ? response.json() : Promise.reject(new Error(`HTTP ${response.status}`)))
     .then((manifest) => {
+      if (life.signal.aborted) return;
       targets = Object.fromEntries(manifest.targets.map((target) => [target.id, target]));
       selectTarget("codex");
     })
     .catch(() => {
+      if (life.signal.aborted) return;
       status.textContent = "O manifesto não carregou. O prompt continua disponível nesta página.";
     });
-})();
+  return { ready, dispose: () => life.dispose() };
+}
+window.AgentFlixMountAgent = AgentFlixMountAgent;
+if (!window.AgentFlixShellEntry && !window.AgentFlixProductShell && document.getElementById('agent-prompt')) AgentFlixMountAgent();
