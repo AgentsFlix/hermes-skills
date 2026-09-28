@@ -8,8 +8,9 @@
       "badge": "HERMES AGENT",
       "ano": 2026,
       "customer": "customer-7o8y5tffw1185pu3",
-      "cover": "img/agente-pessoal-desktop.jpg",
-      "cover_wide": "img/agente-pessoal-wide.jpg",
+      "cover": "img/editorial/agente-pessoal-v1.webp",
+      "cover_wide": "img/editorial/agente-pessoal-v1.webp",
+      "cover_layout": "editorial-wide",
       "syn": "Do servidor comprado ao primeiro agente respondendo no Telegram, com os erros que aparecem no caminho gravados de propósito. Sete aulas curtas: instalar o Hermes Agent, ligar a assinatura do ChatGPT no lugar da chave de API, criar o bot no Telegram, escolher o modelo, fazer o primeiro teste, reiniciar quando dá erro e aprovar o terminal.",
       "cast": [
         "Hermes Agent",
@@ -193,9 +194,9 @@
       "badge": "HERMES AGENT",
       "ano": 2026,
       "customer": "customer-7o8y5tffw1185pu3",
-      "cover": "img/hermes-agent-cinema-desktop.webp",
-      "cover_wide": "img/hermes-agent-cinema-desktop.webp",
-      "cover_mobile": "img/hermes-agent-cinema-mobile.webp",
+      "cover": "img/editorial/hermes-agent-v2.webp",
+      "cover_wide": "img/editorial/hermes-agent-v2.webp",
+      "cover_layout": "editorial-wide",
       "syn": "Um Hermes Agent seu, respondendo pela sua assinatura do ChatGPT, com o seu nome e o seu tom. A raiz mostra os três jeitos de instalar, com o que cada um custa e exige; no fim dela você escolhe o caminho, e a aula continua por ele. Cada caminho é uma temporada; dá para voltar e trocar.",
       "cast": [
         "José Carlos Amorim"
@@ -937,9 +938,9 @@
       "badge": "HERMES EM OPERAÇÃO",
       "ano": 2026,
       "em_breve": false,
-      "cover": "img/hermes-operacao-wide.webp",
-      "cover_wide": "img/hermes-operacao-wide.webp",
-      "cover_mobile": "img/hermes-operacao-mobile.webp",
+      "cover": "img/editorial/hermes-operacao-v1.webp",
+      "cover_wide": "img/editorial/hermes-operacao-v1.webp",
+      "cover_layout": "editorial-wide",
       "syn": "Automações e rotinas para empresas reais",
       "cast": [
         "José Carlos Amorim (Zé)",
