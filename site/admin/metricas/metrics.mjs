@@ -1,3 +1,4 @@
+import { normalizeClarity, renderClarity, renderClarityUnavailable } from "./clarity.mjs";
 import { normalizeMetrics, comparison, buildTitleMaps, contentTitle, observations, READING_MODES, APPEARANCES } from "./model.mjs";
 
 const byId = (id) => document.getElementById(id);
@@ -26,6 +27,9 @@ function show(name) {
 }
 function clearMetrics() {
   rendered = false;
+  byId("clarity-dashboard").replaceChildren();
+  byId("native-status").textContent = "";
+  byId("native-window-label").textContent = "";
   for (const id of ["metric-cards", "skills-ranking", "readings-ranking", "reading-modes-ranking", "appearances-ranking", "lessons-ranking", "daily-chart", "daily-table", "observations", "video-outcomes"]) byId(id).replaceChildren();
   for (const id of ["window-label", "coverage-label", "coverage-text", "collection-meta", "query-status", "chart-description"]) byId(id).textContent = "";
 }
@@ -331,7 +335,7 @@ function renderOutcomes(metrics) {
   }));
 }
 function render(metrics) {
-  byId("window-label").textContent = `${dateTime(metrics.window.start)} a ${dateTime(metrics.window.end)} · Horário de Brasília`;
+  byId("native-window-label").textContent = `${metrics.window.days} dias · ${dateTime(metrics.window.start)} a ${dateTime(metrics.window.end)} · Horário de Brasília`;
   const complete = metrics.coverage.current_complete && metrics.coverage.previous_complete;
   byId("coverage-note").dataset.incomplete = String(!complete);
   byId("coverage-label").textContent = !metrics.coverage.current_complete ? "Coleta parcial · Comparação em formação" : !metrics.coverage.previous_complete ? "Período coberto · Comparação em formação" : "Dois períodos cobertos · Comparação disponível";
@@ -379,12 +383,38 @@ async function loadMetrics() {
   if (rendered) byId("query-status").textContent = "Atualizando os números do período…";
   else show("loading");
   try {
-    const { data, error } = await client.rpc("admin_usage_metrics", { p_days: days });
+    const nativeDays = days === 396 ? 90 : days;
+    const responses = await Promise.allSettled([
+      client.rpc("admin_usage_metrics", { p_days: nativeDays }),
+      client.rpc("admin_clarity_metrics", { p_days: days }),
+      client.rpc("admin_clarity_metrics", { p_days: 3 }),
+    ]);
     if (requestRevision !== revision || currentUser?.id !== requestUser) return;
-    if (error) throw error;
-    const metrics = normalizeMetrics(data);
-    if (metrics.window.days !== days) throw new Error("Unexpected metrics period");
-    render(metrics);
+    const errors = responses.map((result) => result.status === "rejected" ? result.reason : result.value.error).filter(Boolean);
+    const accessError = errors.find((error) => error?.name === "AuthSessionMissingError" || ["PGRST301", "42501"].includes(error?.code));
+    if (accessError) throw accessError;
+    const parse = (index, normalize) => {
+      const result = responses[index];
+      if (result.status !== "fulfilled" || result.value.error) return null;
+      try { return normalize(result.value.data); } catch { return null; }
+    };
+    const native = parse(0, normalizeMetrics);
+    const history = parse(1, normalizeClarity);
+    const recent = parse(2, normalizeClarity);
+    if (native && native.window.days !== nativeDays) throw new Error("Unexpected native period");
+    if (history && history.requested_days !== days) throw new Error("Unexpected Clarity period");
+    if (recent && recent.requested_days !== 3) throw new Error("Unexpected recent period");
+    clearMetrics();
+    if (!native && !history) throw new Error("Metrics unavailable");
+    byId("native-content").hidden = !native;
+    byId("native-status").textContent = native ? "" : "A coleta detalhada não carregou. Use Atualizar para tentar novamente.";
+    if (native) render(native);
+    if (history) renderClarity(byId("clarity-dashboard"), history, recent);
+    else renderClarityUnavailable(byId("clarity-dashboard"));
+    byId("window-label").textContent = history ? "Microsoft Clarity · Período da importação indicado abaixo" : "Histórico Clarity indisponível · Coleta do produto abaixo";
+    byId("query-status").textContent = "Consulta atualizada. A data de importação do Clarity aparece junto aos gráficos.";
+    rendered = true;
+    show("dashboard");
   } catch (error) {
     if (requestRevision !== revision || currentUser?.id !== requestUser) return;
     clearMetrics();

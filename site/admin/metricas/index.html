@@ -64,7 +64,7 @@
 
     <div id="dashboard-state" hidden>
       <div class="dashboard-heading">
-        <div><p class="af-type-context eyebrow">Administração · Visão de CEO</p><h1 class="af-type-context">O que move o AgentFlix</h1><p class="intro">Uso do acervo para orientar a próxima decisão.</p></div>
+        <div><p class="af-type-context eyebrow">Administração · Visão de CEO</p><h1 class="af-type-context">O que move o AgentFlix</h1><p class="intro">Visitas, comportamento e uso do acervo para orientar a próxima decisão.</p></div>
         <a class="af-button af-button--outline" href="/">Abrir o produto <af-icon name="external" aria-hidden="true"></af-icon></a>
       </div>
 
@@ -75,11 +75,18 @@
             <label><input type="radio" name="period" value="7"><span class="af-type-context">7 dias</span></label>
             <label><input type="radio" name="period" value="30" checked><span class="af-type-context">30 dias</span></label>
             <label><input type="radio" name="period" value="90"><span class="af-type-context">90 dias</span></label>
+            <label><input type="radio" name="period" value="396"><span class="af-type-context">Histórico</span></label>
           </div></fieldset>
           <button id="refresh-button" class="af-button af-button--outline" type="button"><af-icon name="restart" aria-hidden="true"></af-icon>Atualizar</button>
         </div>
       </div>
       <p id="query-status" class="query-status af-type-caption" role="status" aria-live="polite"></p>
+      <section id="clarity-dashboard" aria-label="Histórico de visitas e comportamento"></section>
+
+      <details id="native-detail" class="native-detail metric-details"><summary>Uso detalhado por skill, leitura e aula · Coleta do produto</summary>
+      <p id="native-window-label" class="section-note af-type-caption"></p>
+      <p id="native-status" class="section-note af-type-caption" role="status"></p>
+      <div id="native-content">
       <details id="coverage-note" class="coverage-note"><summary><af-icon name="information" aria-hidden="true"></af-icon><span id="coverage-label" class="af-type-context">Cobertura da coleta</span><span class="coverage-prompt af-type-caption">Entender</span></summary><p id="coverage-text" class="af-type-caption"></p></details>
 
       <section class="metric-grid" aria-label="Números e distribuição da atividade do período" id="metric-cards"></section>
@@ -109,6 +116,8 @@
       <details class="observations-section metric-details" aria-labelledby="observations-title"><summary id="observations-title">Onde aprofundar a próxima decisão</summary><p class="section-note af-type-caption">Observações de volume e comparação. Os números não explicam sozinhos o motivo de uma mudança.</p><div id="observations" class="observations-grid"></div></details>
 
       <details class="measurement-notes metric-details"><summary id="measurement-title">Como ler estes números</summary><p class="af-type-caption">Visitas são sessões de navegação com atividade registrada, não pessoas únicas. A mesma visita pode gerar mais de uma cópia, abertura ou reprodução. A coleta pode não registrar interações bloqueadas pelo navegador ou realizadas offline.</p><p class="af-type-caption">A distribuição da atividade reúne comandos copiados, leituras Para o humano abertas e reproduções iniciadas. Os percentuais mostram a participação de cada tipo no total desses três eventos; acessos aos modos e mudanças de aparência são apresentados separadamente.</p><p id="collection-meta" class="af-type-caption"></p></details>
+      </div>
+      </details>
     </div>
   </main>
   <footer class="app-footer"><span class="af-type-caption">AgentFlix · Área restrita</span><a class="af-button af-button--text" href="/privacidade.html">Privacidade</a></footer>

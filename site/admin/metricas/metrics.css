@@ -255,3 +255,30 @@ th:first-child, td:first-child { text-align: left; min-width: 130px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto; }
 }
+
+/* Histórico Clarity: composição das mesmas superfícies, listas e gráficos do painel. */
+.period-choice .af-segmented { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.clarity-heading { margin: var(--af-space-4) 0 var(--af-space-5); }
+.clarity-overview .clarity-card:first-child { background: color-mix(in srgb, var(--af-brand) 10%, var(--af-panel)); }
+.clarity-card .metric-value { margin-top: var(--af-space-2); }
+.clarity-card .rank-meter { margin-top: var(--af-space-3); }
+.clarity-card .rank-meter > span, .clarity-bars .rank-meter > span { background: var(--af-brand); }
+.clarity-context { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--af-space-3); margin-bottom: var(--af-space-6); }
+.clarity-context .metric-card { min-height: 0; }
+.clarity-context .metric-value { font-size: var(--af-text-lg); }
+.clarity-panel { min-width: 0; }
+.clarity-bar-row { display: grid; gap: var(--af-space-2); padding: 0; border: 0; background: transparent; }
+.clarity-bar-row > .af-type-caption { color: var(--af-muted); }
+.clarity-friction { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--af-space-3); margin-top: var(--af-space-5); }
+.clarity-friction .metric-card { padding: var(--af-space-3); min-height: 0; background: var(--af-surface); border: 0; }
+.clarity-friction .metric-card .metric-value { font-size: var(--af-text-lg); }
+.clarity-friction .metric-card .rank-meter { background: var(--af-panel); }
+.clarity-all { margin: var(--af-space-5) 0; }
+.clarity-all > summary { color: var(--af-text); }
+.clarity-metric-detail { border-top: 1px solid var(--af-line); padding-top: var(--af-space-2); }
+.clarity-metric-detail th, .clarity-metric-detail td { overflow-wrap: anywhere; }
+.native-detail { margin-top: var(--af-space-8); padding-top: var(--af-space-4); border-top: 1px solid var(--af-line); }
+.native-detail > summary { color: var(--af-text); }
+#native-content { margin-top: var(--af-space-5); }
+@media (max-width: 800px) { .period-choice { min-width: 0; } .clarity-context { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .period-choice { width: 100%; } .period-choice .af-segmented { width: 100%; } .clarity-context { grid-template-columns: 1fr; } .clarity-context .metric-card { min-height: 0; } .clarity-overview .metric-value { font-size: var(--af-title); } }
