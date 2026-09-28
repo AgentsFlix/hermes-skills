@@ -1,3 +1,5 @@
+@import url("../design-system/tokens.css");
+
 /* Arte horizontal de fundo no desktop/tablet; vertical só até 600px.
    A troca de arte vem de cover_mobile. Texto e ações permanecem na interface. */
 .series-cover {
@@ -111,3 +113,64 @@
 /* Artes fornecidas com título conservam o topo no enquadramento. */
 .series-cover.art-with-title img { object-position: center top; }
 .tp-hero:has(.art-with-title) { overflow: hidden; }
+
+/* Capa editorial aprovada: cena inteira em qualquer viewport, sem retrato
+   alternativo ou texto da interface sobre a composição. */
+.has-editorial-cover .series-cover {
+  height: auto;
+  aspect-ratio: 1672 / 941;
+}
+.has-editorial-cover .series-cover img {
+  height: auto;
+  object-fit: contain;
+}
+.has-editorial-cover .watch-art { aspect-ratio: 1672 / 941; }
+.watch-hero.has-editorial-cover {
+  height: auto;
+  min-height: 0;
+  background: var(--af-panel);
+}
+.has-editorial-cover .watch-hero-art {
+  position: relative;
+  inset: auto;
+  z-index: auto;
+}
+.has-editorial-cover .watch-hero-shade,
+.has-editorial-cover .tp-shade,
+.has-editorial-cover .tp-hero::before { display: none; }
+.has-editorial-cover .watch-hero-copy {
+  height: auto;
+  min-height: 0;
+  max-width: none;
+  padding: var(--af-space-6);
+}
+.has-editorial-cover .watch-hero-note {
+  position: static;
+  margin: 0 var(--af-space-6) var(--af-space-6);
+}
+.has-editorial-cover .tp-hero {
+  aspect-ratio: auto;
+  background-color: var(--af-panel);
+}
+.has-editorial-cover .title-back {
+  position: relative;
+  inset: auto;
+  margin: var(--af-space-4);
+  width: fit-content;
+}
+.has-editorial-cover .tp-hero-text {
+  position: relative;
+  inset: auto;
+  margin: 0;
+  padding: var(--af-space-6);
+}
+@media (min-width: 1000px) {
+  .watch-hero.has-editorial-cover {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    align-items: center;
+  }
+  .has-editorial-cover .watch-hero-art { grid-column: 2; grid-row: 1 / span 2; }
+  .has-editorial-cover .watch-hero-copy { grid-column: 1; grid-row: 1; }
+  .has-editorial-cover .watch-hero-note { grid-column: 1; grid-row: 2; }
+}
