@@ -742,7 +742,7 @@
       proc: p.tamanho || "", req: p.requer || "nenhuma", ano: p.ano || "", since: s.since || "",
       how: p.como_usar || "", cast, gen, traits,
       readingOnly: !!s.reading_only, editorialOnly: !!s.editorial_only,
-      readingCover: s.reading_cover || "", publicationStatus: s.publication_status || "",
+      readingCover: s.reading_cover || "", readingSources: s.reading_sources || [], readingWidth: s.reading_width, publicationStatus: s.publication_status || "",
       runtimeOnly: !!s.runtime_only, activation: s.activation_prompt || "",
       promptTruncated: Array.isArray(s.prompt_truncated) ? s.prompt_truncated : [],
       badge: c.badge,
@@ -848,7 +848,9 @@
   const coverImg = (s, cls, kind, { eager = false, hostOff = false, srcset = "" } = {}) =>
     `<img class="${cls}" alt="${artText(s.slug) ? esc(`Capa de ${s.name}. ${artText(s.slug)}`) : ''}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} src="${coverUrl(s.slug, kind)}"${srcset} onload="this.closest('[data-cover-host]').classList.add('has-cover')" onerror="${hostOff ? HOST_OFF : ""}(this.closest('picture')||this).remove()">`;
   // Cards usam a arte horizontal em todas as telas, com corte 16:9.
-  const cardCover = (s) => coverImg(s, "cover", "wide");
+  const readingSources = s => s.readingSources.length && coverUrl(s.slug, 'wide') === s.readingCover
+    ? ` srcset="${s.readingSources.map(item => `${item.src} ${item.width}w`).join(', ')}, ${s.readingCover} ${s.readingWidth}w" sizes="(max-width: 343px) calc(100vw - 40px), (max-width: 860px) 50vw, (max-width: 1000px) 33vw, (max-width: 1200px) 25vw, 20vw"` : '';
+  const cardCover = (s) => coverImg(s, "cover", "wide", { srcset: readingSources(s) });
   const heroCover = (s) =>
     `<picture class="hero-pic"><source media="(max-width: 600px)" srcset="${coverUrl(s.slug, "mobile")}">${coverImg(s, "hero-cover", "desktop", { eager: true, hostOff: true })}</picture>`;
 
@@ -880,7 +882,7 @@
   function nextHero() { if (!heroPool.length) heroPool = shuffle(ALL.map((s) => s.slug).filter((x) => x !== heroSlug)); return BY[heroPool.pop()]; }
   function heroFor() { return pinnedHero() || (heroSlug && BY[heroSlug]) || (CAT && CAT.featured && BY[CAT.featured]) || BY[FEATURED_DEFAULT] || ALL[0]; }
   function swapHero() {
-    if (pinnedHero() || state.open || introPhase !== "off" || document.hidden || heroHover || ALL.length < 2) return;
+    if (state.view === "reading" || pinnedHero() || state.open || introPhase !== "off" || document.hidden || heroHover || ALL.length < 2) return;
     const s = nextHero(); if (!s) return;
     const kind = window.matchMedia("(max-width: 860px)").matches ? "mobile" : "desktop";
     let done = false;
@@ -1348,8 +1350,9 @@
   const PREVIEW_OK = window.matchMedia("(any-hover: hover) and (any-pointer: fine)");
   let pvTimer = null, pvSlug = null;
   function previewHtml(s) {
-    if(!isReading(s.slug) && DISCOVERY?.locked(s.slug)) return `${artHtml(s, coverImg(s, "cover", "wide", { eager: true }))}<div class="pv-body"><div class="pv-name">${esc(s.name)}</div><p class="pv-sub">${esc(DISCOVERY.status(s))}</p><button class="guide-primary" data-act="open" data-slug="${esc(s.slug)}">Ver pré-requisitos</button></div>`;
-    return `${artHtml(s, coverImg(s, "cover", "wide", { eager: true }))}
+    const srcset = readingSources(s).replace(/sizes="[^"]*"/, 'sizes="420px"');
+    if(!isReading(s.slug) && DISCOVERY?.locked(s.slug)) return `${artHtml(s, coverImg(s, "cover", "wide", { eager: true, srcset }))}<div class="pv-body"><div class="pv-name">${esc(s.name)}</div><p class="pv-sub">${esc(DISCOVERY.status(s))}</p><button class="guide-primary" data-act="open" data-slug="${esc(s.slug)}">Ver pré-requisitos</button></div>`;
+    return `${artHtml(s, coverImg(s, "cover", "wide", { eager: true, srcset }))}
       <div class="pv-body">
         <div class="pv-actions">
           <button class="pv-play" data-act="open" data-slug="${esc(s.slug)}" title="${s.editorialOnly ? 'Ler texto' : state.view === 'reading' ? 'Ler método' : 'Ver detalhes'}" aria-label="${s.editorialOnly ? 'Ler texto' : state.view === 'reading' ? 'Ler método' : 'Ver detalhes'}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8l4 4v14H4V3zM8 11h8M8 15h8"/></svg></button>

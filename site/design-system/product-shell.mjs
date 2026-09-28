@@ -3,7 +3,7 @@
  * Only finite public documents/styles are cached in memory. Auth, tokens and results are not.
  */
 import { mountNavigation, bounded } from './navigation.mjs';
-import { isPreviewVisual, mountPreviewVisuals } from './preview-visuals.mjs';
+import { isPreviewVisual, isDormantRouteVisual, mountPreviewVisuals } from './preview-visuals.mjs';
 window.AgentFlixProductShell = true;
 const $ = id => document.getElementById(id);
 const header = $('shell-header'), home = $('page');
@@ -125,7 +125,7 @@ function observeVisuals(root, life, stage) {
   // Capture failures before legacy fallback handlers remove a required image.
   const failed = new Set();
   life.listen(root, 'error', event => {
-    if (event.target.tagName !== 'IMG' || isPreviewVisual(event.target)) return;
+    if (event.target.tagName !== 'IMG' || isPreviewVisual(event.target) || isDormantRouteVisual(event.target, root)) return;
     failed.add(event.target);
     if (viewport.dataset.state === 'ready') void shell.refresh();
   }, true);
@@ -145,8 +145,8 @@ function observeVisuals(root, life, stage) {
     pausedForGate = [];
   };
   const changed = (records = []) => {
-    const newImages = routeImages().some(image => (image.getAttribute('src') || image.getAttribute('srcset')) && knownImages.get(image) !== imageKey(image));
-    const backgroundChanged = records.some(record => !isPreviewVisual(record.target) && (record.attributeName === 'poster' || record.attributeName === 'style' && (record.target.style.backgroundImage || /background(?:-image)?\s*:/i.test(record.oldValue || ''))));
+    const newImages = routeImages().some(image => !isDormantRouteVisual(image, root) && (image.getAttribute('src') || image.getAttribute('srcset')) && knownImages.get(image) !== imageKey(image));
+    const backgroundChanged = records.some(record => !isPreviewVisual(record.target) && !isDormantRouteVisual(record.target, root) && (record.attributeName === 'poster' || record.attributeName === 'style' && (record.target.style.backgroundImage || /background(?:-image)?\s*:/i.test(record.oldValue || ''))));
     if (!newImages && !backgroundChanged) return;
     if (scheduled || viewport.dataset.state !== 'ready') return;
     scheduled = true;
@@ -159,7 +159,7 @@ function observeVisuals(root, life, stage) {
   };
   const observer = new MutationObserver(changed);
   life.listen(window, 'resize', () => changed());
-  life.observe(observer, root, { subtree: true, childList: true, attributes: true, attributeOldValue: true, attributeFilter: ['src','srcset','poster','style'] });
+  life.observe(observer, root, { subtree: true, childList: true, attributes: true, attributeOldValue: true, attributeFilter: ['src','srcset','poster','style','hidden'] });
 }
 async function routeStage(target, signal) {
   const life = window.AgentFlixRouteLife.create(signal);

@@ -4,9 +4,15 @@
   let SHARES = Object.create(null);
   let FORMATS = Object.create(null);
   async function catalogSkills(skills) {
+    const deliveryReady = fetch('leitura/assets/responsive/manifest.json').then(async response => {
+      const data = response.ok ? await response.json() : null;
+      return data?.schemaVersion === 1 && Array.isArray(data.covers) ? data.covers : [];
+    }).catch(() => []);
     const response = await fetch('leitura/manifest.json', {cache:'no-cache'});
     if(!response.ok) throw Error('Registro de leituras indisponível');
     const manifest = await response.json();
+    // Optional delivery copies: a failed optimization never blocks the catalog.
+    const covers = await deliveryReady;
     if(manifest.schemaVersion !== 1 || !Array.isArray(manifest.readings)) throw Error('Registro de leituras inválido');
     READINGS = Object.create(null);
     SHARES = Object.create(null);
@@ -21,6 +27,11 @@
       if(!skill && entry.fallback) { skill = {...entry.fallback}; result.push(skill); }
       if(!skill) throw Error('Leitura sem skill: ' + entry.slug);
       if(entry.cover) skill.reading_cover = entry.cover;
+      const delivery = covers.find(item => item.source === entry.cover);
+      if(delivery && Number.isInteger(delivery.width) && Array.isArray(delivery.copies)) {
+        skill.reading_width = delivery.width;
+        skill.reading_sources = delivery.copies.filter(item => /^\/leitura\/assets\/responsive\/[a-z0-9-]+\.webp$/.test(item.src) && Number.isInteger(item.width) && item.width > 0 && item.width < delivery.width);
+      }
       if(entry.share) skill.reading_share = entry.share;
     }
     return result;
