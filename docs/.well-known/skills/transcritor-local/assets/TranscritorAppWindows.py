@@ -14,6 +14,7 @@ class Bridge:
     def open_url(self, value):
         parsed = urlparse(value)
         allowed = ((parsed.hostname == "agentsflix.ai" and parsed.path in ("", "/")) or
+                   (parsed.hostname == "chatgpt.com" and parsed.path in ("", "/")) or
                    (parsed.hostname == "auth.openai.com" and parsed.path == "/codex/device"))
         if parsed.scheme != "https" or not allowed or parsed.username or parsed.password:
             return False

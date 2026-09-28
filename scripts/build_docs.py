@@ -158,6 +158,13 @@ def write_integrity(directory: Path, version: str) -> None:
     (directory / "integrity.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
+def portable_ignores(directory: str, names: list[str], skill_root: Path) -> set[str]:
+    ignored = set(shutil.ignore_patterns(".*", "__pycache__", "*.pyc", "*.pyo")(directory, names))
+    if Path(directory).resolve() == skill_root.resolve():
+        ignored.discard(".skillignore")
+    return ignored
+
+
 def main() -> None:
     cat = json.loads((ROOT / "catalog.json").read_text(encoding="utf-8"))
     entries = distribution_entries(cat)
@@ -173,7 +180,7 @@ def main() -> None:
         entry, version = entries.get(slug, (None, cat["version"]))
         files = referenced_files(body)
         # portable: cópia da pasta com SKILL.md reescrito
-        pd = DIST / slug; shutil.copytree(d, pd, ignore=shutil.ignore_patterns(".*", "__pycache__", "*.pyc", "*.pyo"))
+        pd = DIST / slug; shutil.copytree(d, pd, ignore=lambda directory, names: portable_ignores(directory, names, d))
         (pd / "SKILL.md").write_text(dump_fm(strict_frontmatter(fm, slug, version)) + adapt_body(body), encoding="utf-8")
         if slug in authored_names:
             write_integrity(pd, version)

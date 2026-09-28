@@ -6,9 +6,9 @@
 >
 > **Como usar.** ChatGPT: crie um Project, envie este arquivo em Files e cole nas instruções do projeto o texto
 > de ativação abaixo. Claude: envie como conhecimento do Project, ou cole tudo no chat. Qualquer chat: cole tudo.
-> Versão 1.1.0. Instalável como skill de verdade (Hermes, Claude.ai, Claude Code, ChatGPT Skills, Codex) na página.
+> Versão 1.2.0. Instalável como skill de verdade (Hermes, Claude.ai, Claude Code, ChatGPT Skills, Codex) na página.
 >
-> **Texto de ativação (cole nas instruções):** Acesse https://raw.githubusercontent.com/AgentsFlix/skills/transcritor-local-v1.1.0/skills/transcritor-local/SKILL.md e leia a skill Transcritor AgentFlix e as referências necessárias. Esta edição usa a referência transcritor-local-v1.1.0. Se eu já tiver anexado o pacote ou a versão colável, use esse material, incluindo as seções Referência, sem depender de novo acesso à rede. Confira se a skill já está instalada; se não estiver e houver suporte, inspecione a licença, o SKILL.md e os arquivos de apoio e instale pelo mecanismo disponível. Sem instalação, aplique o procedimento nesta conversa e informe o limite.
+> **Texto de ativação (cole nas instruções):** Acesse https://raw.githubusercontent.com/AgentsFlix/skills/transcritor-local-v1.2.0/skills/transcritor-local/SKILL.md e leia a skill Transcritor AgentFlix e as referências necessárias. Esta edição usa a referência transcritor-local-v1.2.0. Se eu já tiver anexado o pacote ou a versão colável, use esse material, incluindo as seções Referência, sem depender de novo acesso à rede. Confira se a skill já está instalada; se não estiver e houver suporte, inspecione a licença, o SKILL.md e os arquivos de apoio e instale pelo mecanismo disponível. Sem instalação, aplique o procedimento nesta conversa e informe o limite.
 >
 > Antes de me fazer perguntas, leia o contrato AgentFlix incluído e cheque nossa conversa, sua memória local acessível e os arquivos relevantes que você já conhece. Identifique os inputs exigidos, quais você já tem e quais faltam. Reaproveite fatos atuais, identifique origem, data, conflitos e inferências. Não invente lembranças nem me peça novamente o que já sabe.
 >
@@ -18,22 +18,46 @@
 >
 > Avalie se vale transformar parte desta tarefa em rotina. Diga vale sugerir, não vale ou depende, com motivo. Se valer, apresente uma proposta concreta de frequência, horário, fuso, inputs, resultado, canal, silêncio, pausa e encerramento. Respeite recusas anteriores. Instalar não autoriza CRON. Só configure com minha autorização e um agendador disponível, conferindo duplicatas e o ID retornado. Não prometa alertas sem monitor; minha falta de resposta não confirma atividade ou decisão.
 >
-> Instale o Transcritor AgentFlix neste computador após identificar sistema e arquitetura e fazer o bootstrap. Reaproveite o contexto e pergunte só pelas lacunas com exemplos. Crie o app na Mesa do Mac ou Área de Trabalho do Windows. A pessoa autentica pelo link oficial e cola o código no navegador; nunca peça código ou senha no chat. Depois teste um áudio ou vídeo autorizado, entregue a transcrição e o .md e informe o que não foi testado. Windows ARM64 usa emulação x64; veja references/limites.md.
+> Instale o app de desktop Transcritor AgentFlix neste computador após identificar sistema e arquitetura e fazer o bootstrap. Reaproveite o contexto e pergunte só pelas lacunas com exemplos. Crie o .app na Mesa do Mac ou o .exe na Área de Trabalho do Windows; o HTML é interno à janela, não uma aplicação web publicada. A pessoa autentica pelo link oficial e cola o código no navegador; nunca peça código ou senha no chat. Teste arquivo autorizado ou URL pública com legenda: português fica pronto sem Luna e a melhoria é opcional; outro idioma é traduzido para português com Luna. Confira cópia e .md e informe o que não foi testado. Windows ARM64 usa emulação x64; veja references/limites.md.
 
 ---
 
 # Transcritor AgentFlix
 
-Crie um aplicativo na Mesa do Mac ou na Área de Trabalho do Windows. Vídeo vira áudio no computador;
-Whisper reconhece a fala localmente e somente o texto bruto segue para revisão pelo Codex GPT-5.6 Luna.
+Crie um **aplicativo de desktop**, `Transcritor AgentFlix.app` na Mesa do Mac ou
+`Transcritor AgentFlix.exe` na Área de Trabalho do Windows. A interface HTML é exibida dentro da
+janela do app por WebKit/WebView2 e servida apenas em `127.0.0.1` com token local; não é um site
+publicado nem um app para abrir no navegador. Os dois sistemas usam os mesmos arquivos da interface,
+vídeos de onboarding, ilustrações e motor de transcrição. Arquivos de vídeo viram áudio no computador;
+Whisper reconhece a fala localmente e o Codex GPT-5.6 Luna revisa o texto. Para uma URL do YouTube,
+yt-dlp obtém a legenda disponível, sem baixar áudio nem usar Whisper. Legendas em português aparecem
+imediatamente, com **Melhorar legenda com IA** como revisão opcional. Quando só há legenda em outro idioma,
+o app a traduz para português do Brasil com Luna antes de mostrar o resultado.
 A pessoa pode copiar o resultado ou baixar um arquivo `.md`. A entrada conversacional está em
 [references/ativacao.md](references/ativacao.md), acrescentada pelo gerador de distribuição.
+Na primeira abertura, dois vídeos mostram como ativar o login por código de dispositivo no ChatGPT e
+como autorizar o Codex. A pessoa avança com **Já ativei** e **Entendi, bora!** antes de usar o transcritor.
+Depois da conclusão, o app abre direto na tela de uso, inclusive após uma atualização.
+Os vídeos distribuídos tiveram dados de conta, códigos e URLs de autenticação cobertos e o áudio removido.
 
 ## When to Use
 
 Use para instalar, diagnosticar ou operar o transcritor de áudio e vídeo no computador da pessoa.
 O padrão é instalar neste computador. Sem acesso ao terminal do destino, entregue as instruções e diga
 que o app ainda não foi instalado. Um agente remoto não deve instalar no próprio servidor por engano.
+
+## Pacote e interface oficiais
+
+Instale executando os scripts deste pacote. Use `assets/index.html`, as fontes Archivo e as
+ilustrações `assets/escolher-arquivo.webp` e `assets/colar-youtube.webp` exatamente como distribuídos.
+Não recrie a interface nem substitua as imagens por uma versão provisória. Se a instalação anterior
+mostra só entrada de arquivo, atualize o pacote inteiro e execute novamente o instalador; copiar
+apenas o `SKILL.md` não atualiza o aplicativo.
+
+Se recebeu apenas o texto da skill ou faltar algum arquivo listado ao final, obtenha e extraia o
+[pacote completo 1.2.0](https://raw.githubusercontent.com/AgentsFlix/skills/transcritor-local-v1.2.0/docs/packages/transcritor-local.zip)
+antes de executar o bootstrap. Confira os hashes dos arquivos com `integrity.json`. Depois de instalar,
+confira os dois cartões ilustrados e clique em **Cole URL do YouTube** para revelar o campo de URL.
 
 ## Quick Reference
 
@@ -44,12 +68,12 @@ Recupere destino, sistema, arquitetura, arquivos e contexto da conversa e memór
 | Computador de destino e sistema | Obrigatório para instalar | Pedido e diagnóstico local |
 | Arquitetura, espaço livre e ferramentas | Obrigatórios | Bootstrap do sistema |
 | Conta com acesso ao Codex | Obrigatória para revisão | Login no site oficial, nunca pelo chat |
-| Arquivo de áudio ou vídeo | Obrigatório apenas para transcrever | Arquivo indicado ou escolhido no app |
+| Arquivo de áudio/vídeo ou URL de vídeo do YouTube | Obrigatório apenas para transcrever | Arquivo escolhido ou link colado no app |
 | Vocabulário, idioma e contexto | Opcionais | Conversa e contexto relevante |
 
 Entrega de instalação: app aberto pelo ícone e diagnóstico de dependências aprovado. Entrega de uso:
 transcrição conferida, cópia e `.md` verificados. Não confundir instalação, login e transcrição completa.
-Arquivos de até 4 GB; formatos em `assets/transcritor.py`. A mídia original permanece no lugar; cópias
+Arquivos de até 4 GB; formatos em `assets/transcritor.py`. URLs do YouTube precisam ter legendas manuais ou automáticas acessíveis; não há fallback de áudio para esse caminho. A mídia original permanece no lugar; cópias
 recebidas e áudio temporário são removidos após a execução. Não há diarização nem timestamps na saída.
 
 ## Procedure
@@ -65,11 +89,19 @@ Antes de configurar ou fazer perguntas, leia `references/contrato-agentflix.md`.
 3. Faça o bootstrap de dependências abaixo antes de compilar o app. Explique downloads, espaço necessário
    e eventual confirmação local do sistema. Se faltar Python no Mac, instale as Command Line Tools com
    `xcode-select --install`, aguarde a conclusão local e confira `python3 --version` antes do bootstrap.
-4. Abra o app. Para autenticar, a pessoa clica em **Gerar código de acesso**, copia o código, abre
+4. Abra o app. Na primeira vez, o primeiro vídeo fica em loop até **Já ativei**; o segundo fica em loop até
+   **Entendi, bora!**. Depois, a conclusão fica salva localmente e as próximas aberturas vão direto ao uso.
+   O link para ChatGPT abre no navegador. Para autenticar, a pessoa clica em
+   **Gerar código de acesso**, copia o código, abre
    `https://auth.openai.com/codex/device`, cola o código e confirma. Aguarde o estado conectado.
    Não solicite nem manipule senha, token ou código de dispositivo. Não publique o código em capturas.
-5. Faça o teste solicitado com uma mídia curta autorizada. Confira os resultados pelos critérios de
-   Verification. A correção pelo contexto pode errar nomes; preserve o idioma e revise trechos incertos.
+5. Na etapa 02, há dois cartões quadrados: **Selecione áudio ou vídeo** abre o seletor de arquivos;
+   **Cole URL do YouTube** revela o campo **Cole a URL do Youtube**. Colagem pelo teclado funciona no
+   campo, e o botão **Transcrever arquivo** ou **Transcrever vídeo** fica centralizado abaixo das opções.
+   Faça o teste solicitado com mídia curta autorizada ou URL pública com legenda. A legenda em português
+   fica pronta para copiar ou baixar sem esperar Luna; **Melhorar legenda com IA** aciona a revisão quando
+   desejada. Legenda estrangeira é traduzida com Luna. Não há download de áudio nem Whisper para URL.
+   Confira os resultados pelos critérios de Verification; nomes e trechos incertos ainda exigem leitura.
 6. Registre apenas o que foi observado. Avaliação de rotina: **não vale** criar CRON para instalação ou
    transcrição pontual; depende de mídia nova escolhida pela pessoa. Instalar não autoriza agendamento.
    Se houver pedido recorrente, avalie acesso aos arquivos, custo e privacidade antes de propor uma rotina.
@@ -77,14 +109,18 @@ Antes de configurar ou fazer perguntas, leia `references/contrato-agentflix.md`.
 ### macOS
 
 
-1. Execute `python3 scripts/bootstrap.py --check`. Se houver `FALTA`, execute `python3 scripts/bootstrap.py --install` e confira novamente. Ele verifica Python, Homebrew, `ffmpeg`, `whisper-cli`, Codex com `/device`, Swift e modelo multilíngue.
-2. Execute `python3 scripts/install.py --no-deps`. O instalador revalida o bootstrap, copia os assets e compila `~/Desktop/Transcritor AgentFlix.app`, uma janela macOS com WebKit e ícone AgentFlix. `python3 scripts/install.py` faz bootstrap e instalação numa chamada.
+1. Execute `python3 scripts/bootstrap.py --check`. Se houver `FALTA`, execute `python3 scripts/bootstrap.py --install` e confira novamente. Ele verifica Python, Homebrew, `ffmpeg`, `whisper-cli`, `yt-dlp`, Codex com `/device`, Swift e modelo multilíngue.
+2. Execute `python3 scripts/install.py --no-deps`. O instalador revalida o bootstrap, copia HTML,
+   ilustrações e vídeos tratados e compila `~/Desktop/Transcritor AgentFlix.app`, uma janela macOS
+   com WebKit e ícone AgentFlix. `python3 scripts/install.py` faz bootstrap e instalação numa chamada.
 3. Abra pela Mesa ou com `open "$HOME/Desktop/Transcritor AgentFlix.app"`. CLI: `python3 "$HOME/Library/Application Support/Transcritor Codex/transcritor.py" transcribe /caminho/arquivo -o /caminho/transcricao.md`.
 
 ### Windows x64 ou ARM64
 
-1. Em PowerShell no diretório da skill, execute `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\bootstrap_windows.ps1 -Check`. A política é aplicada só a esse processo. O diagnóstico verifica Windows 10 1809+ x64 ou Windows 11 x64/ARM64, `winget`, Python 3.11 x64, Node/npm, Codex com `/device`, WebView2, Visual C++ Runtime x64, pacotes Python e modelo Whisper. Se houver `FALTA`, repita com `-Install` e confira novamente. Instalações do Windows podem solicitar confirmação local de administrador. O modelo requer espaço livre e download.
-2. Execute `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\install_windows.ps1 -NoDeps`. O instalador revalida o bootstrap e usa PyInstaller **no próprio Windows** para criar `Transcritor AgentFlix.exe` na Área de Trabalho. Sem `-NoDeps`, ele também executa o bootstrap. Abra o `.exe` na Área de Trabalho.
+1. Em PowerShell no diretório da skill, execute `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\bootstrap_windows.ps1 -Check`. A política é aplicada só a esse processo. O diagnóstico verifica Windows 10 1809+ x64 ou Windows 11 x64/ARM64, `winget`, Python 3.11 x64, Node/npm, Codex com `/device`, WebView2, Visual C++ Runtime x64, pacotes Python (incluindo yt-dlp) e modelo Whisper. Se houver `FALTA`, repita com `-Install` e confira novamente. Instalações do Windows podem solicitar confirmação local de administrador. O modelo requer espaço livre e download.
+2. Execute `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\install_windows.ps1 -NoDeps`. O instalador revalida o bootstrap e usa PyInstaller **no próprio Windows** para incluir
+   HTML, ilustrações, vídeos tratados e motor local no `Transcritor AgentFlix.exe` da Área de Trabalho.
+   Sem `-NoDeps`, ele também executa o bootstrap. Abra o `.exe` na Área de Trabalho.
 3. O Windows usa WebView2 para a janela e `faster-whisper` em CPU int8 para reconhecer fala. `imageio-ffmpeg` fornece o conversor local. O botão **Baixar .md** salva em Downloads, acrescentando um número se já existir um arquivo com o mesmo nome.
 
 A instalação Windows é para uso local; em ARM64, o app Python x64 roda pela emulação do Windows 11. Ela não produz um instalador assinado para distribuição. PyInstaller precisa rodar no Windows. Não apresente os arquivos Windows como validados em funcionamento até executar o teste no próprio Windows.
@@ -100,21 +136,27 @@ Não vale agendar instalação ou transcrição pontual: a pessoa escolhe cada m
 - Não inventar memória, transformar exemplos em respostas ou prometer acompanhamento sem agendamento real.
 - Não chamar o Windows ARM64 de build nativo: usa Python x64 sob emulação do Windows 11.
 - Não distribuir `.app` ou `.exe` como instalador assinado: esta skill compila localmente no próprio sistema.
+- Não oferecer a interface HTML como aplicação web: ela é um recurso interno da janela de desktop.
 - Não prometer operação totalmente offline: login e revisão do texto exigem rede e acesso ao modelo no Codex.
+- URL do YouTube exige rede e legenda acessível; vídeo sem legenda não será reconhecido com Whisper nesse fluxo.
 - Não substituir o modelo solicitado silenciosamente quando a conta não tiver acesso a GPT-5.6 Luna.
 - Não apresentar o bootstrap como prova de transcrição completa; veja [limites.md](references/limites.md).
 
 ## Verification
 
 1. Execute o diagnóstico do sistema e confirme todos os itens necessários antes da instalação.
-2. Abra o app pelo ícone; confira janela própria, marca e rodapé com link para `https://agentsflix.ai/`.
+2. Abra o app pelo ícone; confira as duas etapas em vídeo somente na primeira vez, reabra direto no uso, e confira links, botões, a janela própria,
+   a marca e o rodapé com link para `https://agentsflix.ai/`.
 3. Confira login guiado com link e código legível, sem escapes ANSI nem credenciais em logs.
-4. Transcreva um áudio e um vídeo curtos autorizados; confira idioma, palavras, cópia e arquivo `.md`.
+4. Confirme os cartões ilustrados, seletor de arquivo, revelação do campo de URL, colagem e botão
+   centralizado. Transcreva um áudio, um vídeo e uma URL curta com legenda acessível; confira a entrega
+   imediata de legenda portuguesa, a revisão opcional, tradução de legenda estrangeira, cópia e `.md`.
 5. Verifique preservação do original e remoção dos temporários; registre ambiente e testes que ficaram pendentes.
 6. Confira bootstrap de contexto, perguntas somente sobre lacunas, exemplos contextualizados e conclusão de rotina.
 
 ## Arquivos desta skill (incluídos abaixo)
 
+- `.skillignore`
 - `LICENSE`
 - `assets/TranscritorApp.swift`
 - `assets/TranscritorAppWindows.py`
@@ -124,7 +166,11 @@ Não vale agendar instalação ou transcrição pontual: a pessoa escolhe cada m
 - `assets/archivo-OFL.txt`
 - `assets/archivo-bold.ttf`
 - `assets/archivo-regular.ttf`
+- `assets/colar-youtube.webp`
+- `assets/escolher-arquivo.webp`
 - `assets/index.html`
+- `assets/onboarding-como-acessar.mp4`
+- `assets/onboarding-logar-codex.mp4`
 - `assets/transcritor.py`
 - `references/ativacao.md`
 - `references/ciclo-de-vida.md`
@@ -143,6 +189,15 @@ Não vale agendar instalação ou transcrição pontual: a pessoa escolhe cada m
 - `templates/estado-da-skill.md`
 - `templates/evento-de-uso.json`
 - `integrity.json`
+
+
+---
+
+## Referência: .skillignore
+
+# Somente os dois vídeos de onboarding tratados. O scanner de texto não inspeciona MP4.
+assets/onboarding-como-acessar.mp4
+assets/onboarding-logar-codex.mp4
 
 
 ---
@@ -185,6 +240,7 @@ final class TranscritorApp: NSObject, NSApplicationDelegate, NSWindowDelegate, W
     private var server: Process?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        installEditMenu()
         let configuration = WKWebViewConfiguration()
         configuration.preferences.javaScriptCanOpenWindowsAutomatically = true
         webView = WKWebView(frame: .zero, configuration: configuration)
@@ -203,6 +259,32 @@ final class TranscritorApp: NSObject, NSApplicationDelegate, NSWindowDelegate, W
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
         startServer()
+    }
+
+    private func installEditMenu() {
+        let mainMenu = NSMenu()
+        let appItem = NSMenuItem()
+        let appMenu = NSMenu(title: "Transcritor AgentFlix")
+        appMenu.addItem(NSMenuItem(title: "Sair do Transcritor AgentFlix", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        appItem.submenu = appMenu
+        mainMenu.addItem(appItem)
+
+        let editItem = NSMenuItem()
+        let editMenu = NSMenu(title: "Editar")
+        for (title, action, key, modifiers) in [
+            ("Copiar", Selector(("copy:")), "c", NSEvent.ModifierFlags.command),
+            ("Colar", Selector(("paste:")), "v", NSEvent.ModifierFlags.command),
+            ("Selecionar tudo", Selector(("selectAll:")), "a", NSEvent.ModifierFlags.command),
+            ("Copiar com Ctrl+C", Selector(("copy:")), "c", NSEvent.ModifierFlags.control),
+            ("Colar com Ctrl+V", Selector(("paste:")), "v", NSEvent.ModifierFlags.control)
+        ] {
+            let item = NSMenuItem(title: title, action: action, keyEquivalent: key)
+            item.keyEquivalentModifierMask = modifiers
+            editMenu.addItem(item)
+        }
+        editItem.submenu = editMenu
+        mainMenu.addItem(editItem)
+        NSApp.mainMenu = mainMenu
     }
 
     private func startServer() {
@@ -444,7 +526,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     button, input, textarea { font: inherit; }
     button { cursor: pointer; }
     button:disabled { cursor: not-allowed; opacity: .48; }
-    button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, .dropzone:focus-within { outline: 2px solid var(--link); outline-offset: 4px; }
+    button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--link); outline-offset: 4px; }
     a { color: var(--link); }
     .shell { width: min(1040px, 100%); margin: 0 auto; }
     .hero { padding: 37px 0 34px; }
@@ -482,13 +564,16 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     .steps p { margin: 7px 0 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
     .code-row { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
     .code { display: inline-block; min-width: 170px; padding: 11px 14px; border: 1px solid var(--line); border-radius: 8px; background: #111; color: var(--text); font: 700 19px/1.2 ui-monospace, Menlo, monospace; letter-spacing: .05em; }
-    .dropzone { display: grid; justify-items: center; gap: 8px; min-width: 0; margin-top: 23px; padding: 26px 16px; border: 1px dashed rgba(95,201,220,.55); border-radius: 12px; background: #111719; text-align: center; cursor: pointer; transition: border-color 160ms, background 160ms; }
-    .dropzone:hover { border-color: var(--link); background: #162024; }
-    .dropzone strong { color: var(--text); font-size: 16px; }
-    .dropzone span { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
-    .dropzone input { width: min(360px,100%); min-width: 0; margin-top: 7px; color: var(--muted); font-size: 13px; }
-    .dropzone input::file-selector-button { margin-right: 12px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--text); font: inherit; cursor: pointer; }
-    .process { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 18px; margin-top: 18px; }
+    .source-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 300px)); justify-content: center; gap: 18px; margin-top: 24px; }
+    .source-choice { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; width: 100%; aspect-ratio: 1; padding: 18px; border: 1px solid var(--line); border-radius: 12px; background: #111719; color: var(--text); text-align: center; transition: border-color 160ms, background 160ms, transform 160ms; }
+    .source-choice:hover, .source-choice[aria-pressed="true"] { border-color: var(--link); background: #162024; }
+    .source-choice:hover { transform: translateY(-2px); }
+    .source-choice img { display: block; width: min(74%, 200px); height: min(74%, 200px); object-fit: contain; pointer-events: none; }
+    .source-choice strong { font-size: 17px; line-height: 1.2; }
+    .source-choice span { color: var(--muted); font-size: 13px; line-height: 1.35; overflow-wrap: anywhere; }
+    .visually-hidden-input { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    .url-entry { max-width: 618px; margin: 20px auto 0; }
+    .process { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 24px; text-align: center; }
     .process .button { min-width: 160px; }
     .status { min-height: 21px; margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
     .output { width: 100%; min-height: 280px; margin: 20px 0 15px; padding: 18px; resize: vertical; border: 1px solid var(--line); border-radius: 8px; color: var(--text); background: #111; font: 15px/1.6 Archivo, Helvetica, Arial, sans-serif; }
@@ -496,22 +581,52 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     .footer { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 35px; padding: 20px 2px 0; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; line-height: 1.5; }
     .footer p { margin: 0; }
     .footer a { font-weight: 700; text-underline-offset: 3px; }
+    .onboarding { width: min(840px, 100%); margin: 0 auto; padding: 32px 0 48px; }
+    .onboarding .brand-link { margin-bottom: 34px; }
+    .onboarding-card { padding: clamp(20px, 4vw, 36px); border: 1px solid var(--line); border-radius: 16px; background: var(--panel); box-shadow: 0 24px 64px rgba(0,0,0,.18); }
+    .onboarding-card h1 { font-size: clamp(30px, 4vw, 43px); }
+    .onboarding-card .lead { max-width: 740px; margin-bottom: 22px; }
+    .onboarding-video { display: block; width: 100%; aspect-ratio: 16 / 9; margin: 0 0 22px; border: 1px solid var(--line); border-radius: 10px; background: #000; object-fit: contain; }
+    .onboarding-actions { display: flex; justify-content: flex-end; align-items: center; gap: 14px; }
+    .onboarding-actions .button { min-width: 150px; }
+    .onboarding-status { flex: 1; margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .url-label { display: block; margin: 0 0 10px; font-weight: 700; }
+    .url-input { display: block; width: 100%; min-height: 48px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; color: var(--text); background: #111; font: 15px Archivo, Helvetica, Arial, sans-serif; }
+    .url-input:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
     [hidden] { display: none !important; }
-    @media (max-width: 600px) { body { padding: 0 16px 32px; } body::before { margin: 0 -16px; } .hero { padding: 22px 0 28px; } .brand-logo { width: 145px; } .hero-copy { margin-top: 33px; } .lead { font-size: 15px; } .card { padding: 20px 16px; } .card-head { gap: 11px; flex-wrap: wrap; } .card-head > div { flex-basis: calc(100% - 48px); } .number { width: 34px; height: 34px; } .card-title { font-size: 19px; } .badge { margin-left: 45px; } .auth-body { margin-left: 0; } .actions .button { width: 100%; } .steps .button { width: auto; } .code { min-width: 0; } .process { align-items: stretch; } .process .button { width: 100%; } .footer { margin-top: 28px; } }
+    @media (max-width: 600px) { body { padding: 0 16px 32px; } body::before { margin: 0 -16px; } .hero { padding: 22px 0 28px; } .brand-logo { width: 145px; } .hero-copy { margin-top: 33px; } .lead { font-size: 15px; } .card { padding: 20px 16px; } .card-head { gap: 11px; flex-wrap: wrap; } .card-head > div { flex-basis: calc(100% - 48px); } .number { width: 34px; height: 34px; } .card-title { font-size: 19px; } .badge { margin-left: 45px; } .auth-body { margin-left: 0; } .actions .button { width: 100%; } .steps .button { width: auto; } .code { min-width: 0; } .process { align-items: stretch; } .process .button { width: 100%; } .footer { margin-top: 28px; } .onboarding { padding-top: 22px; } .onboarding-actions { flex-direction: column; align-items: stretch; } .onboarding-actions .button { width: 100%; } }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0ms !important; animation-duration: 0ms !important; } }
   </style>
 </head>
 <body>
   <main class="shell">
+    <section id="onboarding" class="onboarding" aria-label="Primeiros passos">
+      <a class="brand-link" href="https://agentsflix.ai/" target="_blank" rel="noopener noreferrer" aria-label="Acessar AgentFlix"><img class="brand-logo" src="/assets/agentflix-logo.svg" alt="AgentFlix"></a>
+      <div id="accessStep" class="onboarding-card">
+        <p class="eyebrow">PRIMEIROS PASSOS · 1 DE 2</p>
+        <h1 tabindex="-1">Ative o acesso no ChatGPT</h1>
+        <p class="lead">Entre no seu <a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">ChatGPT ↗</a> e siga o caminho do vídeo abaixo, ativando o que ele mostra.</p>
+        <video id="accessVideo" class="onboarding-video" autoplay muted loop playsinline controls preload="auto" aria-label="Vídeo: como ativar o acesso no ChatGPT"></video>
+        <div class="onboarding-actions"><p id="accessVideoStatus" class="onboarding-status" role="status">Carregando vídeo…</p><button id="accessDone" class="button" disabled>Já ativei</button></div>
+      </div>
+      <div id="loginStep" class="onboarding-card" hidden>
+        <p class="eyebrow">PRIMEIROS PASSOS · 2 DE 2</p>
+        <h1 tabindex="-1">Entre com sua conta</h1>
+        <p class="lead">Agora você vai fazer exatamente o que está no vídeo abaixo: clicar no link, entrar na sua conta do ChatGPT, colar um código e PRONTO. O código será gerado na tela seguinte.</p>
+        <video id="loginVideo" class="onboarding-video" autoplay muted loop playsinline controls preload="auto" aria-label="Vídeo: como entrar com o Codex"></video>
+        <div class="onboarding-actions"><p id="loginVideoStatus" class="onboarding-status" role="status">Carregando vídeo…</p><button id="loginDone" class="button" disabled>Entendi, bora!</button></div>
+      </div>
+    </section>
+    <div id="workspace" hidden>
     <header class="hero">
       <a class="brand-link" href="https://agentsflix.ai/" target="_blank" rel="noopener noreferrer" aria-label="Acessar AgentFlix"><img class="brand-logo" src="/assets/agentflix-logo.svg" alt="AgentFlix"></a>
       <div class="hero-copy"><p class="eyebrow">SKILL DO AGENTFLIX · APP LOCAL</p>
       <h1>Transcritor</h1>
-      <p class="lead">Transforme áudio ou vídeo em texto. O reconhecimento roda neste computador; apenas o texto segue para revisão com GPT-5.6 Luna.</p></div>
+      <p class="lead">Transforme áudio ou vídeo em texto. Arquivos são reconhecidos neste computador; links do YouTube usam a transcrição já disponível no vídeo. Em português, a revisão com GPT-5.6 Luna é opcional.</p></div>
     </header>
     <div class="stack">
       <section class="card" aria-labelledby="authTitle">
-        <div class="card-head"><span class="number" aria-hidden="true">01</span><div><h2 class="card-title" id="authTitle">Conecte sua conta</h2><p class="card-desc">Use sua conta do ChatGPT para revisar a transcrição.</p></div><span id="authBadge" class="badge">Verificando</span></div>
+        <div class="card-head"><span class="number" aria-hidden="true">01</span><div><h2 class="card-title" id="authTitle" tabindex="-1">Conecte sua conta</h2><p class="card-desc">Use sua conta do ChatGPT para revisar a transcrição.</p></div><span id="authBadge" class="badge">Verificando</span></div>
         <div class="auth-body">
           <div id="authIdle" hidden><button id="login" class="button">Gerar código de acesso</button><p class="helper">O código é criado pelo Codex neste computador. Você confirma o acesso no site da OpenAI.</p></div>
           <div id="authSteps" hidden>
@@ -526,25 +641,62 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         </div>
       </section>
       <section class="card" aria-labelledby="uploadTitle">
-        <div class="card-head"><span class="number" aria-hidden="true">02</span><div><h2 class="card-title" id="uploadTitle">Escolha seu arquivo</h2><p class="card-desc">Áudio ou vídeo do computador. A mídia fica local durante o processamento.</p></div></div>
-        <label class="dropzone" for="file"><strong>Selecione um áudio ou vídeo</strong><span id="fileName">MP3, M4A, WAV, MP4, MOV e outros formatos comuns</span><input id="file" type="file" accept="audio/*,video/*,.mkv,.avi,.m4v"></label>
+        <div class="card-head"><span class="number" aria-hidden="true">02</span><div><h2 class="card-title" id="uploadTitle">Escolha seu arquivo ou cole URL do YouTube</h2><p class="card-desc">Selecione uma mídia do computador ou informe um vídeo público do YouTube.</p></div></div>
+        <div class="source-grid" role="group" aria-label="Escolha a origem da transcrição">
+          <button id="fileChoice" class="source-choice" type="button" aria-pressed="false"><img src="/assets/escolher-arquivo.webp" alt="" aria-hidden="true"><strong>Selecione áudio ou vídeo</strong><span id="fileName">Escolha um arquivo do computador</span></button>
+          <button id="youtubeChoice" class="source-choice" type="button" aria-pressed="false" aria-expanded="false" aria-controls="youtubeEntry"><img src="/assets/colar-youtube.webp" alt="" aria-hidden="true"><strong>Cole URL do YouTube</strong><span>Cole o link do vídeo</span></button>
+        </div>
+        <input id="file" class="visually-hidden-input" type="file" accept="audio/*,video/*,.mkv,.avi,.m4v" tabindex="-1" aria-label="Escolher arquivo de áudio ou vídeo">
+        <div id="youtubeEntry" class="url-entry" hidden><label class="url-label" for="youtubeUrl">Cole a URL do Youtube</label><input id="youtubeUrl" class="url-input" type="url" inputmode="url" placeholder="https://www.youtube.com/watch?v=..." autocomplete="off" spellcheck="false"></div>
         <div class="process"><button id="start" class="button" disabled>Transcrever arquivo</button><p id="status" class="status" role="status" aria-live="polite">Conecte sua conta e escolha um arquivo para começar.</p></div>
       </section>
       <section id="resultCard" class="card" aria-labelledby="resultTitle" hidden>
         <div class="card-head"><span class="number" aria-hidden="true">03</span><div><h2 class="card-title" id="resultTitle">Sua transcrição</h2><p class="card-desc">Confira o texto, depois copie ou baixe em Markdown.</p></div></div>
         <textarea id="result" class="output" aria-label="Transcrição" spellcheck="false"></textarea>
-        <div class="actions"><button id="copy" class="button secondary">Copiar texto</button><button id="download" class="button secondary">Baixar .md</button></div>
+        <div class="actions"><button id="copy" class="button secondary">Copiar texto</button><button id="download" class="button secondary">Baixar .md</button><button id="revise" class="button" hidden>Melhorar legenda com IA</button></div>
       </section>
     </div>
-    <p class="footnote">A mídia temporária é apagada após a transcrição. Revise nomes próprios e trechos incertos antes de publicar.</p>
+    <p class="footnote">A mídia temporária é apagada após a transcrição. Use vídeos que você pode acessar e transcrever. Revise nomes próprios e trechos incertos antes de publicar.</p>
     <footer class="footer"><p>Transcritor criado com skill do <a href="https://agentsflix.ai/" target="_blank" rel="noopener noreferrer">AgentFlix ↗</a></p><p>Processamento local no seu computador</p></footer>
+    </div>
   </main>
   <script>
     const token = __TOKEN__;
     const $ = id => document.getElementById(id);
+    async function loadOnboardingVideo(videoId, statusId, buttonId, route) {
+      const video = $(videoId);
+      const status = $(statusId);
+      try {
+        const response = await fetch(route, {headers: {'X-Local-Token': token}});
+        if (!response.ok) throw new Error('Não foi possível abrir o vídeo.');
+        const blob = await response.blob();
+        video.addEventListener('loadeddata', () => { status.textContent = ''; $(buttonId).disabled = false; }, {once: true});
+        video.addEventListener('error', () => { status.textContent = 'O vídeo não abriu. Reabra o aplicativo para tentar novamente.'; }, {once: true});
+        video.src = URL.createObjectURL(blob);
+        video.play().catch(() => { status.textContent = 'Pressione reproduzir para assistir ao vídeo.'; });
+      } catch (error) { status.textContent = error.message; }
+    }
+    $('accessDone').addEventListener('click', () => {
+      $('accessVideo').pause();
+      $('accessStep').hidden = true;
+      $('loginStep').hidden = false;
+      loadOnboardingVideo('loginVideo', 'loginVideoStatus', 'loginDone', '/api/onboarding-video/login');
+      $('loginStep').querySelector('h1').focus();
+    });
+    $('loginDone').addEventListener('click', async () => {
+      $('loginDone').disabled = true;
+      try { await api('/api/onboarding', {method: 'POST'}); }
+      catch (error) { $('loginVideoStatus').textContent = error.message; $('loginDone').disabled = false; return; }
+      $('loginVideo').pause();
+      $('onboarding').hidden = true;
+      $('workspace').hidden = false;
+      pollLogin();
+      $('authTitle').focus();
+    });
     let filename = 'transcricao.md';
     let connected = false;
     let busy = false;
+    let canRevise = false;
     let copiedCode = false;
     async function api(path, options = {}) {
       const response = await fetch(path, {...options, headers: {'X-Local-Token': token, ...options.headers}});
@@ -552,7 +704,23 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       if (!response.ok) throw new Error(data.error || 'Erro local');
       return data;
     }
-    function updateStart() { $('start').disabled = !connected || !$('file').files.length || busy; }
+    async function init() {
+      try {
+        const state = await api('/api/onboarding');
+        if (state.complete) {
+          $('onboarding').hidden = true;
+          $('workspace').hidden = false;
+          pollLogin();
+        } else loadOnboardingVideo('accessVideo', 'accessVideoStatus', 'accessDone', '/api/onboarding-video/access');
+      } catch (error) { $('accessVideoStatus').textContent = error.message; }
+    }
+    init();
+    function updateStart() {
+      const youtube = !!$('youtubeUrl').value.trim();
+      $('start').disabled = !connected || (!youtube && !$('file').files.length) || busy;
+      $('start').textContent = youtube ? 'Transcrever vídeo' : 'Transcrever arquivo';
+      $('revise').disabled = !connected || !canRevise || busy;
+    }
     function renderLogin(data) {
       const phase = data.phase || 'idle';
       connected = phase === 'ready';
@@ -566,7 +734,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       $('copyCode').disabled = !data.code;
       $('authMessage').textContent = phase === 'waiting' && copiedCode ? 'Código copiado. Cole na página de autorização.' : (data.message || '');
       if (!connected && !busy) $('status').textContent = 'Conecte sua conta e escolha um arquivo para começar.';
-      if (connected && !$('file').files.length && !busy) $('status').textContent = 'Escolha um arquivo para começar.';
+      if (connected && !$('file').files.length && !$('youtubeUrl').value.trim() && !busy) $('status').textContent = 'Escolha um arquivo ou cole a URL do YouTube.';
       updateStart();
       if (data.running) setTimeout(pollLogin, 1200);
     }
@@ -588,6 +756,8 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           filename = data.filename;
           $('result').value = data.text;
           $('resultCard').hidden = false;
+          canRevise = !!data.can_revise;
+          $('revise').hidden = !canRevise;
           updateStart();
         } else if (data.state === 'error') { busy = false; updateStart(); }
         else setTimeout(pollJob, 1000);
@@ -595,18 +765,52 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     }
     $('login').addEventListener('click', startLogin);
     $('relogin').addEventListener('click', startLogin);
-    $('file').addEventListener('change', () => { $('fileName').textContent = $('file').files[0]?.name || 'Selecione um arquivo'; updateStart(); });
+    $('fileChoice').addEventListener('click', () => $('file').click());
+    $('youtubeChoice').addEventListener('click', () => {
+      $('youtubeEntry').hidden = false;
+      $('youtubeChoice').setAttribute('aria-expanded', 'true');
+      $('youtubeChoice').setAttribute('aria-pressed', 'true');
+      $('fileChoice').setAttribute('aria-pressed', 'false');
+      $('youtubeUrl').focus();
+    });
+    $('file').addEventListener('change', () => {
+      if ($('file').files.length) {
+        $('youtubeUrl').value = '';
+        $('youtubeEntry').hidden = true;
+        $('youtubeChoice').setAttribute('aria-expanded', 'false');
+        $('youtubeChoice').setAttribute('aria-pressed', 'false');
+        $('fileChoice').setAttribute('aria-pressed', 'true');
+      }
+      $('fileName').textContent = $('file').files[0]?.name || 'Escolha um arquivo do computador';
+      updateStart();
+    });
+    $('youtubeUrl').addEventListener('input', () => {
+      if ($('youtubeUrl').value.trim()) { $('file').value = ''; $('fileName').textContent = 'Escolha um arquivo do computador'; }
+      updateStart();
+    });
     $('start').addEventListener('click', async () => {
       const file = $('file').files[0];
-      if (!file) return;
+      const youtube = $('youtubeUrl').value.trim();
+      if (!file && !youtube) return;
       busy = true;
+      canRevise = false;
+      $('revise').hidden = true;
       updateStart();
       $('resultCard').hidden = true;
-      $('status').textContent = 'Enviando arquivo ao processo local…';
+      $('status').textContent = youtube ? 'Buscando transcrição do YouTube…' : 'Enviando arquivo ao processo local…';
       try {
-        await api('/api/transcribe', {method: 'POST', headers: {'X-Filename': encodeURIComponent(file.name), 'Content-Type': 'application/octet-stream'}, body: file});
+        if (youtube) await api('/api/transcribe-youtube', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({url: youtube})});
+        else await api('/api/transcribe', {method: 'POST', headers: {'X-Filename': encodeURIComponent(file.name), 'Content-Type': 'application/octet-stream'}, body: file});
         pollJob();
       } catch (error) { busy = false; $('status').textContent = error.message; updateStart(); }
+    });
+    $('revise').addEventListener('click', async () => {
+      if (!canRevise || busy) return;
+      busy = true;
+      updateStart();
+      $('status').textContent = 'Revisando legenda original com GPT-5.6 Luna…';
+      try { await api('/api/revise-youtube', {method: 'POST'}); pollJob(); }
+      catch (error) { busy = false; $('status').textContent = error.message; updateStart(); }
     });
     $('copyCode').addEventListener('click', async () => {
       try { await navigator.clipboard.writeText($('deviceCode').textContent); copiedCode = true; $('authMessage').textContent = 'Código copiado. Cole na página de autorização.'; }
@@ -637,7 +841,6 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         window.pywebview.api.open_url(link.href);
       }
     }));
-    pollLogin();
   </script>
 </body>
 </html>
@@ -647,7 +850,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 
 ## Referência: references/ativacao.md
 
-Acesse https://raw.githubusercontent.com/AgentsFlix/skills/transcritor-local-v1.1.0/skills/transcritor-local/SKILL.md e leia a skill Transcritor AgentFlix e as referências necessárias. Esta edição usa a referência transcritor-local-v1.1.0. Se eu já tiver anexado o pacote ou a versão colável, use esse material, incluindo as seções Referência, sem depender de novo acesso à rede. Confira se a skill já está instalada; se não estiver e houver suporte, inspecione a licença, o SKILL.md e os arquivos de apoio e instale pelo mecanismo disponível. Sem instalação, aplique o procedimento nesta conversa e informe o limite.
+Acesse https://raw.githubusercontent.com/AgentsFlix/skills/transcritor-local-v1.2.0/skills/transcritor-local/SKILL.md e leia a skill Transcritor AgentFlix e as referências necessárias. Esta edição usa a referência transcritor-local-v1.2.0. Se eu já tiver anexado o pacote ou a versão colável, use esse material, incluindo as seções Referência, sem depender de novo acesso à rede. Confira se a skill já está instalada; se não estiver e houver suporte, inspecione a licença, o SKILL.md e os arquivos de apoio e instale pelo mecanismo disponível. Sem instalação, aplique o procedimento nesta conversa e informe o limite.
 
 Antes de me fazer perguntas, leia o contrato AgentFlix incluído e cheque nossa conversa, sua memória local acessível e os arquivos relevantes que você já conhece. Identifique os inputs exigidos, quais você já tem e quais faltam. Reaproveite fatos atuais, identifique origem, data, conflitos e inferências. Não invente lembranças nem me peça novamente o que já sabe.
 
@@ -657,7 +860,7 @@ Siga o procedimento da skill e confira seus critérios de entrega. Se faltar alg
 
 Avalie se vale transformar parte desta tarefa em rotina. Diga vale sugerir, não vale ou depende, com motivo. Se valer, apresente uma proposta concreta de frequência, horário, fuso, inputs, resultado, canal, silêncio, pausa e encerramento. Respeite recusas anteriores. Instalar não autoriza CRON. Só configure com minha autorização e um agendador disponível, conferindo duplicatas e o ID retornado. Não prometa alertas sem monitor; minha falta de resposta não confirma atividade ou decisão.
 
-Instale o Transcritor AgentFlix neste computador após identificar sistema e arquitetura e fazer o bootstrap. Reaproveite o contexto e pergunte só pelas lacunas com exemplos. Crie o app na Mesa do Mac ou Área de Trabalho do Windows. A pessoa autentica pelo link oficial e cola o código no navegador; nunca peça código ou senha no chat. Depois teste um áudio ou vídeo autorizado, entregue a transcrição e o .md e informe o que não foi testado. Windows ARM64 usa emulação x64; veja references/limites.md.
+Instale o app de desktop Transcritor AgentFlix neste computador após identificar sistema e arquitetura e fazer o bootstrap. Reaproveite o contexto e pergunte só pelas lacunas com exemplos. Crie o .app na Mesa do Mac ou o .exe na Área de Trabalho do Windows; o HTML é interno à janela, não uma aplicação web publicada. A pessoa autentica pelo link oficial e cola o código no navegador; nunca peça código ou senha no chat. Teste arquivo autorizado ou URL pública com legenda: português fica pronto sem Luna e a melhoria é opcional; outro idioma é traduzido para português com Luna. Confira cópia e .md e informe o que não foi testado. Windows ARM64 usa emulação x64; veja references/limites.md.
 
 
 ---
@@ -713,7 +916,7 @@ Requer Python 3.10+ e PyYAML. Se ausentes, use os modelos pelo agente, sem insta
 Execute da pasta da skill instalada. Caminhos abaixo são exemplos hipotéticos, não preferências da pessoa.
 
 ```sh
-python3 scripts/auditar.py --state "$HOME/.local/share/agentflix/transcritor-local" init --version 1.1.0 --revision 1.1.0
+python3 scripts/auditar.py --state "$HOME/.local/share/agentflix/transcritor-local" init --version 1.2.0 --revision 1.2.0
 python3 scripts/auditar.py --state "$HOME/.local/share/agentflix/transcritor-local" record --event /caminho/privado/evento.json
 python3 scripts/auditar.py --state "$HOME/.local/share/agentflix/transcritor-local" configure --policy /caminho/privado/politica.json
 python3 scripts/auditar.py --state "$HOME/.local/share/agentflix/transcritor-local" audit
@@ -783,11 +986,11 @@ description: Método e procedência editorial desta skill AgentFlix.
 status: draft
 generated:
   by: process:agentflix-skill-authoring
-  at: '2026-09-23'
+  at: '2026-09-26'
 stale_after: '2026-12-23'
 sources:
 - id: metodo
-  resource: https://github.com/AgentsFlix/skills/tree/transcritor-local-v1.1.0/skills/transcritor-local
+  resource: https://github.com/AgentsFlix/skills/tree/transcritor-local-v1.2.0/skills/transcritor-local
   title: Pacote de origem fixado pela auditoria
 - id: okf
   resource: https://github.com/GoogleCloudPlatform/open-knowledge-format/blob/main/SPEC.md
@@ -795,7 +998,7 @@ sources:
 agentflix:
   schema_version: 1
   skill_id: transcritor-local
-  content_revision: 1.1.0
+  content_revision: 1.2.0
   verification_evidence: []
 ---
 
@@ -866,7 +1069,7 @@ O código autoral do pacote está sob MIT (LICENSE). As fontes Archivo incluída
 concede direitos de marca nem endosso a forks.
 
 O bootstrap baixa ferramentas oficiais e modelos separadamente. Eles mantêm suas próprias licenças:
-Homebrew, FFmpeg, whisper.cpp/Whisper, Codex CLI, Python, Node.js, WebView2, Visual C++ Runtime,
+Homebrew, FFmpeg, whisper.cpp/Whisper, yt-dlp, Codex CLI, Python, Node.js, WebView2, Visual C++ Runtime,
 faster-whisper/CTranslate2, imageio-ffmpeg, pywebview e PyInstaller. Os pacotes Python Windows têm
 versões fixadas em scripts/requirements-windows.txt; os gerenciadores instalam as versões disponíveis
 no momento para os outros componentes. Modelos não são incorporados ao ZIP da skill.
@@ -876,8 +1079,13 @@ No Windows, cria ambiente Python, modelo e build em LOCALAPPDATA/Transcritor Age
 de Trabalho. Downloads iniciais exigem rede e podem ocupar vários GB. O Windows requer pelo menos
 4 GiB livres para modelo/build; a execução em CPU e por emulação pode ser lenta.
 
-O servidor do app escuta apenas em 127.0.0.1 com porta aleatória e token por sessão. O arquivo é enviado
-para esse servidor local; apenas o texto reconhecido segue para o Codex. A autenticação fica sob gestão
+O servidor interno da janela de desktop escuta apenas em 127.0.0.1 com porta aleatória e token por sessão.
+O arquivo é enviado para esse servidor local; apenas o texto reconhecido segue para o Codex. Para URL do
+YouTube, yt-dlp busca somente a legenda disponível. Se estiver em português, o resultado aparece sem
+chamada ao Codex e a revisão com Luna é opcional; se estiver em outro idioma, Luna traduz para português.
+A legenda temporária é apagada após a extração ou tradução; áudio não é baixado nesse fluxo.
+A conclusão do onboarding fica em um marcador local na pasta de dados e sobrevive à reinstalação do app.
+A autenticação fica sob gestão
 do Codex CLI. Não copie credenciais para a skill. A transcrição final é mantida na janela e no `.md`
 que a pessoa salvar; o original de áudio/vídeo não é apagado.
 
@@ -890,9 +1098,9 @@ que a pessoa salvar; o original de áudio/vídeo não é apagado.
   "schema_version": 1,
   "contract_version": "1.0.0",
   "skill_id": "transcritor-local",
-  "distribution_version": "1.1.0",
-  "content_revision": "1.1.0",
-  "distribution_ref": "transcritor-local-v1.1.0"
+  "distribution_version": "1.2.0",
+  "content_revision": "1.2.0",
+  "distribution_ref": "transcritor-local-v1.2.0"
 }
 
 
@@ -904,7 +1112,9 @@ que a pessoa salvar; o original de áudio/vídeo não é apagado.
 
 # Compatibilidade e validação
 
-Revisão 1.1.0, setembro de 2026. macOS: app local e transcrição usados pelo autor, com confirmação de funcionamento.
+Base macOS validada localmente na revisão 1.2.0, setembro de 2026: `.app` na Mesa, onboarding só na
+primeira abertura, cartões ilustrados, colagem da URL, legenda portuguesa pronta sem Luna e revisão
+opcional exibida no app. A interface interna usa WebKit/WebView2 e servidor em loopback; não é um app web.
 Windows 11 ARM64 em Parallels: bootstrap, dependências, build x64 por emulação, abertura do `.exe` e
 exibição do código de autenticação verificados. A transcrição completa, cópia e download no Windows ainda
 não foram validados; os testes foram encerrados a pedido do autor. Windows x64 e Mac Intel têm caminhos
@@ -916,6 +1126,10 @@ foi verificada por testes de subprocesso, sem novo ensaio visual do `.exe` no Wi
 Não há garantia de exatidão. Reconhecimento local e revisão contextual podem errar nomes, números e termos.
 A revisão usa o acesso da própria pessoa ao Codex, com seus limites e disponibilidade de GPT-5.6 Luna.
 Nenhuma credencial do autor, mídia de usuário, modelo de voz ou dependência instalada vai no pacote.
+URLs do YouTube dependem de legenda manual ou automática acessível e de compatibilidade atual do yt-dlp
+com o vídeo. O app não baixa áudio nem executa Whisper para essa entrada; sem legenda, informa o limite.
+Legenda em português aparece diretamente; a melhoria com Luna é opcional. Se a legenda acessível estiver
+em outro idioma, Luna a traduz para português do Brasil, sujeita aos limites da conta e do modelo.
 
 
 ---
@@ -1011,8 +1225,8 @@ function Has-VCRuntime {
 function Has-Packages {
     if (-not (Test-Path $venvPython)) { return $false }
     try {
-        & $venvPython -c 'import faster_whisper, imageio_ffmpeg, webview, PyInstaller; imageio_ffmpeg.get_ffmpeg_exe()' *> $null
-        return ($LASTEXITCODE -eq 0)
+        & $venvPython -c 'import faster_whisper, imageio_ffmpeg, webview, PyInstaller, yt_dlp; imageio_ffmpeg.get_ffmpeg_exe()' *> $null
+        return ($LASTEXITCODE -eq 0 -and (Test-Path (Join-Path $appDir 'venv\Scripts\yt-dlp.exe')))
     } catch { return $false }
 }
 
@@ -1145,7 +1359,9 @@ $arguments = @(
     '--collect-all', 'webview'
 )
 foreach ($name in @('index.html', 'agentflix-logo.svg', 'agentflix-mark.svg',
-                    'archivo-regular.ttf', 'archivo-bold.ttf', 'archivo-OFL.txt')) {
+                    'escolher-arquivo.webp', 'colar-youtube.webp',
+                    'archivo-regular.ttf', 'archivo-bold.ttf', 'archivo-OFL.txt',
+                    'onboarding-como-acessar.mp4', 'onboarding-logar-codex.mp4')) {
     $arguments += @('--add-data', "$(Join-Path $assets $name);.")
 }
 $arguments += (Join-Path $assets 'TranscritorAppWindows.py')
@@ -1169,6 +1385,7 @@ faster-whisper==1.2.1
 imageio-ffmpeg==0.6.0
 pywebview==6.2.1
 pyinstaller==6.22.3
+yt-dlp==2026.08.19
 
 
 ---
@@ -1221,8 +1438,8 @@ Sem evento de execução, não afirmar uso. Sem observação contínua, não afi
   "origin": "human",
   "operation": "create",
   "result": "completed",
-  "version": "1.1.0",
-  "content_revision": "1.1.0",
+  "version": "1.2.0",
+  "content_revision": "1.2.0",
   "artifact_ref": "artefatos/entrega-r1.md",
   "verification": "passed"
 }
@@ -1234,37 +1451,42 @@ Sem evento de execução, não afirmar uso. Sem observação contínua, não afi
 
 {
   "schema_version": 1,
-  "version": "1.1.0",
+  "version": "1.2.0",
   "algorithm": "sha256",
   "files": {
+    ".skillignore": "0c1c503f01dab58053ed6795bded89a80792a7c2c819e7be3696a075bf79290b",
     "LICENSE": "6244738960f2a27905404edf750104381130189da33464d197b46c300126a48d",
-    "SKILL.md": "8f29900324e4e6f7b3926058f4496e9b65d568b18bc4b2b510ded2b03fb10780",
-    "assets/TranscritorApp.swift": "189decb8eb31f920583d27e53f769b2091a40655b9389ec6a618b2802edf6601",
-    "assets/TranscritorAppWindows.py": "c43c00982c8c32849685e5c1d95ee29cb6446fab189b380999429be10a1ec024",
+    "SKILL.md": "4e1363f58a4376ef44614caf8cf286754d65528df8544375cce5a36a4ae9ae14",
+    "assets/TranscritorApp.swift": "95fa2ecd2caca3f5dd669cda40c9dce77f519d0924cf5087a58eebade6b3355a",
+    "assets/TranscritorAppWindows.py": "992800eac60c935e01ec1936faed9c5d2c43d5843d3b42d77341da970a8881b1",
     "assets/agentflix-logo.svg": "66653e32a09ca0fc5e3edc61781ce27d634b2eb61dfa6a6adc508912a1e3def6",
     "assets/agentflix-mark.svg": "3496d06a0281e034c2a38b321cf1663b79b4e391e91c787161f9eae7c53e00be",
     "assets/agentflix.ico": "13874fcbb6420ac2912430b66f8c347a460a6ea647ccef9b8cf0f58be306f95f",
     "assets/archivo-OFL.txt": "1778201b7bd33e8c08a2eda32a4ad2f69bc38ced9731b01cc3fc47f268c8ef3c",
     "assets/archivo-bold.ttf": "bed60488c2f5c0b24e01d931760b6f3e9a82619dcd081ed9bff643d9f4fd9e3d",
     "assets/archivo-regular.ttf": "01170409e32e22123a354fbaa7dcb5ca5300790bb77c05d569ec8fdc394e78c9",
-    "assets/index.html": "95d60777da21f63a38bca253f7498d52b24909b46ce29014e9b486c63efe748c",
-    "assets/transcritor.py": "4f77f53945a44af7480c2818b4e2c4e90cb05821508c5cd40ca040db70e5e28a",
-    "references/ativacao.md": "4b70a9cf883be4a2122517522838457d2340c943a84444d6532da6d6917f53f4",
-    "references/ciclo-de-vida.md": "b1a7087839a4b315d666b47649c5eb62d0cad102256af4435cc73ac96202906f",
-    "references/conhecimento.okf.md": "e9c23afe4ec477b233b2aef2dbf8f32921302bd9b839f84e29cea7d085518101",
+    "assets/colar-youtube.webp": "3550a7aee85afc848c1f7d57e1672e23c4ee71ff7f499595044ea929ede1f470",
+    "assets/escolher-arquivo.webp": "d1bab8d19b39b914f65f1366b973de2ab3707f33d31fea37b7df9a7b8ece04b3",
+    "assets/index.html": "f36f9e641f2f622a6df7dd0ee6cfc72bb43bf15035067134854dd60ee6e3900f",
+    "assets/onboarding-como-acessar.mp4": "3d8bab17515ea1c21adfe76a1de0ca3b8f78df6a898ac5ab29657ddc69e78057",
+    "assets/onboarding-logar-codex.mp4": "75d0178b616f0e24eeaf9ae56cd6050c6e7d94e7b3bf95ce4776eec660cdb778",
+    "assets/transcritor.py": "3dc57c6bd88684199cca72b84ae2c28ccb372b3b7f62de37c571a6c6de4c7bd7",
+    "references/ativacao.md": "494518b0239ae7dfc5884075a89723c4755016c3569c25181b44dae9a9374176",
+    "references/ciclo-de-vida.md": "0ef2cf23e0566bad1a30bc5be027c4e1be256d86c8c6d8055da2fd21436df9a4",
+    "references/conhecimento.okf.md": "adfd210c07f155520e73f199d815fb32bdb233b1d27613d0195e021c20ecad2f",
     "references/contrato-agentflix.md": "2137cd2f1e4e627a271e1ccffd9874d4a209537cbb107825ca1e424d4787ceff",
-    "references/dependencias.md": "a4bf5f21da3bd2f33ad6cbf4f05ffd44646727156c4fb27576c5ca9b6beb3d58",
-    "references/identidade.json": "62a7cf4c9610978786dbcdc9ab7efa3e7699cf1b16b1c72811df2e634ad51eb3",
-    "references/limites.md": "40671d15099a7568eb05849cd85d8db4183a8b2ce8b3b8fbb46a30a9c4c17a3a",
+    "references/dependencias.md": "8e591cd196e5f83c81d04ed556006c55180b94b1e8e012e4da99a2148667c90c",
+    "references/identidade.json": "36dd691e081adb579b9b605359c6ba9e59dc29861aa1790fb32c25c0648c45d1",
+    "references/limites.md": "90e771ee8b61fdb59809f25995ad2376c837436782d5b7ba80ed01ffeeb61b3a",
     "scripts/auditar.py": "d97f7f9b48b862bedc0999d20a20223055c80e8f70f0adba6088ea8a81f52f40",
-    "scripts/bootstrap.py": "399d4fccc14a81886f19ff341923ca8c51aa1a7f6e0eececebc33b5ff10c4436",
-    "scripts/bootstrap_windows.ps1": "665b4811affd104b33b6565e760dcb0d9994a133fdfb1d9e3d230ba7b30e7f68",
-    "scripts/install.py": "6ecc166d8399d90fe69d1a7559db173722d3951825f46c7d42b09443c19eb830",
-    "scripts/install_windows.ps1": "24dc470d439a2ccc590823f1f50247d19063495a26a0b37eb81dfe3ac40c2501",
-    "scripts/requirements-windows.txt": "65fb832eb38967e67bf81b36c6c56339f50a72f1da02a164b1ffa789f41e1465",
+    "scripts/bootstrap.py": "2caa80156a0551afcfc68ed69b3c8da848bc1b581f2ef0401fb655e15bf831cb",
+    "scripts/bootstrap_windows.ps1": "96e8a1b4fea12db504de3ace1a76779f8b2e6159629f7885cc4140ae7d12b00f",
+    "scripts/install.py": "70b1dc43ef2a41bd75f6271546db2f5f27154955a28f05dc9a68b19250345c76",
+    "scripts/install_windows.ps1": "d90952ca7301d7fd6d3b549d93d094a580f9dd58bf01e42107130fb8db4a0f87",
+    "scripts/requirements-windows.txt": "d6ab890474cdb00e63f077a751310052260411f445564340f177f2556a7277cc",
     "scripts/windows_model.py": "f26b6adff08afc4ba033c95420682dda577f59e77fc601c76e427c08ff834427",
     "templates/estado-da-skill.md": "7853bf01564e5a67a49acfc83fe6580a09b9700268bf1b7e5c64f7e42b19fabb",
-    "templates/evento-de-uso.json": "7d8b3a98e958dbce4bb8af2e57376137c5ca258134bdd01aa29a93597356303c"
+    "templates/evento-de-uso.json": "1b274cf20e7b18e63a9019d3290e7d2b20007691fef00d0910242bed3eb2b2be"
   }
 }
 
@@ -1277,6 +1499,10 @@ Sem evento de execução, não afirmar uso. Sem observação contínua, não afi
 - `assets/agentflix.ico (arquivo: só no zip)`
 - `assets/archivo-bold.ttf (arquivo: só no zip)`
 - `assets/archivo-regular.ttf (arquivo: só no zip)`
+- `assets/colar-youtube.webp (arquivo: só no zip)`
+- `assets/escolher-arquivo.webp (arquivo: só no zip)`
+- `assets/onboarding-como-acessar.mp4 (arquivo: só no zip)`
+- `assets/onboarding-logar-codex.mp4 (arquivo: só no zip)`
 - `assets/transcritor.py (script: só no zip)`
 - `scripts/auditar.py (script: só no zip)`
 - `scripts/bootstrap.py (script: só no zip)`

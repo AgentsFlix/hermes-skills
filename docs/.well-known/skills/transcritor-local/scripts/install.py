@@ -42,7 +42,9 @@ def install():
     ensure(install=not args.no_deps)
     DATA.mkdir(parents=True, exist_ok=True)
     for name in ("transcritor.py", "index.html", "agentflix-logo.svg", "agentflix-mark.svg",
-                 "archivo-regular.ttf", "archivo-bold.ttf", "archivo-OFL.txt"):
+                 "escolher-arquivo.webp", "colar-youtube.webp",
+                 "archivo-regular.ttf", "archivo-bold.ttf", "archivo-OFL.txt",
+                 "onboarding-como-acessar.mp4", "onboarding-logar-codex.mp4"):
         shutil.copy2(ROOT / "assets" / name, DATA / name)
     executable = APP / "Contents/MacOS/TranscritorApp"
     executable.parent.mkdir(parents=True, exist_ok=True)
@@ -54,8 +56,8 @@ def install():
         "CFBundleName": "Transcritor AgentFlix",
         "CFBundleDisplayName": "Transcritor AgentFlix",
         "CFBundleIdentifier": "ai.agentsflix.transcritor",
-        "CFBundleVersion": "1.1.0",
-        "CFBundleShortVersionString": "1.1.0",
+        "CFBundleVersion": "1.2.0",
+        "CFBundleShortVersionString": "1.2.0",
         "CFBundleExecutable": "TranscritorApp",
         "CFBundleIconFile": "AgentFlix.icns",
         "CFBundlePackageType": "APPL",

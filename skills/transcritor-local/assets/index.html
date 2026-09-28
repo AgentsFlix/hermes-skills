@@ -15,7 +15,7 @@
     button, input, textarea { font: inherit; }
     button { cursor: pointer; }
     button:disabled { cursor: not-allowed; opacity: .48; }
-    button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, .dropzone:focus-within { outline: 2px solid var(--link); outline-offset: 4px; }
+    button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--link); outline-offset: 4px; }
     a { color: var(--link); }
     .shell { width: min(1040px, 100%); margin: 0 auto; }
     .hero { padding: 37px 0 34px; }
@@ -53,13 +53,16 @@
     .steps p { margin: 7px 0 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
     .code-row { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
     .code { display: inline-block; min-width: 170px; padding: 11px 14px; border: 1px solid var(--line); border-radius: 8px; background: #111; color: var(--text); font: 700 19px/1.2 ui-monospace, Menlo, monospace; letter-spacing: .05em; }
-    .dropzone { display: grid; justify-items: center; gap: 8px; min-width: 0; margin-top: 23px; padding: 26px 16px; border: 1px dashed rgba(95,201,220,.55); border-radius: 12px; background: #111719; text-align: center; cursor: pointer; transition: border-color 160ms, background 160ms; }
-    .dropzone:hover { border-color: var(--link); background: #162024; }
-    .dropzone strong { color: var(--text); font-size: 16px; }
-    .dropzone span { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
-    .dropzone input { width: min(360px,100%); min-width: 0; margin-top: 7px; color: var(--muted); font-size: 13px; }
-    .dropzone input::file-selector-button { margin-right: 12px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--text); font: inherit; cursor: pointer; }
-    .process { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 18px; margin-top: 18px; }
+    .source-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 300px)); justify-content: center; gap: 18px; margin-top: 24px; }
+    .source-choice { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; width: 100%; aspect-ratio: 1; padding: 18px; border: 1px solid var(--line); border-radius: 12px; background: #111719; color: var(--text); text-align: center; transition: border-color 160ms, background 160ms, transform 160ms; }
+    .source-choice:hover, .source-choice[aria-pressed="true"] { border-color: var(--link); background: #162024; }
+    .source-choice:hover { transform: translateY(-2px); }
+    .source-choice img { display: block; width: min(74%, 200px); height: min(74%, 200px); object-fit: contain; pointer-events: none; }
+    .source-choice strong { font-size: 17px; line-height: 1.2; }
+    .source-choice span { color: var(--muted); font-size: 13px; line-height: 1.35; overflow-wrap: anywhere; }
+    .visually-hidden-input { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    .url-entry { max-width: 618px; margin: 20px auto 0; }
+    .process { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 24px; text-align: center; }
     .process .button { min-width: 160px; }
     .status { min-height: 21px; margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
     .output { width: 100%; min-height: 280px; margin: 20px 0 15px; padding: 18px; resize: vertical; border: 1px solid var(--line); border-radius: 8px; color: var(--text); background: #111; font: 15px/1.6 Archivo, Helvetica, Arial, sans-serif; }
@@ -67,22 +70,52 @@
     .footer { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 35px; padding: 20px 2px 0; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; line-height: 1.5; }
     .footer p { margin: 0; }
     .footer a { font-weight: 700; text-underline-offset: 3px; }
+    .onboarding { width: min(840px, 100%); margin: 0 auto; padding: 32px 0 48px; }
+    .onboarding .brand-link { margin-bottom: 34px; }
+    .onboarding-card { padding: clamp(20px, 4vw, 36px); border: 1px solid var(--line); border-radius: 16px; background: var(--panel); box-shadow: 0 24px 64px rgba(0,0,0,.18); }
+    .onboarding-card h1 { font-size: clamp(30px, 4vw, 43px); }
+    .onboarding-card .lead { max-width: 740px; margin-bottom: 22px; }
+    .onboarding-video { display: block; width: 100%; aspect-ratio: 16 / 9; margin: 0 0 22px; border: 1px solid var(--line); border-radius: 10px; background: #000; object-fit: contain; }
+    .onboarding-actions { display: flex; justify-content: flex-end; align-items: center; gap: 14px; }
+    .onboarding-actions .button { min-width: 150px; }
+    .onboarding-status { flex: 1; margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .url-label { display: block; margin: 0 0 10px; font-weight: 700; }
+    .url-input { display: block; width: 100%; min-height: 48px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; color: var(--text); background: #111; font: 15px Archivo, Helvetica, Arial, sans-serif; }
+    .url-input:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
     [hidden] { display: none !important; }
-    @media (max-width: 600px) { body { padding: 0 16px 32px; } body::before { margin: 0 -16px; } .hero { padding: 22px 0 28px; } .brand-logo { width: 145px; } .hero-copy { margin-top: 33px; } .lead { font-size: 15px; } .card { padding: 20px 16px; } .card-head { gap: 11px; flex-wrap: wrap; } .card-head > div { flex-basis: calc(100% - 48px); } .number { width: 34px; height: 34px; } .card-title { font-size: 19px; } .badge { margin-left: 45px; } .auth-body { margin-left: 0; } .actions .button { width: 100%; } .steps .button { width: auto; } .code { min-width: 0; } .process { align-items: stretch; } .process .button { width: 100%; } .footer { margin-top: 28px; } }
+    @media (max-width: 600px) { body { padding: 0 16px 32px; } body::before { margin: 0 -16px; } .hero { padding: 22px 0 28px; } .brand-logo { width: 145px; } .hero-copy { margin-top: 33px; } .lead { font-size: 15px; } .card { padding: 20px 16px; } .card-head { gap: 11px; flex-wrap: wrap; } .card-head > div { flex-basis: calc(100% - 48px); } .number { width: 34px; height: 34px; } .card-title { font-size: 19px; } .badge { margin-left: 45px; } .auth-body { margin-left: 0; } .actions .button { width: 100%; } .steps .button { width: auto; } .code { min-width: 0; } .process { align-items: stretch; } .process .button { width: 100%; } .footer { margin-top: 28px; } .onboarding { padding-top: 22px; } .onboarding-actions { flex-direction: column; align-items: stretch; } .onboarding-actions .button { width: 100%; } }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0ms !important; animation-duration: 0ms !important; } }
   </style>
 </head>
 <body>
   <main class="shell">
+    <section id="onboarding" class="onboarding" aria-label="Primeiros passos">
+      <a class="brand-link" href="https://agentsflix.ai/" target="_blank" rel="noopener noreferrer" aria-label="Acessar AgentFlix"><img class="brand-logo" src="/assets/agentflix-logo.svg" alt="AgentFlix"></a>
+      <div id="accessStep" class="onboarding-card">
+        <p class="eyebrow">PRIMEIROS PASSOS · 1 DE 2</p>
+        <h1 tabindex="-1">Ative o acesso no ChatGPT</h1>
+        <p class="lead">Entre no seu <a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">ChatGPT ↗</a> e siga o caminho do vídeo abaixo, ativando o que ele mostra.</p>
+        <video id="accessVideo" class="onboarding-video" autoplay muted loop playsinline controls preload="auto" aria-label="Vídeo: como ativar o acesso no ChatGPT"></video>
+        <div class="onboarding-actions"><p id="accessVideoStatus" class="onboarding-status" role="status">Carregando vídeo…</p><button id="accessDone" class="button" disabled>Já ativei</button></div>
+      </div>
+      <div id="loginStep" class="onboarding-card" hidden>
+        <p class="eyebrow">PRIMEIROS PASSOS · 2 DE 2</p>
+        <h1 tabindex="-1">Entre com sua conta</h1>
+        <p class="lead">Agora você vai fazer exatamente o que está no vídeo abaixo: clicar no link, entrar na sua conta do ChatGPT, colar um código e PRONTO. O código será gerado na tela seguinte.</p>
+        <video id="loginVideo" class="onboarding-video" autoplay muted loop playsinline controls preload="auto" aria-label="Vídeo: como entrar com o Codex"></video>
+        <div class="onboarding-actions"><p id="loginVideoStatus" class="onboarding-status" role="status">Carregando vídeo…</p><button id="loginDone" class="button" disabled>Entendi, bora!</button></div>
+      </div>
+    </section>
+    <div id="workspace" hidden>
     <header class="hero">
       <a class="brand-link" href="https://agentsflix.ai/" target="_blank" rel="noopener noreferrer" aria-label="Acessar AgentFlix"><img class="brand-logo" src="/assets/agentflix-logo.svg" alt="AgentFlix"></a>
       <div class="hero-copy"><p class="eyebrow">SKILL DO AGENTFLIX · APP LOCAL</p>
       <h1>Transcritor</h1>
-      <p class="lead">Transforme áudio ou vídeo em texto. O reconhecimento roda neste computador; apenas o texto segue para revisão com GPT-5.6 Luna.</p></div>
+      <p class="lead">Transforme áudio ou vídeo em texto. Arquivos são reconhecidos neste computador; links do YouTube usam a transcrição já disponível no vídeo. Em português, a revisão com GPT-5.6 Luna é opcional.</p></div>
     </header>
     <div class="stack">
       <section class="card" aria-labelledby="authTitle">
-        <div class="card-head"><span class="number" aria-hidden="true">01</span><div><h2 class="card-title" id="authTitle">Conecte sua conta</h2><p class="card-desc">Use sua conta do ChatGPT para revisar a transcrição.</p></div><span id="authBadge" class="badge">Verificando</span></div>
+        <div class="card-head"><span class="number" aria-hidden="true">01</span><div><h2 class="card-title" id="authTitle" tabindex="-1">Conecte sua conta</h2><p class="card-desc">Use sua conta do ChatGPT para revisar a transcrição.</p></div><span id="authBadge" class="badge">Verificando</span></div>
         <div class="auth-body">
           <div id="authIdle" hidden><button id="login" class="button">Gerar código de acesso</button><p class="helper">O código é criado pelo Codex neste computador. Você confirma o acesso no site da OpenAI.</p></div>
           <div id="authSteps" hidden>
@@ -97,25 +130,62 @@
         </div>
       </section>
       <section class="card" aria-labelledby="uploadTitle">
-        <div class="card-head"><span class="number" aria-hidden="true">02</span><div><h2 class="card-title" id="uploadTitle">Escolha seu arquivo</h2><p class="card-desc">Áudio ou vídeo do computador. A mídia fica local durante o processamento.</p></div></div>
-        <label class="dropzone" for="file"><strong>Selecione um áudio ou vídeo</strong><span id="fileName">MP3, M4A, WAV, MP4, MOV e outros formatos comuns</span><input id="file" type="file" accept="audio/*,video/*,.mkv,.avi,.m4v"></label>
+        <div class="card-head"><span class="number" aria-hidden="true">02</span><div><h2 class="card-title" id="uploadTitle">Escolha seu arquivo ou cole URL do YouTube</h2><p class="card-desc">Selecione uma mídia do computador ou informe um vídeo público do YouTube.</p></div></div>
+        <div class="source-grid" role="group" aria-label="Escolha a origem da transcrição">
+          <button id="fileChoice" class="source-choice" type="button" aria-pressed="false"><img src="/assets/escolher-arquivo.webp" alt="" aria-hidden="true"><strong>Selecione áudio ou vídeo</strong><span id="fileName">Escolha um arquivo do computador</span></button>
+          <button id="youtubeChoice" class="source-choice" type="button" aria-pressed="false" aria-expanded="false" aria-controls="youtubeEntry"><img src="/assets/colar-youtube.webp" alt="" aria-hidden="true"><strong>Cole URL do YouTube</strong><span>Cole o link do vídeo</span></button>
+        </div>
+        <input id="file" class="visually-hidden-input" type="file" accept="audio/*,video/*,.mkv,.avi,.m4v" tabindex="-1" aria-label="Escolher arquivo de áudio ou vídeo">
+        <div id="youtubeEntry" class="url-entry" hidden><label class="url-label" for="youtubeUrl">Cole a URL do Youtube</label><input id="youtubeUrl" class="url-input" type="url" inputmode="url" placeholder="https://www.youtube.com/watch?v=..." autocomplete="off" spellcheck="false"></div>
         <div class="process"><button id="start" class="button" disabled>Transcrever arquivo</button><p id="status" class="status" role="status" aria-live="polite">Conecte sua conta e escolha um arquivo para começar.</p></div>
       </section>
       <section id="resultCard" class="card" aria-labelledby="resultTitle" hidden>
         <div class="card-head"><span class="number" aria-hidden="true">03</span><div><h2 class="card-title" id="resultTitle">Sua transcrição</h2><p class="card-desc">Confira o texto, depois copie ou baixe em Markdown.</p></div></div>
         <textarea id="result" class="output" aria-label="Transcrição" spellcheck="false"></textarea>
-        <div class="actions"><button id="copy" class="button secondary">Copiar texto</button><button id="download" class="button secondary">Baixar .md</button></div>
+        <div class="actions"><button id="copy" class="button secondary">Copiar texto</button><button id="download" class="button secondary">Baixar .md</button><button id="revise" class="button" hidden>Melhorar legenda com IA</button></div>
       </section>
     </div>
-    <p class="footnote">A mídia temporária é apagada após a transcrição. Revise nomes próprios e trechos incertos antes de publicar.</p>
+    <p class="footnote">A mídia temporária é apagada após a transcrição. Use vídeos que você pode acessar e transcrever. Revise nomes próprios e trechos incertos antes de publicar.</p>
     <footer class="footer"><p>Transcritor criado com skill do <a href="https://agentsflix.ai/" target="_blank" rel="noopener noreferrer">AgentFlix ↗</a></p><p>Processamento local no seu computador</p></footer>
+    </div>
   </main>
   <script>
     const token = __TOKEN__;
     const $ = id => document.getElementById(id);
+    async function loadOnboardingVideo(videoId, statusId, buttonId, route) {
+      const video = $(videoId);
+      const status = $(statusId);
+      try {
+        const response = await fetch(route, {headers: {'X-Local-Token': token}});
+        if (!response.ok) throw new Error('Não foi possível abrir o vídeo.');
+        const blob = await response.blob();
+        video.addEventListener('loadeddata', () => { status.textContent = ''; $(buttonId).disabled = false; }, {once: true});
+        video.addEventListener('error', () => { status.textContent = 'O vídeo não abriu. Reabra o aplicativo para tentar novamente.'; }, {once: true});
+        video.src = URL.createObjectURL(blob);
+        video.play().catch(() => { status.textContent = 'Pressione reproduzir para assistir ao vídeo.'; });
+      } catch (error) { status.textContent = error.message; }
+    }
+    $('accessDone').addEventListener('click', () => {
+      $('accessVideo').pause();
+      $('accessStep').hidden = true;
+      $('loginStep').hidden = false;
+      loadOnboardingVideo('loginVideo', 'loginVideoStatus', 'loginDone', '/api/onboarding-video/login');
+      $('loginStep').querySelector('h1').focus();
+    });
+    $('loginDone').addEventListener('click', async () => {
+      $('loginDone').disabled = true;
+      try { await api('/api/onboarding', {method: 'POST'}); }
+      catch (error) { $('loginVideoStatus').textContent = error.message; $('loginDone').disabled = false; return; }
+      $('loginVideo').pause();
+      $('onboarding').hidden = true;
+      $('workspace').hidden = false;
+      pollLogin();
+      $('authTitle').focus();
+    });
     let filename = 'transcricao.md';
     let connected = false;
     let busy = false;
+    let canRevise = false;
     let copiedCode = false;
     async function api(path, options = {}) {
       const response = await fetch(path, {...options, headers: {'X-Local-Token': token, ...options.headers}});
@@ -123,7 +193,23 @@
       if (!response.ok) throw new Error(data.error || 'Erro local');
       return data;
     }
-    function updateStart() { $('start').disabled = !connected || !$('file').files.length || busy; }
+    async function init() {
+      try {
+        const state = await api('/api/onboarding');
+        if (state.complete) {
+          $('onboarding').hidden = true;
+          $('workspace').hidden = false;
+          pollLogin();
+        } else loadOnboardingVideo('accessVideo', 'accessVideoStatus', 'accessDone', '/api/onboarding-video/access');
+      } catch (error) { $('accessVideoStatus').textContent = error.message; }
+    }
+    init();
+    function updateStart() {
+      const youtube = !!$('youtubeUrl').value.trim();
+      $('start').disabled = !connected || (!youtube && !$('file').files.length) || busy;
+      $('start').textContent = youtube ? 'Transcrever vídeo' : 'Transcrever arquivo';
+      $('revise').disabled = !connected || !canRevise || busy;
+    }
     function renderLogin(data) {
       const phase = data.phase || 'idle';
       connected = phase === 'ready';
@@ -137,7 +223,7 @@
       $('copyCode').disabled = !data.code;
       $('authMessage').textContent = phase === 'waiting' && copiedCode ? 'Código copiado. Cole na página de autorização.' : (data.message || '');
       if (!connected && !busy) $('status').textContent = 'Conecte sua conta e escolha um arquivo para começar.';
-      if (connected && !$('file').files.length && !busy) $('status').textContent = 'Escolha um arquivo para começar.';
+      if (connected && !$('file').files.length && !$('youtubeUrl').value.trim() && !busy) $('status').textContent = 'Escolha um arquivo ou cole a URL do YouTube.';
       updateStart();
       if (data.running) setTimeout(pollLogin, 1200);
     }
@@ -159,6 +245,8 @@
           filename = data.filename;
           $('result').value = data.text;
           $('resultCard').hidden = false;
+          canRevise = !!data.can_revise;
+          $('revise').hidden = !canRevise;
           updateStart();
         } else if (data.state === 'error') { busy = false; updateStart(); }
         else setTimeout(pollJob, 1000);
@@ -166,18 +254,52 @@
     }
     $('login').addEventListener('click', startLogin);
     $('relogin').addEventListener('click', startLogin);
-    $('file').addEventListener('change', () => { $('fileName').textContent = $('file').files[0]?.name || 'Selecione um arquivo'; updateStart(); });
+    $('fileChoice').addEventListener('click', () => $('file').click());
+    $('youtubeChoice').addEventListener('click', () => {
+      $('youtubeEntry').hidden = false;
+      $('youtubeChoice').setAttribute('aria-expanded', 'true');
+      $('youtubeChoice').setAttribute('aria-pressed', 'true');
+      $('fileChoice').setAttribute('aria-pressed', 'false');
+      $('youtubeUrl').focus();
+    });
+    $('file').addEventListener('change', () => {
+      if ($('file').files.length) {
+        $('youtubeUrl').value = '';
+        $('youtubeEntry').hidden = true;
+        $('youtubeChoice').setAttribute('aria-expanded', 'false');
+        $('youtubeChoice').setAttribute('aria-pressed', 'false');
+        $('fileChoice').setAttribute('aria-pressed', 'true');
+      }
+      $('fileName').textContent = $('file').files[0]?.name || 'Escolha um arquivo do computador';
+      updateStart();
+    });
+    $('youtubeUrl').addEventListener('input', () => {
+      if ($('youtubeUrl').value.trim()) { $('file').value = ''; $('fileName').textContent = 'Escolha um arquivo do computador'; }
+      updateStart();
+    });
     $('start').addEventListener('click', async () => {
       const file = $('file').files[0];
-      if (!file) return;
+      const youtube = $('youtubeUrl').value.trim();
+      if (!file && !youtube) return;
       busy = true;
+      canRevise = false;
+      $('revise').hidden = true;
       updateStart();
       $('resultCard').hidden = true;
-      $('status').textContent = 'Enviando arquivo ao processo local…';
+      $('status').textContent = youtube ? 'Buscando transcrição do YouTube…' : 'Enviando arquivo ao processo local…';
       try {
-        await api('/api/transcribe', {method: 'POST', headers: {'X-Filename': encodeURIComponent(file.name), 'Content-Type': 'application/octet-stream'}, body: file});
+        if (youtube) await api('/api/transcribe-youtube', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({url: youtube})});
+        else await api('/api/transcribe', {method: 'POST', headers: {'X-Filename': encodeURIComponent(file.name), 'Content-Type': 'application/octet-stream'}, body: file});
         pollJob();
       } catch (error) { busy = false; $('status').textContent = error.message; updateStart(); }
+    });
+    $('revise').addEventListener('click', async () => {
+      if (!canRevise || busy) return;
+      busy = true;
+      updateStart();
+      $('status').textContent = 'Revisando legenda original com GPT-5.6 Luna…';
+      try { await api('/api/revise-youtube', {method: 'POST'}); pollJob(); }
+      catch (error) { busy = false; $('status').textContent = error.message; updateStart(); }
     });
     $('copyCode').addEventListener('click', async () => {
       try { await navigator.clipboard.writeText($('deviceCode').textContent); copiedCode = true; $('authMessage').textContent = 'Código copiado. Cole na página de autorização.'; }
@@ -208,7 +330,6 @@
         window.pywebview.api.open_url(link.href);
       }
     }));
-    pollLogin();
   </script>
 </body>
 </html>

@@ -55,6 +55,7 @@ def report():
     brew = bool(tool_path("brew"))
     ffmpeg = bool(tool_path("ffmpeg"))
     whisper = bool(tool_path("whisper-cli"))
+    youtube = bool(tool_path("yt-dlp"))
     codex = bool(tool_path("codex"))
     swift = bool(tool_path("swiftc"))
     model = model_ready()
@@ -63,7 +64,7 @@ def report():
         help_text = subprocess.run([tool_path("codex"), "login", "--help"], capture_output=True, text=True, timeout=20)
         device_auth = help_text.returncode == 0 and "--device-auth" in help_text.stdout
     checks = [("macOS", mac), ("CPU compatível", arch), ("Python 3.9+", python),
-              ("Homebrew", brew), ("ffmpeg", ffmpeg), ("whisper-cli", whisper),
+              ("Homebrew", brew), ("ffmpeg", ffmpeg), ("whisper-cli", whisper), ("yt-dlp", youtube),
               ("Codex CLI com /device", codex and device_auth), ("Compilador Swift", swift),
               ("Modelo Whisper", bool(model))]
     for label, okay in checks:
@@ -88,7 +89,7 @@ def ensure(install=False):
         brew = tool_path("brew")
         if not brew:
             raise RuntimeError("Homebrew não ficou disponível após a instalação.")
-    for tool, package in (("ffmpeg", "ffmpeg"), ("whisper-cli", "whisper-cpp")):
+    for tool, package in (("ffmpeg", "ffmpeg"), ("whisper-cli", "whisper-cpp"), ("yt-dlp", "yt-dlp")):
         if not tool_path(tool):
             if not install:
                 raise RuntimeError(f"{tool} ausente. Execute o bootstrap com --install.")

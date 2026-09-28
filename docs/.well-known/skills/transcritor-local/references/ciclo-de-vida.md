@@ -47,7 +47,7 @@ Requer Python 3.10+ e PyYAML. Se ausentes, use os modelos pelo agente, sem insta
 Execute da pasta da skill instalada. Caminhos abaixo são exemplos hipotéticos, não preferências da pessoa.
 
 ```sh
-python3 scripts/auditar.py --state "$HOME/.local/share/agentflix/transcritor-local" init --version 1.1.0 --revision 1.1.0
+python3 scripts/auditar.py --state "$HOME/.local/share/agentflix/transcritor-local" init --version 1.2.0 --revision 1.2.0
 python3 scripts/auditar.py --state "$HOME/.local/share/agentflix/transcritor-local" record --event /caminho/privado/evento.json
 python3 scripts/auditar.py --state "$HOME/.local/share/agentflix/transcritor-local" configure --policy /caminho/privado/politica.json
 python3 scripts/auditar.py --state "$HOME/.local/share/agentflix/transcritor-local" audit

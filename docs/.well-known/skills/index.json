@@ -768,8 +768,9 @@
     },
     {
       "name": "transcritor-local",
-      "description": "Instale um app AgentFlix no Mac ou Windows para transcrever áudio e vídeo localmente, revisar o texto com Codex GPT-5.6 Luna e copiar ou baixar em Markdown.",
+      "description": "Instale o app de desktop AgentFlix na Mesa do Mac ou na Área de Trabalho do Windows para transcrever áudio, vídeo e legendas do YouTube, com revisão opcional de legendas em português.",
       "files": [
+        ".skillignore",
         "LICENSE",
         "SKILL.md",
         "assets/TranscritorApp.swift",
@@ -780,7 +781,11 @@
         "assets/archivo-OFL.txt",
         "assets/archivo-bold.ttf",
         "assets/archivo-regular.ttf",
+        "assets/colar-youtube.webp",
+        "assets/escolher-arquivo.webp",
         "assets/index.html",
+        "assets/onboarding-como-acessar.mp4",
+        "assets/onboarding-logar-codex.mp4",
         "assets/transcritor.py",
         "integrity.json",
         "references/ativacao.md",

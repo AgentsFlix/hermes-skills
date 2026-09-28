@@ -5,11 +5,11 @@ description: Método e procedência editorial desta skill AgentFlix.
 status: draft
 generated:
   by: process:agentflix-skill-authoring
-  at: '2026-09-23'
+  at: '2026-09-26'
 stale_after: '2026-12-23'
 sources:
 - id: metodo
-  resource: https://github.com/AgentsFlix/skills/tree/transcritor-local-v1.1.0/skills/transcritor-local
+  resource: https://github.com/AgentsFlix/skills/tree/transcritor-local-v1.2.0/skills/transcritor-local
   title: Pacote de origem fixado pela auditoria
 - id: okf
   resource: https://github.com/GoogleCloudPlatform/open-knowledge-format/blob/main/SPEC.md
@@ -17,7 +17,7 @@ sources:
 agentflix:
   schema_version: 1
   skill_id: transcritor-local
-  content_revision: 1.1.0
+  content_revision: 1.2.0
   verification_evidence: []
 ---
 

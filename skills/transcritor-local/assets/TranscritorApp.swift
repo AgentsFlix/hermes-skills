@@ -7,6 +7,7 @@ final class TranscritorApp: NSObject, NSApplicationDelegate, NSWindowDelegate, W
     private var server: Process?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        installEditMenu()
         let configuration = WKWebViewConfiguration()
         configuration.preferences.javaScriptCanOpenWindowsAutomatically = true
         webView = WKWebView(frame: .zero, configuration: configuration)
@@ -25,6 +26,32 @@ final class TranscritorApp: NSObject, NSApplicationDelegate, NSWindowDelegate, W
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
         startServer()
+    }
+
+    private func installEditMenu() {
+        let mainMenu = NSMenu()
+        let appItem = NSMenuItem()
+        let appMenu = NSMenu(title: "Transcritor AgentFlix")
+        appMenu.addItem(NSMenuItem(title: "Sair do Transcritor AgentFlix", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        appItem.submenu = appMenu
+        mainMenu.addItem(appItem)
+
+        let editItem = NSMenuItem()
+        let editMenu = NSMenu(title: "Editar")
+        for (title, action, key, modifiers) in [
+            ("Copiar", Selector(("copy:")), "c", NSEvent.ModifierFlags.command),
+            ("Colar", Selector(("paste:")), "v", NSEvent.ModifierFlags.command),
+            ("Selecionar tudo", Selector(("selectAll:")), "a", NSEvent.ModifierFlags.command),
+            ("Copiar com Ctrl+C", Selector(("copy:")), "c", NSEvent.ModifierFlags.control),
+            ("Colar com Ctrl+V", Selector(("paste:")), "v", NSEvent.ModifierFlags.control)
+        ] {
+            let item = NSMenuItem(title: title, action: action, keyEquivalent: key)
+            item.keyEquivalentModifierMask = modifiers
+            editMenu.addItem(item)
+        }
+        editItem.submenu = editMenu
+        mainMenu.addItem(editItem)
+        NSApp.mainMenu = mainMenu
     }
 
     private func startServer() {

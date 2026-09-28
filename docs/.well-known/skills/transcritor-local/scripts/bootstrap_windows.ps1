@@ -87,8 +87,8 @@ function Has-VCRuntime {
 function Has-Packages {
     if (-not (Test-Path $venvPython)) { return $false }
     try {
-        & $venvPython -c 'import faster_whisper, imageio_ffmpeg, webview, PyInstaller; imageio_ffmpeg.get_ffmpeg_exe()' *> $null
-        return ($LASTEXITCODE -eq 0)
+        & $venvPython -c 'import faster_whisper, imageio_ffmpeg, webview, PyInstaller, yt_dlp; imageio_ffmpeg.get_ffmpeg_exe()' *> $null
+        return ($LASTEXITCODE -eq 0 -and (Test-Path (Join-Path $appDir 'venv\Scripts\yt-dlp.exe')))
     } catch { return $false }
 }
 

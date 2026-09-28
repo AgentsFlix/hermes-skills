@@ -24,7 +24,9 @@ $arguments = @(
     '--collect-all', 'webview'
 )
 foreach ($name in @('index.html', 'agentflix-logo.svg', 'agentflix-mark.svg',
-                    'archivo-regular.ttf', 'archivo-bold.ttf', 'archivo-OFL.txt')) {
+                    'escolher-arquivo.webp', 'colar-youtube.webp',
+                    'archivo-regular.ttf', 'archivo-bold.ttf', 'archivo-OFL.txt',
+                    'onboarding-como-acessar.mp4', 'onboarding-logar-codex.mp4')) {
     $arguments += @('--add-data', "$(Join-Path $assets $name);.")
 }
 $arguments += (Join-Path $assets 'TranscritorAppWindows.py')
