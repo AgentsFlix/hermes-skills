@@ -1545,6 +1545,14 @@ function AgentFlixMountPlayer(options) {
       data.series = data.series.filter((series) =>
         window.AgentFlixWatchAccess.allowsSeries(series.slug),
       );
+      for (const series of data.series) {
+        for (const season of series.seasons) {
+          season.eps = (season.eps || []).filter((episode, index) =>
+            window.AgentFlixWatchAccess.allowsEpisode(series.slug, season.n,
+              AgentFlixWatchModel.episodeNumber(episode, index), episode.stream_uid || episode.uid),
+          );
+        }
+      }
       const streamUids = data.series.flatMap((series) =>
         series.seasons.flatMap((season) =>
           (season.eps || []).flatMap((episode) =>
