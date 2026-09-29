@@ -6,11 +6,12 @@ import { admin, currentUser, json } from "./_lib.js";
 import publicLessons from "../assistir/public-lessons.json" with { type: "json" };
 
 const TTL_SECONDS = 60 * 60;
+const PUBLIC_TTL_SECONDS = 3 * 60 * 60;
 const UID = /^[a-f0-9]{32}$/;
 
 const base64Url = (value) => Buffer.from(JSON.stringify(value)).toString("base64url");
 
-function signedStreamToken(streamUid) {
+function signedStreamToken(streamUid, ttlSeconds = TTL_SECONDS) {
   const keyId = process.env.CLOUDFLARE_STREAM_SIGNING_KEY_ID;
   const encodedJwk = process.env.CLOUDFLARE_STREAM_SIGNING_KEY_JWK_BASE64;
   if (!keyId || !encodedJwk) return null;
@@ -31,13 +32,13 @@ function signedStreamToken(streamUid) {
     sub: streamUid,
     kid: keyId,
     nbf: now - 15,
-    exp: now + TTL_SECONDS,
+    exp: now + ttlSeconds,
     downloadable: false,
   });
   const signer = createSign("RSA-SHA256");
   signer.update(`${header}.${payload}`);
   signer.end();
-  return { token: `${header}.${payload}.${signer.sign(privateKey).toString("base64url")}`, expires_at: now + TTL_SECONDS };
+  return { token: `${header}.${payload}.${signer.sign(privateKey).toString("base64url")}`, expires_at: now + ttlSeconds };
 }
 
 export async function GET(request) {
@@ -71,7 +72,8 @@ export async function GET(request) {
     if (error || allowed !== true) return json({ error: "sem acesso a este conteúdo" }, 403);
   }
 
-  const signed = signedStreamToken(video.stream_uid);
+  // O T1E4 tem 134 minutos; a janela pública cobre o vídeo inteiro e pequenas pausas.
+  const signed = signedStreamToken(video.stream_uid, publicLesson ? PUBLIC_TTL_SECONDS : TTL_SECONDS);
   if (!signed) return json({ error: "proteção de vídeo ainda não configurada" }, 503);
   return json(signed);
 }
