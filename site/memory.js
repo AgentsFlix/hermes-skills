@@ -126,14 +126,22 @@
     }
   }
 
+  function preservePendingRecovery() {
+    const dirty = Object.keys(metadata).filter((key) => metadata[key]?.dirtyAt && categoryOf(key));
+    if (!dirty.length) return;
+    if (!ownerId) throw new Error("Memory owner unavailable");
+    const recoveryKey = RECOVERY_PREFIX + ownerId;
+    const recovery = JSON.stringify({
+      entries: dirty.map((key) => ({ key, raw: nativeGet(key), info: metadata[key] })),
+    });
+    nativeSet(recoveryKey, recovery);
+    if (nativeGet(recoveryKey) !== recovery) throw new Error("Memory recovery unavailable");
+  }
+
   function clearOwnedCache() {
     if (!ownerId) return false;
-    // An expired session or another tab may sign out without our safe button.
     // Keep unsent edits scoped to the old account, never adopt them into another.
-    const dirty = Object.keys(metadata).filter((key) => metadata[key]?.dirtyAt && categoryOf(key));
-    if (dirty.length) nativeSet(RECOVERY_PREFIX + ownerId, JSON.stringify({
-      entries: dirty.map((key) => ({ key, raw: nativeGet(key), info: metadata[key] })),
-    }));
+    preservePendingRecovery();
     generation += 1;
     cancelTimer();
     applyingCloud = true;
@@ -587,9 +595,12 @@
     if (signingOut) return false;
     signingOut = true;
     try {
-      const result = await flush();
-      if (!result.ok) return false;
       const requestGeneration = generation;
+      await flush();
+      if (requestGeneration !== generation) return false;
+      // Conflicts and failed saves must not trap the user in an authenticated session.
+      // Verify a same-account recovery copy before ending authentication or clearing drafts.
+      preservePendingRecovery();
       const { error } = await requestWithDeadline(client.auth.signOut());
       if (error || requestGeneration !== generation) return false;
       clearOwnedCache();
@@ -601,6 +612,8 @@
       status.available = false;
       publishStatus("local");
       return true;
+    } catch {
+      return false;
     } finally {
       signingOut = false;
       if (userId && Object.values(metadata).some((info) => info?.dirtyAt)) scheduleFlush();
