@@ -1,4 +1,4 @@
-/* Porta de acesso do acervo. A decisão de direito acontece no Supabase e a mídia só recebe token no servidor. */
+/* Aulas públicas são explícitas; direitos do acervo ficam no Supabase e tokens no servidor. */
 function AgentFlixMountWatchAccess(options) {
   "use strict";
   const { root = document, life = window.AgentFlixRouteLife?.create() || { signal: new AbortController().signal, onDispose() {} }, routeURL = new URL(location.href) } = options || {};
@@ -9,6 +9,8 @@ function AgentFlixMountWatchAccess(options) {
   const accessScope = { catalog: false, series: new Set() };
   let client = null;
   let session = null;
+  let publicLessons = [];
+  let publicOnly = false;
 
   const pendingStyle = document.createElement("style");
   pendingStyle.textContent = "html.watch-access-pending body{visibility:hidden}";
@@ -66,7 +68,36 @@ function AgentFlixMountWatchAccess(options) {
   }
 
   function allowsSeries(slug) {
-    return accessScope.catalog || accessScope.series.has(slug);
+    return publicOnly
+      ? publicLessons.some((lesson) => lesson.series === slug)
+      : accessScope.catalog || accessScope.series.has(slug);
+  }
+
+  function allowsEpisode(slug, season, episode, uid) {
+    return publicOnly
+      ? publicLessons.some((lesson) => lesson.series === slug && lesson.season === season
+        && lesson.episode === episode && lesson.uid === uid)
+      : allowsSeries(slug);
+  }
+
+  async function isPublicLessonRoute() {
+    try {
+      const response = await fetch("/assistir/public-lessons.json", {
+        cache: "no-store", signal: life.signal,
+      });
+      if (!response.ok) return false;
+      const value = await response.json();
+      if (!Array.isArray(value?.lessons)) return false;
+      publicLessons = value.lessons.filter((lesson) => /^[a-f0-9]{32}$/.test(lesson?.uid));
+      return publicLessons.some((lesson) =>
+        routeURL.pathname.replace(/\/$/, "") === lesson.path.replace(/\/$/, "")
+        || (routeURL.pathname.replace(/\/$/, "") === "/assistir"
+          && routeURL.searchParams.get("s") === lesson.series
+          && routeURL.hash === `#t${lesson.season}e${lesson.episode}`),
+      );
+    } catch {
+      return false;
+    }
   }
 
   async function resolveAccessScope() {
@@ -113,6 +144,14 @@ function AgentFlixMountWatchAccess(options) {
 
   async function authorize() {
     try {
+      if (await isPublicLessonRoute()) {
+        await loadMemory();
+        if (life.signal.aborted) return false;
+        publicOnly = true;
+        document.documentElement.classList.remove("watch-access-pending");
+        pendingStyle.remove();
+        return true;
+      }
       await Promise.all([loadSupabase(), loadMemory()]);
       const publicConfig = await config();
       client = window.supabase.createClient(publicConfig.supabaseUrl, publicConfig.supabaseAnonKey);
@@ -190,7 +229,8 @@ function AgentFlixMountWatchAccess(options) {
   }
 
   async function tokenFor(uid) {
-    if (!/^[a-f0-9]{32}$/.test(uid) || !session?.access_token) throw new Error("invalid stream request");
+    const publicVideo = publicOnly && publicLessons.some((lesson) => lesson.uid === uid);
+    if (!/^[a-f0-9]{32}$/.test(uid) || (!publicVideo && !session?.access_token)) throw new Error("invalid stream request");
     const now = Math.floor(Date.now() / 1000);
     const cached = tokenCache.get(uid);
     if (cached && cached.expires_at > now + 30) return cached.token;
@@ -198,7 +238,10 @@ function AgentFlixMountWatchAccess(options) {
 
     const pending = fetch(`/api/stream-token?uid=${encodeURIComponent(uid)}`, {
       cache: "no-store", signal: life.signal,
-      headers: { authorization: `Bearer ${session.access_token}`, accept: "application/json" },
+      headers: {
+        accept: "application/json",
+        ...(session?.access_token ? { authorization: `Bearer ${session.access_token}` } : {}),
+      },
     })
       .then(async (response) => {
         if (!response.ok) throw new Error(`stream token ${response.status}`);
@@ -225,6 +268,7 @@ function AgentFlixMountWatchAccess(options) {
   const access = Object.freeze({
     ready: authorize(),
     allowsSeries,
+    allowsEpisode,
     prefetch,
     cachedToken: (uid) => tokenCache.get(uid)?.token || null,
     tokenFor,
