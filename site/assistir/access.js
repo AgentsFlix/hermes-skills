@@ -10,6 +10,7 @@ function AgentFlixMountWatchAccess(options) {
   let client = null;
   let session = null;
   let publicLessons = [];
+  let publicSeries = [];
   let publicOnly = false;
 
   const pendingStyle = document.createElement("style");
@@ -69,13 +70,13 @@ function AgentFlixMountWatchAccess(options) {
 
   function allowsSeries(slug) {
     return publicOnly
-      ? publicLessons.some((lesson) => lesson.series === slug)
+      ? publicSeries.includes(slug) || publicLessons.some((lesson) => lesson.series === slug)
       : accessScope.catalog || accessScope.series.has(slug);
   }
 
   function allowsEpisode(slug, season, episode, uid) {
     return publicOnly
-      ? publicLessons.some((lesson) => lesson.series === slug && lesson.season === season
+      ? publicSeries.includes(slug) || publicLessons.some((lesson) => lesson.series === slug && lesson.season === season
         && lesson.episode === episode && lesson.uid === uid)
       : allowsSeries(slug);
   }
@@ -89,6 +90,9 @@ function AgentFlixMountWatchAccess(options) {
       const value = await response.json();
       if (!Array.isArray(value?.lessons)) return false;
       publicLessons = value.lessons.filter((lesson) => /^[a-f0-9]{32}$/.test(lesson?.uid));
+      publicSeries = (Array.isArray(value.series) ? value.series : [])
+        .filter((slug) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug));
+      if (publicSeries.includes(requestedSeriesSlug())) return true;
       return publicLessons.some((lesson) =>
         routeURL.pathname.replace(/\/$/, "") === lesson.path.replace(/\/$/, "")
         || (routeURL.pathname.replace(/\/$/, "") === "/assistir"
@@ -229,7 +233,9 @@ function AgentFlixMountWatchAccess(options) {
   }
 
   async function tokenFor(uid) {
-    const publicVideo = publicOnly && publicLessons.some((lesson) => lesson.uid === uid);
+    // Para séries inteiras, o servidor confirma série, produto e mídia ativa por UID.
+    const publicVideo = publicOnly && (publicSeries.includes(requestedSeriesSlug())
+      || publicLessons.some((lesson) => lesson.uid === uid));
     if (!/^[a-f0-9]{32}$/.test(uid) || (!publicVideo && !session?.access_token)) throw new Error("invalid stream request");
     const now = Math.floor(Date.now() / 1000);
     const cached = tokenCache.get(uid);
