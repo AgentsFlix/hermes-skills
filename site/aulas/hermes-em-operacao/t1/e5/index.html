@@ -1,0 +1,426 @@
+<!-- Gerado por scripts/build_lessons.py. Edite o player e series.json. -->
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <script src="/design-system/entry.js"></script>
+    <script src="/design-system/route-lifecycle.js"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Aulão tira-dúvidas | AgentFlix</title>
+    <meta name="description" content="Dúvidas práticas sobre padronização de conteúdo, skills e plugins, pesquisa de público, edição com IA e organização por projeto." />
+    <meta name="robots" content="index,follow" />
+    <link rel="icon" href="/brand/favicon-dark.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap"
+    />
+    <link rel="stylesheet" href="/assistir/player.css" />
+    <link rel="stylesheet" href="/assistir/catalog.css" />
+    <link rel="stylesheet" href="/assistir/series-covers.css" />
+    <script src="/analytics.js"></script>
+    <script src="/clipboard.js"></script>
+    <script src="/memory.js"></script><script src="/assistir/access.js"></script>
+      <meta property="og:type" content="video.episode" />
+    <meta property="og:site_name" content="AgentFlix" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:title" content="Aulão tira-dúvidas" />
+    <meta property="og:description" content="Dúvidas práticas sobre padronização de conteúdo, skills e plugins, pesquisa de público, edição com IA e organização por projeto." />
+    <meta property="og:url" content="https://agentsflix.ai/aulas/hermes-em-operacao/t1/e5/" />
+    <meta property="og:image" content="https://agentsflix.ai/aulas/hermes-em-operacao/t1/e5/preview-whatsapp-v1.jpg" />
+    <meta property="og:image:secure_url" content="https://agentsflix.ai/aulas/hermes-em-operacao/t1/e5/preview-whatsapp-v1.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Capa da série Hermes em Operação, com personagem ilustrado usando máscara e acessórios em amarelo." />
+    <meta property="video:duration" content="3324" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Aulão tira-dúvidas" />
+    <meta name="twitter:description" content="Dúvidas práticas sobre padronização de conteúdo, skills e plugins, pesquisa de público, edição com IA e organização por projeto." />
+    <meta name="twitter:image" content="https://agentsflix.ai/aulas/hermes-em-operacao/t1/e5/preview-whatsapp-v1.jpg" />
+    <meta name="twitter:image:alt" content="Capa da série Hermes em Operação, com personagem ilustrado usando máscara e acessórios em amarelo." />
+    <link rel="canonical" href="https://agentsflix.ai/aulas/hermes-em-operacao/t1/e5/" />
+    <meta name="agentflix:lesson" content="hermes-em-operacao:t1:e5" />
+  </head>
+  <body>
+    <noscript><p>Aulão tira-dúvidas. Ative o JavaScript para assistir à aula.</p></noscript>
+    <header class="top">
+      <a href="/" aria-label="AgentFlix"
+        ><img src="/brand/horizontal-transparente-dark.svg" alt="AgentFlix"
+      /></a>
+      <nav aria-label="Navegação principal">
+        <a href="/#inicio">Início</a><a href="/#chips">Skills</a
+        ><a href="/assistir/" data-watch-home aria-current="page">Assistir</a
+        ><a href="/#ler">Ler</a>
+      </nav>
+      <span class="sp"></span>
+      <div class="watch-tools">
+        <form role="search" class="watch-search" id="watch-search" hidden>
+          <label class="sr-only" for="watch-query">Buscar séries</label
+          ><input
+            id="watch-query"
+            type="search"
+            placeholder="Buscar séries"
+            autocomplete="off"
+          /><button
+            type="button"
+            id="watch-search-close"
+            aria-label="Fechar busca"
+          >
+            ✕
+          </button>
+        </form>
+        <button
+          id="watch-search-toggle"
+          class="watch-icon"
+          aria-label="Buscar séries"
+          aria-expanded="false"
+          aria-controls="watch-search"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="10.5" cy="10.5" r="7.5" />
+            <path d="m16 16 5 5" />
+          </svg>
+        </button>
+        <button id="watch-list" class="watch-list" aria-pressed="false">
+          Minha lista
+        </button>
+      </div>
+    </header>
+
+    <main id="watch-catalog" aria-label="Séries para assistir">
+      <div class="watch-state" role="status">Carregando sua seleção</div>
+    </main>
+    <div
+      id="watch-status"
+      class="sr-only"
+      role="status"
+      aria-live="polite"
+    ></div>
+
+    <!-- ===================== PÁGINA DO TÍTULO ===================== -->
+    <section id="title-page" hidden>
+      <div class="tp-panel">
+        <a
+          class="title-back"
+          href="/assistir/"
+          data-watch-home
+          aria-label="Voltar para as séries"
+          ><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m7-7-7 7 7 7" /></svg><span>Todas as séries</span></a
+        >
+        <div class="tp-hero" id="tp-hero">
+          <picture class="series-cover" id="tp-cover" hidden></picture>
+          <div class="tp-shade"></div>
+          <div class="tp-hero-text">
+            <div class="kick" id="tp-kick"></div>
+            <h1 class="tp-name" id="tp-name"></h1>
+            <div class="tp-actions">
+              <button class="btn primary" data-act="resume">
+                <svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z" /></svg
+                ><span id="tp-resume-label">Assistir</span>
+              </button>
+              <button class="btn ghost" data-act="restart">
+                Começar do início
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="tp-body">
+          <div class="tp-main">
+            <div class="tp-resume" id="tp-resume" hidden>
+              <div class="bar"><i id="tp-bar"></i></div>
+              <span id="tp-resume-text"></span>
+            </div>
+            <div class="synopsis">
+              <p class="syn" id="tp-syn"></p>
+              <button
+                class="syn-toggle"
+                aria-expanded="false"
+                aria-controls="tp-syn"
+                hidden
+              >
+                Ler sinopse completa
+              </button>
+            </div>
+          </div>
+          <aside class="tp-side" id="tp-side"></aside>
+        </div>
+        <div class="tp-tabs" role="tablist" aria-label="Conteúdo da série">
+          <button class="on" id="tp-tab-eps" role="tab" aria-selected="true" aria-controls="tab-eps" data-act="tab" data-tab="eps">Episódios</button>
+          <button id="tp-tab-sobre" role="tab" aria-selected="false" aria-controls="tab-sobre" tabindex="-1" data-act="tab" data-tab="sobre">Sobre</button>
+          <button id="tp-tab-materiais" role="tab" aria-selected="false" aria-controls="tab-materiais" tabindex="-1" data-act="tab" data-tab="materiais">Materiais</button>
+        </div>
+        <div class="tp-tab" id="tab-eps" role="tabpanel" aria-labelledby="tp-tab-eps" tabindex="0">
+          <div class="eps-head">
+            <div>
+              <h2>Episódios</h2>
+              <p class="season-note" id="eps-title"></p>
+            </div>
+            <div class="season-sel" id="season-sel"></div>
+          </div>
+          <div id="eps"></div>
+        </div>
+        <div class="tp-tab" id="tab-materiais" role="tabpanel" aria-labelledby="tp-tab-materiais" tabindex="0" hidden>
+          <h2 class="materials-heading">Materiais dos episódios</h2>
+          <div id="tp-materials"></div>
+        </div>
+        <div class="tp-tab sobre" id="tab-sobre" role="tabpanel" aria-labelledby="tp-tab-sobre" tabindex="0" hidden>
+          <p id="tp-about"></p>
+          <p>
+            Teclas: <b>espaço</b> pausa · <b>←</b> e <b>→</b> voltam e avançam
+            10 segundos · <b>e</b> abre os episódios · <b>p</b> abre os planos
+            da VPS quando a aula tem compra · <b>f</b> tela cheia ·
+            <b>m</b> mudo · <b>Esc</b> volta para a página da série.
+          </p>
+          <p>
+            O progresso fica só neste navegador. Achou algo estranho? Manda para
+            o Zé com o número da temporada e do episódio.
+          </p>
+        </div>
+      </div>
+      <p class="foot">
+        AgentFlix · <a href="/">voltar para a vitrine</a> ·
+        <a href="/privacidade.html">privacidade</a>
+      </p>
+    </section>
+
+    <!-- ===================== PLAYER ===================== -->
+    <section id="player" class="ui" hidden>
+      <video id="video" playsinline preload="metadata"></video>
+      <div class="vig"></div>
+      <div class="hit" data-act="toggle"></div>
+      <div class="spin" id="spin" hidden></div>
+      <div class="flash" id="flash">
+        <svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z" /></svg>
+      </div>
+      <button
+        class="back"
+        data-act="close-player"
+        title="Voltar para a série (Esc)"
+      >
+        <svg viewBox="0 0 24 24">
+          <path d="M20 11H7.8l5.6-5.6L12 4l-8 8 8 8 1.4-1.4L7.8 13H20z" />
+        </svg>
+      </button>
+      <button id="lesson-share" class="lesson-share" hidden>Copiar link da aula</button>
+      <span id="lesson-share-status" class="sr-only" role="status" aria-live="polite"></span>
+      <dialog id="lesson-share-dialog" class="lesson-share-dialog" aria-labelledby="lesson-share-heading">
+        <h2 id="lesson-share-heading">Copie o link da aula</h2>
+        <p>A cópia automática não funcionou. Selecione o link abaixo.</p>
+        <label for="lesson-share-url">Link para compartilhar</label>
+        <input id="lesson-share-url" type="url" readonly>
+        <form method="dialog"><button class="btn primary">Fechar</button></form>
+      </dialog>
+      <div class="pause-info">
+        <div class="k">Você está assistindo</div>
+        <h2 id="pi-title"></h2>
+        <div class="e" id="pi-ep"></div>
+        <p id="pi-desc"></p>
+      </div>
+      <button class="toast" id="toast" hidden></button>
+      <div class="vidcap" id="vidcap" hidden></div>
+      <aside class="buybox" id="checkout" hidden></aside>
+      <div class="preplay" id="preplay" hidden></div>
+      <div class="escolha" id="escolha" hidden></div>
+      <div class="err" id="err" hidden></div>
+
+      <div class="controls">
+        <div class="mtitle" id="mtitle"></div>
+        <div class="scrub">
+          <div class="rail" id="rail">
+            <div class="buf" id="buf"></div>
+            <div class="fill" id="fill"></div>
+            <div class="knob" id="knob"></div>
+            <div id="marks"></div>
+            <div class="pv" id="pv">
+              <img id="pv-img" alt="" />
+              <div class="t"><span id="pv-time"></span></div>
+            </div>
+          </div>
+          <span class="remain" id="remain">0:00</span>
+        </div>
+        <div class="crow">
+          <div class="l">
+            <button class="cb" data-act="toggle" id="btn-play">
+              <svg id="ic-play" viewBox="0 0 24 24">
+                <path d="M6 4l14 8-14 8z" /></svg
+              ><svg id="ic-pause" viewBox="0 0 24 24" hidden>
+                <path d="M6 4h4v16H6zm8 0h4v16h-4z" /></svg
+              ><span class="lab">Pausar (espaço)</span>
+            </button>
+            <button class="cb" data-act="seek" data-d="-10">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M12 5V2L7 6l5 4V7c3.3 0 6 2.7 6 6s-2.7 6-6 6-6-2.7-6-6H4c0 4.4 3.6 8 8 8s8-3.6 8-8-3.6-8-8-8z"
+                />
+                <text
+                  x="8.6"
+                  y="16.2"
+                  font-size="6.5"
+                  font-weight="700"
+                  font-family="Archivo, Arial"
+                  fill="#fff"
+                >
+                  10
+                </text></svg
+              ><span class="lab">Voltar 10 s (←)</span>
+            </button>
+            <button class="cb" data-act="seek" data-d="10">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M12 5V2l5 4-5 4V7c-3.3 0-6 2.7-6 6s2.7 6 6 6 6-2.7 6-6h2c0 4.4-3.6 8-8 8s-8-3.6-8-8 3.6-8 8-8z"
+                />
+                <text
+                  x="8.6"
+                  y="16.2"
+                  font-size="6.5"
+                  font-weight="700"
+                  font-family="Archivo, Arial"
+                  fill="#fff"
+                >
+                  10
+                </text></svg
+              ><span class="lab">Avançar 10 s (→)</span>
+            </button>
+            <div class="vol">
+              <button class="cb" data-act="mute" id="btn-mute">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"
+                  /></svg
+                ><span class="lab">Mudo (M)</span></button
+              ><input type="range" min="0" max="100" value="100" id="vol" />
+            </div>
+          </div>
+          <div class="m"><b id="ctl-title"></b><span id="ctl-ep"></span></div>
+          <div class="r">
+            <button class="cb" data-act="next" id="btn-next">
+              <svg viewBox="0 0 24 24">
+                <path d="M6 4l10 8-10 8zM18 4h2v16h-2z" /></svg
+              ><span class="lab">Próximo episódio</span>
+            </button>
+            <button
+              class="cb extra"
+              data-act="extra"
+              id="btn-extra"
+              aria-label="Conteúdo extra"
+              hidden
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zm1 2v10h14V7H5zm5 2 6 3-6 3V9z"
+                />
+              </svg>
+              <span class="extra-label"
+                ><span class="extra-full">Conteúdo extra</span
+                ><span class="extra-short">Extra</span></span
+              >
+              <span class="lab">Perguntas e respostas</span>
+            </button>
+            <button class="cb" data-act="buy" id="btn-buy" hidden>
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M7 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM3 2v2h2l3.6 7.6L7.2 14A2 2 0 0 0 9 17h11v-2H9.4a.3.3 0 0 1-.2-.4l.9-1.6h7.5a2 2 0 0 0 1.7-1l3.6-6.5A1 1 0 0 0 22 4H6.2l-.9-2H3z"
+                /></svg
+              ><span class="lab">Planos da VPS (P)</span>
+            </button>
+            <button class="cb" data-act="drawer" id="btn-eps">
+              <svg viewBox="0 0 24 24">
+                <path d="M3 5h18v2H3zm0 6h18v2H3zm0 6h12v2H3z" /></svg
+              ><span class="lab">Episódios (E)</span>
+            </button>
+            <button class="cb txt hide-m" data-act="pop" id="btn-speed">
+              1x<span class="lab">Velocidade</span>
+            </button>
+            <button class="cb" data-act="fs">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M4 4h6v2H6v4H4zm10 0h6v6h-2V6h-4zM4 14h2v4h4v2H4zm14 0h2v6h-6v-2h4z"
+                /></svg
+              ><span class="lab">Tela cheia (F)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="drawer" id="drawer" hidden>
+        <div class="dh">
+          <h3>Episódios</h3>
+          <button data-act="drawer">✕</button>
+        </div>
+        <div class="stabs" id="stabs"></div>
+        <div class="dl" id="dl"></div>
+      </aside>
+      <div class="pop" id="pop-speed" hidden style="right: 110px">
+        <h5>Velocidade</h5>
+        <div class="speeds">
+          <button data-speed="0.75">0.75x</button
+          ><button data-speed="1" class="on">1x</button
+          ><button data-speed="1.25">1.25x</button
+          ><button data-speed="1.5">1.5x</button
+          ><button data-speed="2">2x</button>
+        </div>
+      </div>
+      <div class="postplay" id="postplay" hidden>
+        <div class="credits">
+          <b>Este episódio</b><span id="pp-this"></span><br /><button
+            data-act="stay"
+          >
+            Ver de novo
+          </button>
+        </div>
+        <div class="pp-card" id="pp-card"></div>
+      </div>
+    </section>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/hls.js@1.5.20/dist/hls.min.js"
+      integrity="sha384-V5ruNBgmYcC3SJRUQeNykAAAgde5gOFq/Hu0CZj7bygDP0yRIhkvX8+w0u/7mRvr"
+      crossorigin="anonymous"
+    ></script>
+    <script src="/assistir/catalog-model.js"></script>
+    <script src="/assistir/catalog.js"></script>
+    <script src="/assistir/player.js"></script>
+    <div
+      class="consent"
+      id="consent"
+      hidden
+      role="dialog"
+      aria-label="Privacidade e cookies"
+    >
+      <p>
+        A gente usa o Microsoft Clarity para entender como o site é usado: mapas
+        de calor e gravações de sessão, sem o que você digita. Cookie só com o
+        seu ok. <a href="/privacidade.html">Saiba mais</a>
+      </p>
+      <div class="acts">
+        <button class="ok" data-consent="granted">Aceitar</button
+        ><button class="no" data-consent="denied">Agora não</button>
+      </div>
+    </div>
+    <script>
+      (function () {
+        const consentKey = "agentflix-consent",
+          bar = document.getElementById("consent");
+        let c = null;
+        try {
+          c = localStorage.getItem(consentKey);
+        } catch (e) {}
+        if (!c) bar.hidden = false;
+        bar.addEventListener("click", (e) => {
+          const b = e.target.closest("button[data-consent]");
+          if (!b) return;
+          const v = b.dataset.consent;
+          try {
+            localStorage.setItem(consentKey, v);
+          } catch (err) {}
+          bar.hidden = true;
+          window.clarity?.("consentv2", {
+            ad_Storage: "denied",
+            analytics_Storage: v === "granted" ? "granted" : "denied",
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>

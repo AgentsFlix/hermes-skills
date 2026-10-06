@@ -18,9 +18,9 @@ const data = JSON.parse(
 );
 const upcoming = data.series.find(s => s.slug === "hermes-em-operacao");
 assert.ok(model.available(data).some(s => s === upcoming));
-assert.equal(model.episodes(upcoming).length, 3);
+assert.ok(model.episodes(upcoming).length >= 3);
 assert.deepEqual(
-  Array.from(model.episodes(upcoming), ({ episode }, index) =>
+  Array.from(model.episodes(upcoming).slice(0, 3), ({ episode }, index) =>
     model.episodeNumber(episode, index),
   ),
   [2, 3, 4],
@@ -162,7 +162,7 @@ assert.deepEqual(resume(upcoming, allOperationDone), {season: 0, ep: 2, fresh: t
 const finishedE4 = key => key === `agentflix-prog-${upcoming.seasons[0].eps[2].uid}`
   ? {t: upcoming.seasons[0].eps[2].d, at: 3}
   : allOperationDone(key);
-assert.equal(resume(upcoming, finishedE4).finished, true);
+assert.deepEqual(resume(upcoming, finishedE4), {season: 0, ep: 3, fresh: true}, "concluir T1E4 abre T1E5");
 
 const shared = {...numbered, slug: 'a-serie'};
 shared.seasons[0].eps[0].share_url = '/aulas/a-serie/t1/e2/';
