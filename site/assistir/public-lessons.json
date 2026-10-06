@@ -1,4 +1,5 @@
 {
+  "series": ["hermes-agent"],
   "lessons": [
     {
       "path": "/aulas/hermes-em-operacao/t1/e4/",

@@ -47,7 +47,6 @@ export async function GET(request) {
 
   const publicLesson = publicLessons.lessons.find((lesson) => lesson.uid === streamUid);
   const user = publicLesson ? null : await currentUser(request);
-  if (!publicLesson && !user) return json({ error: "faça login" }, 401);
 
   const { data: video } = await admin
     .from("protected_stream_videos")
@@ -55,12 +54,16 @@ export async function GET(request) {
     .eq("stream_uid", streamUid)
     .eq("active", true)
     .maybeSingle();
+  const publicSeries = video && Array.isArray(publicLessons.series)
+    && publicLessons.series.includes(video.series_slug)
+    && video.product_id === `assistir:${video.series_slug}`;
+  if (!publicLesson && !publicSeries && !user) return json({ error: "faça login" }, 401);
   if (!video) return json({ error: "vídeo indisponível" }, 404);
 
   if (publicLesson) {
     if (video.series_slug !== publicLesson.series || video.product_id !== `assistir:${publicLesson.series}`)
       return json({ error: "vídeo indisponível" }, 404);
-  } else {
+  } else if (!publicSeries) {
     const bearer = request.headers.get("authorization") || "";
     const token = bearer.startsWith("Bearer ") ? bearer.slice(7) : "";
     if (!token) return json({ error: "faça login" }, 401);
@@ -72,8 +75,8 @@ export async function GET(request) {
     if (error || allowed !== true) return json({ error: "sem acesso a este conteúdo" }, 403);
   }
 
-  // O T1E4 tem 134 minutos; a janela pública cobre o vídeo inteiro e pequenas pausas.
-  const signed = signedStreamToken(video.stream_uid, publicLesson ? PUBLIC_TTL_SECONDS : TTL_SECONDS);
+  // A janela pública cobre as aulas longas e pequenas pausas.
+  const signed = signedStreamToken(video.stream_uid, publicLesson || publicSeries ? PUBLIC_TTL_SECONDS : TTL_SECONDS);
   if (!signed) return json({ error: "proteção de vídeo ainda não configurada" }, 503);
   return json(signed);
 }
