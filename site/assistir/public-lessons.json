@@ -1,5 +1,6 @@
 {
-  "series": ["hermes-agent"],
+  "catalog": true,
+  "series": ["agente-pessoal", "hermes-agent", "hermes-em-operacao"],
   "lessons": [
     {
       "path": "/aulas/hermes-em-operacao/t1/e4/",
