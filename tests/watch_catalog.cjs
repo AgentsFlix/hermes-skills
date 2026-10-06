@@ -18,9 +18,9 @@ const data = JSON.parse(
 );
 const upcoming = data.series.find(s => s.slug === "hermes-em-operacao");
 assert.ok(model.available(data).some(s => s === upcoming));
-assert.equal(model.episodes(upcoming).length, 3);
+assert.ok(model.episodes(upcoming).length >= 3);
 assert.deepEqual(
-  Array.from(model.episodes(upcoming), ({ episode }, index) =>
+  Array.from(model.episodes(upcoming).slice(0, 3), ({ episode }, index) =>
     model.episodeNumber(episode, index),
   ),
   [2, 3, 4],

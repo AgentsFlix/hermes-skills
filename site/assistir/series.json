@@ -1349,6 +1349,68 @@
                   "n": "Aplicações e perguntas"
                 }
               ]
+            },
+            {
+              "t": "Aulão tira-dúvidas",
+              "d": 3324,
+              "uid": "97d7af0d3f895f75a1d39154b7c72b88",
+              "desc": "Dúvidas práticas sobre padronização de conteúdo, skills e plugins, pesquisa de público, edição com IA e organização por projeto.",
+              "n": 5,
+              "share_url": "/aulas/hermes-em-operacao/t1/e5/",
+              "page_version": 2,
+              "preview": {
+                "title": "Aulão tira-dúvidas",
+                "description": "Dúvidas práticas sobre padronização de conteúdo, skills e plugins, pesquisa de público, edição com IA e organização por projeto.",
+                "image": "/aulas/hermes-em-operacao/t1/e5/preview-whatsapp-v1.jpg",
+                "alt": "Capa da série Hermes em Operação, com personagem ilustrado usando máscara e acessórios em amarelo.",
+                "approved": true
+              },
+              "ch": [
+                {
+                  "t": 0,
+                  "n": "Abertura e dúvida sobre padronização"
+                },
+                {
+                  "t": 84,
+                  "n": "Skills, plugins e padronização de carrosséis"
+                },
+                {
+                  "t": 603,
+                  "n": "Conteúdo e definição de público"
+                },
+                {
+                  "t": 1034,
+                  "n": "Pesquisa de cliente ideal e base de escrita"
+                },
+                {
+                  "t": 2056,
+                  "n": "Edição com IA: exemplos, limites e organização"
+                },
+                {
+                  "t": 2450,
+                  "n": "O que um plugin reúne"
+                },
+                {
+                  "t": 2652,
+                  "n": "Registrar erros e melhorar o processo"
+                },
+                {
+                  "t": 2784,
+                  "n": "Engenharia reversa: padrão, contexto e limites"
+                },
+                {
+                  "t": 3236,
+                  "n": "Organizar o trabalho por projeto"
+                },
+                {
+                  "t": 3255,
+                  "n": "Projetos e memória"
+                },
+                {
+                  "t": 3294,
+                  "n": "Encerramento e organização do Hermes"
+                }
+              ]
             }
           ],
           "atividades": [
