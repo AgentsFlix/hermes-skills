@@ -11,6 +11,7 @@ function AgentFlixMountWatchAccess(options) {
   let session = null;
   let publicLessons = [];
   let publicSeries = [];
+  let publicCatalog = false;
   let publicOnly = false;
 
   const pendingStyle = document.createElement("style");
@@ -92,6 +93,9 @@ function AgentFlixMountWatchAccess(options) {
       publicLessons = value.lessons.filter((lesson) => /^[a-f0-9]{32}$/.test(lesson?.uid));
       publicSeries = (Array.isArray(value.series) ? value.series : [])
         .filter((slug) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug));
+      publicCatalog = value.catalog === true;
+      if (publicCatalog && routeURL.pathname.replace(/\/$/, "") === "/assistir"
+        && !requestedSeriesSlug()) return true;
       if (publicSeries.includes(requestedSeriesSlug())) return true;
       return publicLessons.some((lesson) =>
         routeURL.pathname.replace(/\/$/, "") === lesson.path.replace(/\/$/, "")
@@ -234,7 +238,7 @@ function AgentFlixMountWatchAccess(options) {
 
   async function tokenFor(uid) {
     // Para séries inteiras, o servidor confirma série, produto e mídia ativa por UID.
-    const publicVideo = publicOnly && (publicSeries.includes(requestedSeriesSlug())
+    const publicVideo = publicOnly && (publicCatalog || publicSeries.includes(requestedSeriesSlug())
       || publicLessons.some((lesson) => lesson.uid === uid));
     if (!/^[a-f0-9]{32}$/.test(uid) || (!publicVideo && !session?.access_token)) throw new Error("invalid stream request");
     const now = Math.floor(Date.now() / 1000);
