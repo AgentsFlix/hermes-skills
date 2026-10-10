@@ -16,6 +16,6 @@
     "stripe": "^18.0.0"
   },
   "devDependencies": {
-    "@tabler/icons": "3.47.0"
+    "@tabler/icons": "3.49.0"
   }
 }
