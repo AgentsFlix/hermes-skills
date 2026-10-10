@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "widths": [
+    1440,
+    768,
+    390
+  ],
+  "checks": [
+    "Três cards e nove métricas com Contas engajadas no Founder",
+    "Ideal de contas engajadas ajustável e restaurável",
+    "Prompt copiado contém contrato v4 e consulta nativa accounts_engaged",
+    "CLI extraído do prompt reproduz notas, nove métricas e SHA dos bytes",
+    "Arquivo v3 continua na escala original e oferece atualização explícita",
+    "Migração preserva observações, inbox e ideais, mantendo accounts_engaged ausente até obter fonte",
+    "Importação de arquivo v4 com nove métricas mantém cobertura parcial e notas calculadas",
+    "Exportação e reimportação preservam todos os campos e as notas",
+    "Sem overflow, erros de página ou pedidos externos; somente demonstração fictícia nas capturas"
+  ],
+  "errors": [],
+  "external": []
+}

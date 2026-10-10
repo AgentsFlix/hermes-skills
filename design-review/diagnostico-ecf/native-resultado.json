@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "widths": [
+    1440,
+    768,
+    390
+  ],
+  "checks": [
+    "Três cards com nove variáveis nativas",
+    "Sem opção de ler conteúdo de DMs",
+    "Régua nativa ajustável e independente da antiga",
+    "Validador extraído do prompt gera JSON v3, hash e notas iguais à página",
+    "Importação nativa e continuação reutilizam os dados",
+    "Arquivo v2 continua exibido na escala original com aviso de método anterior",
+    "Migração gera pedido nativo sem reaproveitar taxas de subconjuntos semânticos",
+    "Sem overflow, erros de página ou pedidos externos"
+  ],
+  "errors": [],
+  "external": []
+}

@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "checks": [
+    "Arquivo v1 com 4/9 medições preserva notas e zero medido",
+    "JSON normalizado exportado e reimportado mantém notas",
+    "Prompt identifica cinco lacunas e carrega a base existente",
+    "Validador extraído do prompt executado com saída 2 para coleta parcial",
+    "BOM/bloco Markdown e números textuais normalizados com registro",
+    "Medição declarada sem numerador bloqueada com caminho exato",
+    "Erros não causam overflow em 1440/768/390"
+  ],
+  "errors": []
+}

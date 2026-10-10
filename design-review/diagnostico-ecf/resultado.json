@@ -1,0 +1,29 @@
+{
+  "browser": "152.0.7977.83",
+  "passed": true,
+  "widths": [
+    1440,
+    768,
+    390
+  ],
+  "errors": [],
+  "external": [],
+  "checks": [
+    "eixos por clique e teclado",
+    "janela de 30 dias",
+    "prompt personalizado",
+    "DMs opcionais",
+    "clipboard sucesso e falha simulados",
+    "download markdown íntegro",
+    "exemplo explícito",
+    "importação por arquivo e texto",
+    "JSON inválido limpa resultado anterior",
+    "lacunas não viram zero",
+    "conteúdo importado escapado",
+    "limite de arquivo",
+    "recarga descarta resumo",
+    "sem overflow",
+    "sem pedidos externos",
+    "movimento reduzido"
+  ]
+}

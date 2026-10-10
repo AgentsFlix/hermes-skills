@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "checks": [
+    "Prompt exige execução direta e estados reais",
+    "Conflitos por pessoa/categoria e pesquisa pequena explicitados",
+    "Validador extraído do prompt executado com dados fictícios",
+    "SHA-256 corresponde aos bytes entregues",
+    "Recibo declara evidências não verificadas",
+    "Notas do recibo coincidem com os três cards"
+  ],
+  "errors": []
+}

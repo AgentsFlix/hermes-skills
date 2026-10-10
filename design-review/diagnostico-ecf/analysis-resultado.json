@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "widths": [
+    1440,
+    768,
+    390
+  ],
+  "checks": [
+    "Arquivo recebido importado localmente sem expor dados em capturas",
+    "Ação explícita antes do cálculo",
+    "Cobertura estruturada aceita",
+    "Análise e indicadores independentes de score",
+    "Prompt de retomada copiado e baixado",
+    "Exemplo anterior preservado",
+    "HTML importado escapado",
+    "Troca de arquivo/texto e erro de JSON",
+    "Contrato do prompt validado"
+  ],
+  "errors": [],
+  "external": []
+}

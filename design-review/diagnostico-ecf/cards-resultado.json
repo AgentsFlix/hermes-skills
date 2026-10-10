@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "widths": [
+    1440,
+    768,
+    390
+  ],
+  "checks": [
+    "Três cards e nove barras",
+    "Médias e ideal 80 explícitos",
+    "Sem grade de observações nem texto extenso visível",
+    "Ajustar e restaurar régua recalcula valores",
+    "Prompt transporta a régua ajustada e contrato v2",
+    "Importação local do arquivo anterior sem publicar dados reais",
+    "Medições ausentes não viram zero",
+    "Continuação reaproveita a coleta",
+    "HTML escapado e JSON null recusado",
+    "Sem overflow ou pedidos externos"
+  ],
+  "errors": [],
+  "external": []
+}
